@@ -30,20 +30,15 @@ include_directories(
     ${CATCH2_INCLUDE_DIR}
 )
 
-install(FILES
-    "include/cve"
+install(DIRECTORY "include/cve"
     DESTINATION include)
 
 if(${BUILD_TESTS})
     # Compile tests
-    set(TEST_SRC
+    add_executable(run_tests
         "test/main.cpp"
         "test/test_kernel.cpp"
         # "test/test_sobel_operator.cpp"
         # "test/test_gaussian_filter.cpp"
     )
 endif(${BUILD_TESTS})
-
-if(${BUILD_PERFORMANCE_TEST})
-    add_executable(test_performance test/test_performance.cpp)
-endif(${BUILD_PERFORMANCE_TEST})

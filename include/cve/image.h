@@ -7,6 +7,8 @@
 #ifndef CVE_IMAGE_H_
 #define CVE_IMAGE_H_
 
+#include <Eigen/Geometry>
+
 namespace cve
 {
     typedef Eigen::Matrix<uint8_t, Eigen::Dynamic, Eigen::Dynamic> GrayImage;

@@ -7,6 +7,8 @@
 #ifndef CVE_GAUSSIAN_FILTER_H_
 #define CVE_GAUSSIAN_FILTER_H_
 
+#include "cve/kernel.h"
+
 namespace cve
 {
     template<typename Scalar, int Dim = 3>

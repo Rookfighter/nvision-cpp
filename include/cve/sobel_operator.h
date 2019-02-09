@@ -7,12 +7,15 @@
 #ifndef CVE_SOBEL_OPERATOR_H_
 #define CVE_SOBEL_OPERATOR_H_
 
+#include "cve/kernel.h"
+
 namespace cve
 {
     template<typename Scalar>
     class SobelOperator
     {
     private:
+        typedef Eigen::Matrix<Scalar, 2, 1> Vector2;
         Kernel<Scalar, 3, 3> kernelX_;
         Kernel<Scalar, 3, 3> kernelY_;
     public:
@@ -50,8 +53,8 @@ namespace cve
             {
                 for(Index j = 0; j < outImg.rows(); ++j)
                 {
-                    outImg(j, i) = 0.5 * Eigen::abs(outImg(j, i)) +
-                        0.5 * Eigen::abs(tmp(j, i));
+                    Vector2 vec(outImg(j, i), tmp(j, i));
+                    outImg(j, i) = vec.norm();
                 }
             }
         }

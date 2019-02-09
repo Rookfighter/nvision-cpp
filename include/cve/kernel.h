@@ -7,6 +7,8 @@
 #ifndef CVE_KERNEL_H_
 #define CVE_KERNEL_H_
 
+#include <Eigen/Geometry>
+
 namespace cve
 {
     template<typename Scalar, int rows, int cols>
@@ -14,7 +16,7 @@ namespace cve
     {
     public:
         typedef Eigen::Matrix<Scalar, rows, cols> Matrix;
-        typedef Matrix::Index Index;
+        typedef typename Matrix::Index Index;
 
         enum class BorderHandling
         {
@@ -27,6 +29,7 @@ namespace cve
         BorderHandling handling_;
 
     public:
+
         Kernel()
             : matrix_(), handling_(BorderHandling::Reflect)
         { }
@@ -64,7 +67,7 @@ namespace cve
             {
                 for(Index row = 0; row < img.rows(); ++row)
                 {
-                    Image::Scalar accum = 0;
+                    typename Image::Scalar accum = 0;
                     for(Index kcol = 0; kcol < matrix_.cols(); ++kcol)
                     {
                         Index offsetCol = kcol - matrix_.cols() / 2;
