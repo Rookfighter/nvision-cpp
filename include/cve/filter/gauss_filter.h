@@ -1,18 +1,18 @@
-/* gaussian_filter.h
+/* gauss_filter.h
  *
  * Author: Fabian Meyer
  * Created On: 09 Feb 2019
  */
 
-#ifndef CVE_GAUSSIAN_FILTER_H_
-#define CVE_GAUSSIAN_FILTER_H_
+#ifndef CVE_GAUSS_FILTER_H_
+#define CVE_GAUSS_FILTER_H_
 
 #include "cve/kernel.h"
 
 namespace cve
 {
     template<typename Scalar, int Dim = 3>
-    class GaussianFilter
+    class GaussFilter
     {
     private:
         typedef typename Kernel<Scalar, Dim, Dim>::Index Index;
@@ -37,13 +37,13 @@ namespace cve
             kernel_.matrix() /= sigma_ * sqrttwopi;
         }
     public:
-        GaussianFilter()
+        GaussFilter()
             : kernel_(), sigma_(1)
         {
             computeKernel();
         }
 
-        GaussianFilter(const Scalar sigma)
+        GaussFilter(const Scalar sigma)
             : kernel_(), sigma_(sigma)
         {
             computeKernel();
