@@ -11,9 +11,20 @@
 
 namespace cve
 {
-    typedef Eigen::Matrix<uint8_t, Eigen::Dynamic, Eigen::Dynamic> GrayImage;
-    typedef Eigen::Matrix<uint8_t, 3, 1> RGBPixel;
-    typedef Eigen::Matrix<RGBPixel, Eigen::Dynamic, Eigen::Dynamic> RGBImage;
+    template<typename Scalar,
+        int Depth,
+        int Height = Eigen::Dynamic,
+        int Width = Eigen::Dynamic>
+    struct Image
+    {
+        static_assert(Depth > 0, "Image depth has to be greater than zero");
+
+        typedef Eigen::Array<Eigen::Array<Scalar, Depth, 1>, Height, Width> Array;
+    };
+
+    typedef Image<uint8_t, 1>::Array ImageGray;
+    typedef Image<uint8_t, 3>::Array ImageRGB;
+    typedef Image<uint8_t, 4>::Array ImageRGBA;
 }
 
 #endif

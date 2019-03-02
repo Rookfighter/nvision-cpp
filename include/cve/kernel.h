@@ -11,11 +11,14 @@
 
 namespace cve
 {
-    template<typename Scalar, int rows, int cols>
+    template<typename Scalar, unsigned int Dim>
     class Kernel
     {
     public:
-        typedef Eigen::Matrix<Scalar, rows, cols> Matrix;
+        static_assert(Dim > 0, "Kernel dimension must be positive");
+        static_assert(Dim % 2 == 1, "Kernel dimension must be odd");
+
+        typedef Eigen::Matrix<Scalar, Dim, Dim> Matrix;
         typedef typename Matrix::Index Index;
 
         enum class BorderHandling
@@ -57,12 +60,16 @@ namespace cve
             return matrix_;
         }
 
+        Index dimension() const
+        {
+            return Dim;
+        }
+
         template<typename Image>
         void apply(const Image &img, Image &outImg) const
         {
             outImg.resize(img.rows(), img.cols());
 
-            #pragma omp parallel for collapse(2)
             for(Index col = 0; col < img.cols(); ++col)
             {
                 for(Index row = 0; row < img.rows(); ++row)
