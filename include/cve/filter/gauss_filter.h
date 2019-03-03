@@ -15,9 +15,9 @@ namespace cve
     class GaussFilter
     {
     private:
-        typedef typename Kernel<Scalar, Dim, Dim>::Index Index;
+        typedef typename Kernel<Scalar, Dim>::Index Index;
 
-        Kernel<Scalar, Dim, Dim> kernel_;
+        Kernel<Scalar, Dim> kernel_;
         Scalar sigma_;
 
         void computeKernel()

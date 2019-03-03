@@ -74,7 +74,9 @@ namespace cve
             {
                 for(Index row = 0; row < img.rows(); ++row)
                 {
-                    typename Image::Scalar accum = 0;
+                    typename Image::Scalar accum;
+                    accum.setZero();
+
                     for(Index kcol = 0; kcol < matrix_.cols(); ++kcol)
                     {
                         Index offsetCol = kcol - matrix_.cols() / 2;
@@ -97,7 +99,11 @@ namespace cve
                             if(irow >= img.rows())
                                 irow = img.rows() - (irow - img.rows());
 
-                            accum += matrix_(krow, kcol) * img(irow, icol);
+                            for(Index depth = 0; depth < accum.size(); ++depth)
+                            {
+                                accum(depth) += matrix_(krow, kcol) * img(irow, icol)(depth);
+                            }
+
                         }
                     }
                     outImg(row, col) = accum;
