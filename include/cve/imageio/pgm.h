@@ -90,7 +90,20 @@ namespace pgm
 
     void save(const std::string &filename, const ImageGray &img)
     {
+        std::ofstream os(filename);
 
+        os << "P5\n"
+            << img.cols() << ' '
+            << img.rows() << '\n'
+            << "255" << '\n';
+
+        for(ImageGray::Index row = 0; row < img.rows(); ++row)
+        {
+            for(ImageGray::Index col = 0; col < img.cols(); ++col)
+            {
+                os << img(row, col)(0);
+            }
+        }
     }
 }
 }
