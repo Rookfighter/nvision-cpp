@@ -30,14 +30,17 @@ include_directories(
     ${CATCH2_INCLUDE_DIR}
 )
 
+add_executable(filter_smooth "examples/filter_smooth.cpp")
+
 install(DIRECTORY "include/cve"
     DESTINATION include)
+
 
 if(${BUILD_TESTS})
     # Compile tests
     add_executable(run_tests
         "test/main.cpp"
-        "test/test_kernel.cpp"
+        # "test/test_kernel.cpp"
         # "test/test_sobel_operator.cpp"
         # "test/test_gaussian_filter.cpp"
     )
