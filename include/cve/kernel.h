@@ -86,7 +86,7 @@ namespace cve
                         if(icol < 0)
                             icol = -icol;
                         if(icol >= img.cols())
-                            icol = img.cols() - (icol - img.cols());
+                            icol = 2 * img.cols() - icol - 1;
 
                         for(Index krow = 0; krow < matrix_.rows(); ++krow)
                         {
@@ -97,7 +97,7 @@ namespace cve
                             if(irow < 0)
                                 irow = -irow;
                             if(irow >= img.rows())
-                                irow = img.rows() - (irow - img.rows());
+                                irow = 2 * img.rows() - irow - 1;
 
                             for(Index depth = 0; depth < accum.size(); ++depth)
                             {

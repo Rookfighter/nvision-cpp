@@ -24,7 +24,6 @@ int main(int argc, const char **argv)
 
     std::cout << "Apply gauss filter" << std::endl;
     GaussFilter<float> gaussFilter(4);
-
     ImageGray oimg;
     gaussFilter.apply<ImageGray>(img, oimg);
 
