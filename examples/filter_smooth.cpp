@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <cve/filter/gauss_filter.h>
+#include <cve/filter/box_filter.h>
 #include <cve/imageio/pgm.h>
 
 using namespace cve;
@@ -28,6 +29,12 @@ int main(int argc, const char **argv)
     gaussFilter.apply<ImageGray>(img, oimg);
 
     cve::pgm::save("gauss_smooth.pgm", oimg);
+
+    std::cout << "Apply box filter" << std::endl;
+    BoxFilter<float, 5> boxFilter(6);
+    boxFilter.apply<ImageGray>(img, oimg);
+
+    cve::pgm::save("box_smooth.pgm", oimg);
 
     return 0;
 }
