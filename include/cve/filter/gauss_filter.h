@@ -25,16 +25,20 @@ namespace cve
             Index offset = kernel_.dimension() / 2;
             for(Index i = 0; i < kernel_.matrix().cols(); ++i)
             {
-                Index x = i - offset;
+                Scalar x = i - offset;
                 for(Index j = 0; j < kernel_.matrix().rows(); ++j)
                 {
-                    Index y = j - offset;
-                    kernel_.matrix()(j, i) = std::exp(-(x * x + y * y) / (2 * sigma_ * sigma_));
+                    Scalar y = j - offset;
+                    // omit gauss normalization factor
+                    // the kernel is normalized after the loop
+                    kernel_.matrix()(j, i) = std::exp(-(x * x + y * y) /
+                        (2 * sigma_ * sigma_));
                 }
             }
 
-            const Scalar sqrttwopi = 2.5066282746310005;
-            kernel_.matrix() /= sigma_ * sqrttwopi;
+            // normalize kernel such that sum of elements is one
+            // if it is not normalized, the image becomes darker
+            kernel_.matrix() /= kernel_.matrix().sum();
         }
     public:
         GaussFilter()

@@ -23,7 +23,7 @@ int main(int argc, const char **argv)
     cve::pgm::load(argv[1], img);
 
     std::cout << "Apply gauss filter" << std::endl;
-    GaussFilter<float> gaussFilter(20);
+    GaussFilter<float, 5> gaussFilter(6);
     ImageGray oimg;
     gaussFilter.apply<ImageGray>(img, oimg);
 
