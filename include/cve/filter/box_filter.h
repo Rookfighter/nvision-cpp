@@ -19,31 +19,34 @@ namespace cve
 
         Kernel<Scalar, Dim> kernel_;
         Scalar sigma_;
+        size_t iterations_;
 
         void computeKernel()
         {
             kernel_.matrix().setConstant(1 / (2 * sigma_));
             kernel_.matrix() /= kernel_.matrix().sum();
+
+            Kernel<Scalar, Dim> kernelTmp;
+            for(size_t i = 0; i < iterations_; ++i)
+            {
+                kernel_.apply(kernel_, kernelTmp);
+                kernel_ = kernelTmp;
+            }
         }
     public:
         BoxFilter()
-            : kernel_(), sigma_(1)
-        {
-            computeKernel();
-        }
+            : BoxFilter(1, 1)
+        { }
 
         BoxFilter(const Scalar sigma)
-            : kernel_(), sigma_(sigma)
+            : BoxFilter(sigma, 1)
+        { }
+
+        BoxFilter(const Scalar sigma, const size_t iterations)
+            : kernel_(), sigma_(sigma), iterations_(iterations)
         {
             computeKernel();
         }
-
-        void setSigma(const Scalar sigma)
-        {
-            sigma_ = sigma;
-            computeKernel();
-        }
-
 
         template<typename Image>
         void apply(const Image &img, Image &outImg) const

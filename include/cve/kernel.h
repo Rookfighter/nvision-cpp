@@ -65,6 +65,44 @@ namespace cve
             return Dim;
         }
 
+        void apply(const Kernel<Scalar, Dim> &kernel, Kernel<Scalar, Dim> &outKernel) const
+        {
+            for(Index col = 0; col < kernel.matrix().cols(); ++col)
+            {
+                for(Index row = 0; row < kernel.matrix().rows(); ++row)
+                {
+                    Scalar accum = 0;
+
+                    for(Index kcol = 0; kcol < matrix_.cols(); ++kcol)
+                    {
+                        Index offsetCol = kcol - matrix_.cols() / 2;
+                        Index icol = col + offsetCol;
+
+                        // check bounds and reflect if necessary
+                        if(icol < 0)
+                            icol = -icol;
+                        if(icol >= kernel.matrix().cols())
+                            icol = 2 * kernel.matrix().cols() - icol - 1;
+
+                        for(Index krow = 0; krow < matrix_.rows(); ++krow)
+                        {
+                            Index offsetRow = krow - matrix_.rows() / 2;
+                            Index irow = row + offsetRow;
+
+                            // check bounds and reflect if necessary
+                            if(irow < 0)
+                                irow = -irow;
+                            if(irow >= kernel.matrix().rows())
+                                irow = 2 * kernel.matrix().rows() - irow - 1;
+
+                            accum += matrix_(krow, kcol) * kernel.matrix()(irow, icol);
+                        }
+                    }
+                    outKernel.matrix()(row, col) = accum;
+                }
+            }
+        }
+
         template<typename Image>
         void apply(const Image &img, Image &outImg) const
         {
