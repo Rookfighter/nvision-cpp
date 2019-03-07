@@ -7,6 +7,7 @@
 #include <iostream>
 #include <cve/filter/gauss_filter.h>
 #include <cve/filter/box_filter.h>
+#include <cve/filter/recursive_filter.h>
 #include <cve/imageio/pgm.h>
 
 using namespace cve;
@@ -35,6 +36,12 @@ int main(int argc, const char **argv)
     boxFilter.apply<ImageGray>(img, oimg);
 
     cve::pgm::save("box_smooth.pgm", oimg);
+
+    std::cout << "Apply recursive filter" << std::endl;
+    RecursiveFilter<float> recFilter(6);
+    recFilter.apply<ImageGray>(img, oimg);
+
+    cve::pgm::save("rec_smooth.pgm", oimg);
 
     return 0;
 }
