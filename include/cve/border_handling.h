@@ -48,6 +48,9 @@ namespace cve
                 return repeat(idx, min, max);
             case BorderHandling::Reflect:
                 return reflect(idx, min, max);
+            default:
+                assert(false);
+                return 0;
             }
         }
     }
