@@ -11,6 +11,7 @@
 
 namespace cve
 {
+    /** Implements a Gaussian blur filter. */
     template<typename Scalar, unsigned int Dim = 3>
     class GaussFilter
     {

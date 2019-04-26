@@ -11,6 +11,14 @@
 
 namespace cve
 {
+    /** Implements an iterated box blur filter. It applies a 2D average
+     *  operation on each pixel. Its kernel basically looks as follows:
+     *        | 1 1 1 |
+     *  1/9 * | 1 1 1 |
+     *        | 1 1 1 |
+     *
+     *  The iterated box filter becomes a Gaussian filter in the limit
+     *  (iterations -> inf). */
     template<typename Scalar, unsigned int Dim = 3>
     class BoxFilter
     {
