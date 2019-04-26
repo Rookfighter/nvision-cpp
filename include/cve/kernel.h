@@ -7,7 +7,7 @@
 #ifndef CVE_KERNEL_H_
 #define CVE_KERNEL_H_
 
-#include <Eigen/Geometry>
+#include "cve/image.h"
 
 namespace cve
 {
@@ -15,11 +15,9 @@ namespace cve
     class Kernel
     {
     public:
-        static_assert(Dim > 0, "Kernel dimension must be positive");
         static_assert(Dim % 2 == 1, "Kernel dimension must be odd");
 
         typedef Eigen::Matrix<Scalar, Dim, Dim> Matrix;
-        typedef typename Matrix::Index Index;
 
         enum class BorderHandling
         {
@@ -76,24 +74,14 @@ namespace cve
                     for(Index kcol = 0; kcol < matrix_.cols(); ++kcol)
                     {
                         Index offsetCol = kcol - matrix_.cols() / 2;
-                        Index icol = col + offsetCol;
-
-                        // check bounds and reflect if necessary
-                        if(icol < 0)
-                            icol = -icol;
-                        if(icol >= kernel.matrix().cols())
-                            icol = 2 * kernel.matrix().cols() - icol - 1;
+                        Index icol = border::reflect(col + offsetCol, 0,
+                            kernel.matrix().cols());
 
                         for(Index krow = 0; krow < matrix_.rows(); ++krow)
                         {
                             Index offsetRow = krow - matrix_.rows() / 2;
-                            Index irow = row + offsetRow;
-
-                            // check bounds and reflect if necessary
-                            if(irow < 0)
-                                irow = -irow;
-                            if(irow >= kernel.matrix().rows())
-                                irow = 2 * kernel.matrix().rows() - irow - 1;
+                            Index irow = border::reflect(row + offsetRow, 0,
+                                kernel.matrix().rows());
 
                             accum += matrix_(krow, kcol) * kernel.matrix()(irow, icol);
                         }
@@ -118,30 +106,17 @@ namespace cve
                     for(Index kcol = 0; kcol < matrix_.cols(); ++kcol)
                     {
                         Index offsetCol = kcol - matrix_.cols() / 2;
-                        Index icol = col + offsetCol;
-
-                        // check bounds and reflect if necessary
-                        if(icol < 0)
-                            icol = -icol;
-                        if(icol >= img.cols())
-                            icol = 2 * img.cols() - icol - 1;
+                        Index icol = border::reflect(col + offsetCol, 0,
+                            img.cols());
 
                         for(Index krow = 0; krow < matrix_.rows(); ++krow)
                         {
                             Index offsetRow = krow - matrix_.rows() / 2;
-                            Index irow = row + offsetRow;
-
-                            // check bounds and reflect if necessary
-                            if(irow < 0)
-                                irow = -irow;
-                            if(irow >= img.rows())
-                                irow = 2 * img.rows() - irow - 1;
+                            Index irow = border::reflect(row + offsetRow, 0,
+                                img.rows());
 
                             for(Index depth = 0; depth < accum.size(); ++depth)
-                            {
                                 accum(depth) += matrix_(krow, kcol) * img(irow, icol)(depth);
-                            }
-
                         }
                     }
                     outImg(row, col) = accum;

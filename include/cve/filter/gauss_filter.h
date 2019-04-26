@@ -11,12 +11,12 @@
 
 namespace cve
 {
-    template<typename Scalar, int Dim = 3>
+    template<typename Scalar, unsigned int Dim = 3>
     class GaussFilter
     {
+    public:
+        static_assert(Dim % 2 == 1, "GaussFilter dimension must be odd");
     private:
-        typedef typename Kernel<Scalar, Dim>::Index Index;
-
         Kernel<Scalar, Dim> kernel_;
         Scalar sigma_;
 
