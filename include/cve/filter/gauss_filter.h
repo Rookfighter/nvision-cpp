@@ -18,53 +18,66 @@ namespace cve
     public:
         static_assert(Dim % 2 == 1, "GaussFilter dimension must be odd");
     private:
-        Kernel<Scalar, Dim> kernel_;
         Scalar sigma_;
+        BorderHandling handling_;
 
-        void computeKernel()
+        Eigen::Matrix<Scalar, Dim, 1> kernelX_;
+        Eigen::Matrix<Scalar, 1, Dim> kernelY_;
+
+        template<typename Derived>
+        void computeKernel(Eigen::MatrixBase<Derived> &kernel)
         {
-            Index offset = kernel_.dimension() / 2;
-            for(Index i = 0; i < kernel_.matrix().cols(); ++i)
+            Index rowHalf = kernel.rows() / 2;
+            Index colHalf = kernel.cols() / 2;
+
+            for(Index c = 0; c < kernel.cols(); ++c)
             {
-                Scalar x = i - offset;
-                for(Index j = 0; j < kernel_.matrix().rows(); ++j)
+                Scalar x = c - colHalf;
+                for(Index r = 0; r < kernel.rows(); ++r)
                 {
-                    Scalar y = j - offset;
+                    Scalar y = r - rowHalf;
                     // omit gauss normalization factor
                     // the kernel is normalized after the loop
-                    kernel_.matrix()(j, i) = std::exp(-(x * x + y * y) /
+                    kernel(r, c) = std::exp(-(x * x + y * y) /
                         (2 * sigma_ * sigma_));
                 }
             }
 
             // normalize kernel such that sum of elements is one
             // if it is not normalized, the image becomes darker
-            kernel_.matrix() /= kernel_.matrix().sum();
+            kernel /= kernel.sum();
         }
     public:
         GaussFilter()
-            : kernel_(), sigma_(1)
+            : GaussFilter(1)
         {
-            computeKernel();
         }
 
         GaussFilter(const Scalar sigma)
-            : kernel_(), sigma_(sigma)
+            : sigma_(), handling_(BorderHandling::Reflect), kernelX_(),
+            kernelY_()
         {
-            computeKernel();
+            setSigma(sigma);
         }
 
         void setSigma(const Scalar sigma)
         {
             sigma_ = sigma;
-            computeKernel();
+            computeKernel(kernelX_);
+            computeKernel(kernelY_);
         }
 
+        void setBorderHandling(const BorderHandling handling)
+        {
+            handling_ = handling;
+        }
 
         template<typename Image>
         void apply(const Image &img, Image &outImg) const
         {
-            kernel_.apply<Image>(img, outImg);
+            Image tmpImg;
+            kernel::apply(img, tmpImg, kernelX_, handling_);
+            kernel::apply(tmpImg, outImg, kernelY_, handling_);
         }
     };
 }
