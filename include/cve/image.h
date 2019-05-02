@@ -25,6 +25,7 @@ namespace cve
     };
 
     typedef _Image<uint8_t, 1>::Array ImageGray;
+    typedef _Image<float, 1>::Array ImageGrayf;
     typedef _Image<uint8_t, 3>::Array ImageRGB;
     typedef _Image<uint8_t, 4>::Array ImageRGBA;
 

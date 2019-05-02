@@ -32,6 +32,7 @@ include_directories(
 
 add_executable(filter_smooth "examples/filter_smooth.cpp")
 add_executable(updown_sample "examples/updown_sample.cpp")
+add_executable(detect_edges "examples/detect_edges.cpp")
 
 install(DIRECTORY "include/cve"
     DESTINATION include)
