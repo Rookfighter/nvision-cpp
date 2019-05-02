@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <cve/filter/sobel_filter.h>
+#include <cve/filter/scharr_filter.h>
 #include <cve/imageio/pgm.h>
 
 using namespace cve;
@@ -27,19 +28,22 @@ int main(int argc, const char **argv)
     ImageGrayf oimg;
     sobelFilter.apply(img, oimg);
 
-    for(Index c = 0; c < oimg.cols(); ++c)
-    {
-        for(Index r = 0; r < oimg.rows(); ++r)
-        {
-            for(Index d = 0; d < oimg(r, c).size(); ++d)
-            {
-                float val = oimg(r, c)(d);
-                img(r, c)(d) = std::min(255.0f, std::max(0.0f, val));
-            }
-        }
-    }
+    ImageGray oimg2;
+    image::clamp(oimg, 0, 255);
+    image::copy(oimg, oimg2);
 
-    cve::pgm::save("sobel_edges.pgm", img);
+    cve::pgm::save("sobel_edges.pgm", oimg2);
+
+    std::cout << "Apply scharr filter" << std::endl;
+    ScharrFilter<float> scharrFilter;
+    scharrFilter.apply(img, oimg);
+
+    Eigen::Array<float,1,1> minval(0);
+    Eigen::Array<float,1,1> maxval(255);
+    image::normalize(oimg, minval, maxval);
+    image::copy(oimg, oimg2);
+
+    cve::pgm::save("scharr_edges.pgm", oimg2);
 
     return 0;
 }

@@ -25,9 +25,76 @@ namespace cve
     };
 
     typedef _Image<uint8_t, 1>::Array ImageGray;
-    typedef _Image<float, 1>::Array ImageGrayf;
     typedef _Image<uint8_t, 3>::Array ImageRGB;
     typedef _Image<uint8_t, 4>::Array ImageRGBA;
+
+    typedef _Image<float, 1>::Array ImageGrayf;
+    typedef _Image<float, 3>::Array ImageRGBf;
+    typedef _Image<float, 4>::Array ImageRGBAf;
+
+    namespace image
+    {
+        template<typename Image> void clamp(Image &img,
+            typename Image::Scalar::Scalar minval,
+            typename Image::Scalar::Scalar maxval)
+        {
+            for(Index c = 0; c < img.cols(); ++c)
+            {
+                for(Index r = 0; r < img.rows(); ++r)
+                {
+                    for(Index d = 0; d < img(r, c).size(); ++d)
+                    {
+                        img(r, c)(d) = std::min(maxval, std::max(minval,
+                            img(r, c)(d)));
+                    }
+                }
+            }
+        }
+
+        template<typename ImageA, typename ImageB> void copy(const ImageA &img,
+            ImageB &outImg)
+        {
+            outImg.resize(img.rows(), img.cols());
+
+            for(Index c = 0; c < img.cols(); ++c)
+            {
+                for(Index r = 0; r < img.rows(); ++r)
+                {
+                    for(Index d = 0; d < img(r, c).size(); ++d)
+                    {
+                        outImg(r, c)(d) = static_cast<
+                            typename ImageB::Scalar::Scalar>(
+                            img(r, c)(d));
+                    }
+                }
+            }
+        }
+
+        template<typename Image> void normalize(Image &img,
+            typename Image::Scalar minval,
+            typename Image::Scalar maxval)
+        {
+            typename Image::Scalar oldMin = img(0, 0);
+            typename Image::Scalar oldMax = img(0, 0);;
+
+            for(Index c = 0; c < img.cols(); ++c)
+            {
+                for(Index r = 0; r < img.rows(); ++r)
+                {
+                    for(Index d = 0; d < img(r, c).size(); ++d)
+                    {
+                        if(img(r, c)(d) < oldMin(d))
+                            oldMin(d) = img(r, c)(d);
+                        if(img(r, c)(d) > oldMax(d))
+                            oldMax(d) = img(r, c)(d);
+                    }
+                }
+            }
+
+            typename Image::Scalar factor = (maxval - minval) / (oldMax - oldMin);
+            img = (img - oldMin) * factor + minval;
+        }
+    }
 
     template<typename Scalar, typename Image>
     void downsample(const Scalar factor, const Image &img, Image &outImg)
