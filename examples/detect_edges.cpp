@@ -29,7 +29,7 @@ int main(int argc, const char **argv)
     sobelFilter.apply(img, oimg);
 
     ImageGray oimg2;
-    image::clamp(oimg, 0, 255);
+    image::normalize(oimg, ImageGrayf::Scalar(0), ImageGrayf::Scalar(255));
     image::copy(oimg, oimg2);
 
     cve::pgm::save("sobel_edges.pgm", oimg2);
@@ -38,9 +38,7 @@ int main(int argc, const char **argv)
     ScharrFilter<float> scharrFilter;
     scharrFilter.apply(img, oimg);
 
-    Eigen::Array<float,1,1> minval(0);
-    Eigen::Array<float,1,1> maxval(255);
-    image::normalize(oimg, minval, maxval);
+    image::normalize(oimg, ImageGrayf::Scalar(0), ImageGrayf::Scalar(255));
     image::copy(oimg, oimg2);
 
     cve::pgm::save("scharr_edges.pgm", oimg2);

@@ -35,8 +35,8 @@ namespace cve
     namespace image
     {
         template<typename Image> void clamp(Image &img,
-            typename Image::Scalar::Scalar minval,
-            typename Image::Scalar::Scalar maxval)
+            const typename Image::Scalar &minval,
+            const typename Image::Scalar &maxval)
         {
             for(Index c = 0; c < img.cols(); ++c)
             {
@@ -44,14 +44,15 @@ namespace cve
                 {
                     for(Index d = 0; d < img(r, c).size(); ++d)
                     {
-                        img(r, c)(d) = std::min(maxval, std::max(minval,
+                        img(r, c)(d) = std::min(maxval(d), std::max(minval(d),
                             img(r, c)(d)));
                     }
                 }
             }
         }
 
-        template<typename ImageA, typename ImageB> void copy(const ImageA &img,
+        template<typename ImageA, typename ImageB> void copy(
+            const ImageA &img,
             ImageB &outImg)
         {
             outImg.resize(img.rows(), img.cols());
@@ -71,8 +72,8 @@ namespace cve
         }
 
         template<typename Image> void normalize(Image &img,
-            typename Image::Scalar minval,
-            typename Image::Scalar maxval)
+            const typename Image::Scalar &minval,
+            const typename Image::Scalar &maxval)
         {
             typename Image::Scalar oldMin = img(0, 0);
             typename Image::Scalar oldMax = img(0, 0);;
