@@ -11,7 +11,7 @@
 
 namespace cve
 {
-    /** Implements a soble filter. */
+    /** Implements a shcarr filter. */
     template<typename Scalar>
     class ScharrFilter
     {

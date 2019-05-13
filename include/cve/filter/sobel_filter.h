@@ -11,7 +11,7 @@
 
 namespace cve
 {
-    /** Implements a soble filter. */
+    /** Implements a sobel filter. */
     template<typename Scalar>
     class SobelFilter
     {
