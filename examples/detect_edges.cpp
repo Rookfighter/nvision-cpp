@@ -7,6 +7,7 @@
 #include <iostream>
 #include <cve/filter/sobel_filter.h>
 #include <cve/filter/scharr_filter.h>
+#include <cve/feature/canny_detector.h>
 #include <cve/imageio/pgm.h>
 
 using namespace cve;
@@ -42,6 +43,15 @@ int main(int argc, const char **argv)
     image::copy(oimg, oimg2);
 
     cve::pgm::save("scharr_edges.pgm", oimg2);
+
+    std::cout << "Apply canny detector" << std::endl;
+    CannyDetector<float> cannyDetector;
+    cannyDetector.setSmoothFilter(GaussFilter<float, 5>(1.4));
+    cannyDetector.apply(img, oimg);
+
+    image::copy(oimg, oimg2);
+
+    cve::pgm::save("canny_edges.pgm", oimg2);
 
     return 0;
 }
