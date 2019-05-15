@@ -22,9 +22,9 @@ namespace cve
         inline Index reflect(const Index idx, const Index min, const Index max)
         {
             if(idx < min)
-                return min + std::abs(idx);
+                return min + std::abs(min - idx);
             else if(idx >= max)
-                return 2 * max - std::abs(idx) - 1;
+                return max - 2 - std::abs(idx - max);
             else
                 return idx;
         }
