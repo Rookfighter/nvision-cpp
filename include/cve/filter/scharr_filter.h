@@ -11,7 +11,8 @@
 
 namespace cve
 {
-    /** Implements a shcarr filter. */
+    /** Filter class to compute Scharr gradients.
+     *  @tparam Scalar value type of the underlying kernel */
     template<typename Scalar>
     class ScharrFilter
     {
@@ -29,8 +30,8 @@ namespace cve
         }
 
         template<typename ImageA, typename ImageB>
-        void applyX(const ImageA &img,
-            ImageB &outImg) const
+        void applyX(const ImageA &srcImg,
+            ImageB &destImg) const
         {
             Eigen::Matrix<Scalar, 3, 3> kernel;
 
@@ -38,12 +39,12 @@ namespace cve
                       162, 0, -162,
                       47, 0, -47;
 
-            kernel::apply(img, outImg, kernel, handling_);
+            kernel::apply(srcImg, destImg, kernel, handling_);
         }
 
         template<typename ImageA, typename ImageB>
-        void applyY(const ImageA &img,
-            ImageB &outImg) const
+        void applyY(const ImageA &srcImg,
+            ImageB &destImg) const
         {
             Eigen::Matrix<Scalar, 3, 3> kernel;
 
@@ -51,19 +52,19 @@ namespace cve
                       0, 0, 0,
                       -47, -162, -47;
 
-            kernel::apply(img, outImg, kernel, handling_);
+            kernel::apply(srcImg, destImg, kernel, handling_);
         }
 
         template<typename ImageA, typename ImageB>
-        void apply(const ImageA &img,
-            ImageB &outImg) const
+        void apply(const ImageA &srcImg,
+            ImageB &destImg) const
         {
-            ImageB imgx;
-            ImageB imgy;
-            applyX(img, imgx);
-            applyY(img, imgy);
+            ImageB srcx;
+            ImageB srcy;
+            applyX(srcImg, srcx);
+            applyY(srcImg, srcy);
 
-            outImg = (imgx * imgx + imgy * imgy).sqrt();
+            destImg = (srcx * srcx + srcy * srcy).sqrt();
         }
     };
 }

@@ -11,7 +11,9 @@
 
 namespace cve
 {
-    /** Implements a Gaussian blur filter. */
+    /** Filter class to apply Gaussian blur.
+     *  @tparam Scalar value type of the underlying kernel
+     *  @tparam Dim size of the underlying kernel */
     template<typename Scalar, unsigned int Dim = 3>
     class GaussFilter
     {
@@ -72,10 +74,10 @@ namespace cve
             handling_ = handling;
         }
 
-        template<typename Image>
-        void apply(const Image &img, Image &outImg) const
+        template<typename ImageA, typename ImageB>
+        void apply(const ImageA &img, ImageB &outImg) const
         {
-            Image tmpImg;
+            ImageB tmpImg;
             kernel::apply(img, tmpImg, kernelX_, handling_);
             kernel::apply(tmpImg, outImg, kernelY_, handling_);
         }

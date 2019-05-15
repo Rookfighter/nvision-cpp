@@ -11,14 +11,17 @@
 
 namespace cve
 {
-    /** Implements an iterated box blur filter. It applies a 2D average
-     *  operation on each pixel. Its kernel basically looks as follows:
+    /** Filter class to apply an iterated box blur.
+     *
+     *  It applies a 2D average operation on each pixel with kernel:
      *        | 1 1 1 |
      *  1/9 * | 1 1 1 |
      *        | 1 1 1 |
      *
      *  The iterated box filter becomes a Gaussian filter in the limit
-     *  (iterations -> inf). */
+     *  (iterations -> inf).
+     * @tparam Scalar value type of the underlying kernel
+     * @tparam Dim size of the underlying kernel */
     template<typename Scalar, unsigned int Dim = 3>
     class BoxFilter
     {
@@ -53,16 +56,21 @@ namespace cve
             handling_ = handling;
         }
 
-        template<typename Image>
-        void apply(const Image &img, Image &outImg) const
+        void setIterations(const size_t iterations)
         {
-            Image tmpImg;
-            outImg = img;
+            iterations_ = iterations;
+        }
+
+        template<typename ImageA, typename ImageB>
+        void apply(const ImageA &srcImg, ImageB &destImg) const
+        {
+            ImageB tmpImg;
+            destImg = srcImg;
 
             for(size_t i = 0; i < iterations_; ++i)
             {
-                kernel::apply(outImg, tmpImg, kernelX_, handling_);
-                kernel::apply(tmpImg, outImg, kernelY_, handling_);
+                kernel::apply(destImg, tmpImg, kernelX_, handling_);
+                kernel::apply(tmpImg, destImg, kernelY_, handling_);
             }
         }
     };

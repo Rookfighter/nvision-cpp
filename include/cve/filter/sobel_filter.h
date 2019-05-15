@@ -11,7 +11,8 @@
 
 namespace cve
 {
-    /** Implements a sobel filter. */
+    /** Filter class to compute Sobel gradients.
+     *  @tparam Scalar value type of the underlying kernel*/
     template<typename Scalar>
     class SobelFilter
     {
@@ -29,8 +30,8 @@ namespace cve
         }
 
         template<typename ImageA, typename ImageB>
-        void applyX(const ImageA &img,
-            ImageB &outImg) const
+        void applyX(const ImageA &srcImg,
+            ImageB &destImg) const
         {
             Eigen::Matrix<Scalar, 1, 3> kernelX;
             Eigen::Matrix<Scalar, 3, 1> kernelY;
@@ -39,13 +40,13 @@ namespace cve
             kernelY << 1, 2, 1;
 
             ImageB tmpImg;
-            kernel::apply(img, tmpImg, kernelX, handling_);
-            kernel::apply(tmpImg, outImg, kernelY, handling_);
+            kernel::apply(srcImg, tmpImg, kernelX, handling_);
+            kernel::apply(tmpImg, destImg, kernelY, handling_);
         }
 
         template<typename ImageA, typename ImageB>
-        void applyY(const ImageA &img,
-            ImageB &outImg) const
+        void applyY(const ImageA &srcImg,
+            ImageB &destImg) const
         {
             Eigen::Matrix<Scalar, 1, 3> kernelX;
             Eigen::Matrix<Scalar, 3, 1> kernelY;
@@ -54,20 +55,20 @@ namespace cve
             kernelY << -1, 0, 1;
 
             ImageB tmpImg;
-            kernel::apply(img, tmpImg, kernelX, handling_);
-            kernel::apply(tmpImg, outImg, kernelY, handling_);
+            kernel::apply(srcImg, tmpImg, kernelX, handling_);
+            kernel::apply(tmpImg, destImg, kernelY, handling_);
         }
 
         template<typename ImageA, typename ImageB>
-        void apply(const ImageA &img,
-            ImageB &outImg) const
+        void apply(const ImageA &srcImg,
+            ImageB &destImg) const
         {
-            ImageB imgx;
-            ImageB imgy;
-            applyX(img, imgx);
-            applyY(img, imgy);
+            ImageB srcx;
+            ImageB srcy;
+            applyX(srcImg, srcx);
+            applyY(srcImg, srcy);
 
-            outImg = (imgx * imgx + imgy * imgy).sqrt();
+            destImg = (srcx * srcx + srcy * srcy).sqrt();
         }
     };
 }
