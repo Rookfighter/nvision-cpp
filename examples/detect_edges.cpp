@@ -29,29 +29,25 @@ int main(int argc, const char **argv)
     ImageGrayf oimg;
     sobelFilter.apply(img, oimg);
 
-    ImageGray oimg2;
     image::normalize(oimg, ImageGrayf::Pixel(0), ImageGrayf::Pixel(255));
-    image::copy(oimg, oimg2);
 
-    cve::pgm::save("sobel_edges.pgm", oimg2);
+    cve::pgm::save("sobel_edges.pgm", oimg);
 
     std::cout << "Apply scharr filter" << std::endl;
     ScharrFilter<float> scharrFilter;
     scharrFilter.apply(img, oimg);
 
     image::normalize(oimg, ImageGrayf::Pixel(0), ImageGrayf::Pixel(255));
-    image::copy(oimg, oimg2);
+    image::copy(oimg, oimg);
 
-    cve::pgm::save("scharr_edges.pgm", oimg2);
+    cve::pgm::save("scharr_edges.pgm", oimg);
 
     std::cout << "Apply canny detector" << std::endl;
     CannyDetector<float> cannyDetector;
     cannyDetector.setSmoothFilter(GaussFilter<float, 5>(1.4));
     cannyDetector.apply(img, oimg);
 
-    image::copy(oimg, oimg2);
-
-    cve::pgm::save("canny_edges.pgm", oimg2);
+    cve::pgm::save("canny_edges.pgm", oimg);
 
     return 0;
 }
