@@ -14,6 +14,27 @@ namespace cve
 {
     namespace pgm
     {
+        inline void _skip(std::ifstream &is, int &value)
+        {
+            bool done = false;
+            while(!done)
+            {
+                done = true;
+                // trim all white spaces
+                while(!is.eof() && std::isspace(value))
+                    value = is.get();
+                // ignore all comment lines
+                while(!is.eof() && value == '#')
+                {
+                    // search for end of line
+                    while(is.get() != '\n');
+                    // update value to first char of line
+                    value = is.get();
+                    done = false;
+                }
+            }
+        }
+
         template<typename Image>
         void load(const std::string &filename, Image &img)
         {
@@ -29,51 +50,37 @@ namespace cve
                 throw std::runtime_error(filename + ": missing PGM start sequence");
 
             int value = is.get();
-            while(!is.eof() && value != ' ' && value != '\n')
-                value = is.get();
+            _skip(is, value);
 
-            // check if line is a comment
-            value = is.get();
-            while(!is.eof() && value == '#')
-            {
-                // search for end of line
-                while(is.get() != '\n');
-                // update value to first char of line
-                value = is.get();
-            }
-
-
-            // trim all empty lines
-            while(!is.eof() && value == '\n')
-                value = is.get();
-
+            // parse width of image
             Index width = 0;
-            while(!is.eof() && value >= 48 && value < 58)
+            while(!is.eof() && std::isdigit(value))
             {
                 width = 10 * width + value - 48;
                 value = is.get();
             }
 
             // find next valid sequence
-            while(!is.eof() && (value < 48 || value >= 58))
-                value = is.get();
+            _skip(is, value);
 
             Index height = 0;
-            while(!is.eof() && value >= 48 && value < 58)
+            while(!is.eof() && std::isdigit(value))
             {
                 height = 10 * height + value - 48;
                 value = is.get();
             }
 
-            while(!is.eof() && value != ' ' && value != '\n')
-                value = is.get();
+            _skip(is, value);
 
-            value = is.get();
-            while(!is.eof() && (value < 48 || value >= 58))
+            int pixmax = 0;
+            while(!is.eof() && std::isdigit(value))
+            {
+                pixmax = 10 * pixmax + value - 48;
                 value = is.get();
+            }
 
             // find next line
-            while(is.eof() && value != '\n')
+            while(!is.eof() && value != '\n')
                 value = is.get();
 
             if(is.eof())
@@ -88,7 +95,7 @@ namespace cve
             {
                 for(Index c = 0; c < width; ++c)
                 {
-                    uint8_t val = is.get();
+                    uint8_t val = (is.get() * 255) / pixmax;
                     for(Index d = 0; d < img.depth(); ++d)
                         img(r, c, d) = val;
                 }
