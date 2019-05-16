@@ -33,6 +33,9 @@ namespace cve
         void applyX(const ImageA &srcImg,
             ImageB &destImg) const
         {
+            static_assert(ImageA::Depth == ImageB::Depth,
+                "ImageA and ImageB must have same depth.");
+
             Eigen::Matrix<Scalar, 1, 3> kernelX;
             Eigen::Matrix<Scalar, 3, 1> kernelY;
 
@@ -48,6 +51,9 @@ namespace cve
         void applyY(const ImageA &srcImg,
             ImageB &destImg) const
         {
+            static_assert(ImageA::Depth == ImageB::Depth,
+                "ImageA and ImageB must have same depth.");
+
             Eigen::Matrix<Scalar, 1, 3> kernelX;
             Eigen::Matrix<Scalar, 3, 1> kernelY;
 
@@ -63,6 +69,9 @@ namespace cve
         void apply(const ImageA &srcImg,
             ImageB &destImg) const
         {
+            static_assert(ImageA::Depth == ImageB::Depth,
+                "ImageA and ImageB must have same depth.");
+
             ImageB srcx;
             ImageB srcy;
             applyX(srcImg, srcx);

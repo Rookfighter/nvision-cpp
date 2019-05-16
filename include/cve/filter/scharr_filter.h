@@ -33,6 +33,9 @@ namespace cve
         void applyX(const ImageA &srcImg,
             ImageB &destImg) const
         {
+            static_assert(ImageA::Depth == ImageB::Depth,
+                "ImageA and ImageB must have same depth.");
+
             Eigen::Matrix<Scalar, 3, 3> kernel;
 
             kernel << 47, 0, -47,

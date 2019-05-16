@@ -39,6 +39,9 @@ namespace cve
         template<typename ImageA, typename ImageB>
         void apply(const ImageA &srcImg, ImageB &destImg) const
         {
+            static_assert(ImageA::Depth == ImageB::Depth,
+                "ImageA and ImageB must have same depth.");
+
             destImg.resize(srcImg.rows(), srcImg.cols());
             ImageB fimg(srcImg.rows(), srcImg.cols());
             ImageB gimg(srcImg.rows(), srcImg.cols());

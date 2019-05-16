@@ -14,31 +14,35 @@ namespace cve
     namespace kernel
     {
         template<typename ImageA, typename ImageB, typename Derived>
-        void apply(const ImageA &img,
-            ImageB &outImg,
+        void apply(const ImageA &srcImg,
+            ImageB &destImg,
             const Eigen::MatrixBase<Derived> &kernel,
             const BorderHandling handling)
         {
-            outImg.setZero(img.rows(), img.cols());
+            static_assert(ImageA::Depth == ImageB::Depth,
+                "ImageA and ImageB must have same depth.");
 
-            for(Index c = 0; c < img.cols(); ++c)
+            destImg.setZero(srcImg.rows(), srcImg.cols());
+
+            for(Index c = 0; c < srcImg.cols(); ++c)
             {
-                for(Index r = 0; r < img.rows(); ++r)
+                for(Index r = 0; r < srcImg.rows(); ++r)
                 {
                     for(Index kcol = 0; kcol < kernel.cols(); ++kcol)
                     {
                         Index offsetCol = kcol - kernel.cols() / 2;
                         Index icol = border::handle(c + offsetCol, 0,
-                            img.cols(), handling);
+                            srcImg.cols(), handling);
 
                         for(Index krow = 0; krow < kernel.rows(); ++krow)
                         {
                             Index offsetRow = krow - kernel.rows() / 2;
                             Index irow = border::handle(r + offsetRow, 0,
-                                img.rows(), handling);
+                                srcImg.rows(), handling);
 
-                            for(Index d = 0; d < outImg(r, c).size(); ++d)
-                                outImg(r, c)(d) += kernel(krow, kcol) * img(irow, icol)(d);
+                            for(Index d = 0; d < destImg.depth(); ++d)
+                                destImg(r, c, d) += kernel(krow, kcol) *
+                                    srcImg(irow, icol, d);
                         }
                     }
                 }
@@ -94,10 +98,13 @@ namespace cve
             return Cols;
         }
 
-        template<typename Image>
-        void apply(const Image &img, Image &outImg) const
+        template<typename ImageA, typename ImageB>
+        void apply(const ImageA &srcImg, ImageB &destImg) const
         {
-            kernel::apply(img, outImg, matrix_, handling_);
+            static_assert(ImageA::Depth == ImageB::Depth,
+                "ImageA and ImageB must have same depth.");
+
+            kernel::apply(srcImg, destImg, matrix_, handling_);
         }
     };
 }

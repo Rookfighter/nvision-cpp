@@ -108,6 +108,9 @@ namespace cve
             const ImageA &img,
             ImageB &outImg)
         {
+            static_assert(ImageA::Depth == ImageB::Depth,
+                "ImageA and ImageB must have same depth.");
+
             outImg.resize(img.rows(), img.cols());
 
             for(Index c = 0; c < img.cols(); ++c)
