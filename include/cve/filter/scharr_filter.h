@@ -12,6 +12,7 @@
 namespace cve
 {
     /** Filter class to compute Scharr gradients.
+     *  The Scharr operator computes the first derivative of the image.
      *  @tparam Scalar value type of the underlying kernel */
     template<typename Scalar>
     class ScharrFilter

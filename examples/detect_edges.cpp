@@ -7,6 +7,7 @@
 #include <iostream>
 #include <cve/filter/sobel_filter.h>
 #include <cve/filter/scharr_filter.h>
+#include <cve/filter/laplace_filter.h>
 #include <cve/feature/canny_detector.h>
 #include <cve/imageio/pgm.h>
 
@@ -28,7 +29,6 @@ int main(int argc, const char **argv)
     SobelFilter<float> sobelFilter;
     ImageGrayf oimg;
     sobelFilter.apply(img, oimg);
-
     image::normalize(oimg, ImageGrayf::Pixel(0), ImageGrayf::Pixel(255));
 
     cve::pgm::save("sobel_edges.pgm", oimg);
@@ -36,11 +36,16 @@ int main(int argc, const char **argv)
     std::cout << "Apply scharr filter" << std::endl;
     ScharrFilter<float> scharrFilter;
     scharrFilter.apply(img, oimg);
-
     image::normalize(oimg, ImageGrayf::Pixel(0), ImageGrayf::Pixel(255));
-    image::copy(oimg, oimg);
 
     cve::pgm::save("scharr_edges.pgm", oimg);
+
+    std::cout << "Apply laplace filter" << std::endl;
+    LaplaceFilter<float> laplaceFilter;
+    laplaceFilter.apply(img, oimg);
+    image::normalize(oimg, ImageGrayf::Pixel(0), ImageGrayf::Pixel(255));
+
+    cve::pgm::save("laplace_edges.pgm", oimg);
 
     std::cout << "Apply canny detector" << std::endl;
     CannyDetector<float> cannyDetector;
