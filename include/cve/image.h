@@ -13,24 +13,56 @@ namespace cve
 {
     typedef long int Index;
 
-    template<typename Scalar,
-        int Depth,
-        int Height = Eigen::Dynamic,
-        int Width = Eigen::Dynamic>
-    struct _Image
+    template<typename _Scalar,
+        int _Depth>
+    class Image : public Eigen::Array<Eigen::Array<_Scalar, _Depth, 1>, Eigen::Dynamic, Eigen::Dynamic>
     {
-        static_assert(Depth > 0, "Image depth has to be greater than zero");
+    public:
+        static_assert(_Depth > 0, "Image depth has to be greater than zero");
 
-        typedef Eigen::Array<Eigen::Array<Scalar, Depth, 1>, Height, Width> Array;
+        typedef Eigen::Array<_Scalar, _Depth, 1> Pixel;
+        typedef _Scalar Scalar;
+        typedef Eigen::Array<Pixel, Eigen::Dynamic, Eigen::Dynamic> ParentType;
+        typedef typename ParentType::Index Index;
+
+        static const int Depth = _Depth;
+
+
+        Image()
+            : ParentType()
+        { }
+
+        Image(const Index rows, const Index cols)
+            : ParentType(rows, cols)
+        { }
+
+        // This constructor allows you to construct Image from Eigen expressions
+        template<typename OtherDerived>
+        Image(const Eigen::ArrayBase<OtherDerived>& other)
+            : ParentType(other)
+        { }
+
+        Index depth() const
+        {
+            return _Depth;
+        }
+
+        // This method allows you to assign Eigen expressions to Image
+        template<typename OtherDerived>
+        Image<Scalar, _Depth>& operator=(const Eigen::ArrayBase <OtherDerived>& other)
+        {
+            this->ParentType::operator=(other);
+            return *this;
+        }
     };
 
-    typedef _Image<uint8_t, 1>::Array ImageGray;
-    typedef _Image<uint8_t, 3>::Array ImageRGB;
-    typedef _Image<uint8_t, 4>::Array ImageRGBA;
+    typedef Image<uint8_t, 1> ImageGray;
+    typedef Image<uint8_t, 3> ImageRGB;
+    typedef Image<uint8_t, 4> ImageRGBA;
 
-    typedef _Image<float, 1>::Array ImageGrayf;
-    typedef _Image<float, 3>::Array ImageRGBf;
-    typedef _Image<float, 4>::Array ImageRGBAf;
+    typedef Image<float, 1> ImageGrayf;
+    typedef Image<float, 3> ImageRGBf;
+    typedef Image<float, 4> ImageRGBAf;
 
     namespace image
     {
@@ -64,7 +96,7 @@ namespace cve
                     for(Index d = 0; d < img(r, c).size(); ++d)
                     {
                         outImg(r, c)(d) = static_cast<
-                            typename ImageB::Scalar::Scalar>(
+                            typename ImageB::Scalar>(
                             img(r, c)(d));
                     }
                 }
@@ -72,11 +104,11 @@ namespace cve
         }
 
         template<typename Image> void normalize(Image &img,
-            const typename Image::Scalar &minval,
-            const typename Image::Scalar &maxval)
+            const typename Image::Pixel &minval,
+            const typename Image::Pixel &maxval)
         {
-            typename Image::Scalar oldMin = img(0, 0);
-            typename Image::Scalar oldMax = img(0, 0);;
+            typename Image::Pixel oldMin = img(0, 0);
+            typename Image::Pixel oldMax = img(0, 0);;
 
             for(Index c = 0; c < img.cols(); ++c)
             {
@@ -92,7 +124,7 @@ namespace cve
                 }
             }
 
-            typename Image::Scalar factor = (maxval - minval) / (oldMax - oldMin);
+            typename Image::Pixel factor = (maxval - minval) / (oldMax - oldMin);
             img = (img - oldMin) * factor + minval;
         }
     }
