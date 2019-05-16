@@ -20,12 +20,13 @@ namespace cve
     public:
         static_assert(_Depth > 0, "Image depth has to be greater than zero");
 
-        typedef Eigen::Array<_Scalar, _Depth, 1> Pixel;
+        static const int Depth = _Depth;
+
         typedef _Scalar Scalar;
+        typedef Eigen::Array<Scalar, _Depth, 1> Pixel;
         typedef Eigen::Array<Pixel, Eigen::Dynamic, Eigen::Dynamic> ParentType;
         typedef typename ParentType::Index Index;
 
-        static const int Depth = _Depth;
 
 
         Image()
@@ -54,6 +55,26 @@ namespace cve
             this->ParentType::operator=(other);
             return *this;
         }
+
+        Pixel &operator()(const Index r, const Index c)
+        {
+            return this->ParentType::operator()(r, c);
+        }
+
+        const Pixel &operator()(const Index r, const Index c) const
+        {
+            return this->ParentType::operator()(r, c);
+        }
+
+        Scalar &operator()(const Index r, const Index c, const Index d)
+        {
+            return this->operator()(r, c)(d);
+        }
+
+        const Scalar &operator()(const Index r, const Index c, const Index d) const
+        {
+            return this->operator()(r, c)(d);
+        }
     };
 
     typedef Image<uint8_t, 1> ImageGray;
@@ -76,8 +97,8 @@ namespace cve
                 {
                     for(Index d = 0; d < img(r, c).size(); ++d)
                     {
-                        img(r, c)(d) = std::min(maxval(d), std::max(minval(d),
-                            img(r, c)(d)));
+                        img(r, c, d) = std::min(maxval(d), std::max(minval(d),
+                            img(r, c, d)));
                     }
                 }
             }
@@ -93,11 +114,10 @@ namespace cve
             {
                 for(Index r = 0; r < img.rows(); ++r)
                 {
-                    for(Index d = 0; d < img(r, c).size(); ++d)
+                    for(Index d = 0; d < img.depth(); ++d)
                     {
-                        outImg(r, c)(d) = static_cast<
-                            typename ImageB::Scalar>(
-                            img(r, c)(d));
+                        outImg(r, c, d) = static_cast<
+                            typename ImageB::Scalar>(img(r, c, d));
                     }
                 }
             }
@@ -114,12 +134,12 @@ namespace cve
             {
                 for(Index r = 0; r < img.rows(); ++r)
                 {
-                    for(Index d = 0; d < img(r, c).size(); ++d)
+                    for(Index d = 0; d < img.depth(); ++d)
                     {
-                        if(img(r, c)(d) < oldMin(d))
-                            oldMin(d) = img(r, c)(d);
-                        if(img(r, c)(d) > oldMax(d))
-                            oldMax(d) = img(r, c)(d);
+                        if(img(r, c, d) < oldMin(d))
+                            oldMin(d) = img(r, c, d);
+                        if(img(r, c, d) > oldMax(d))
+                            oldMax(d) = img(r, c, d);
                     }
                 }
             }
@@ -147,24 +167,24 @@ namespace cve
                 Scalar highPixel = static_cast<Scalar>(r+1) / factor;
                 Index r2 = static_cast<Index>(lowPixel) + 1;
 
-                for(Index d = 0; d < tmp(r, c).size(); ++d)
+                for(Index d = 0; d < tmp.depth(); ++d)
                 {
-                    Scalar sum = (static_cast<Scalar>(r2) - lowPixel) * img(r2, c)(d);
+                    Scalar sum = (static_cast<Scalar>(r2) - lowPixel) * img(r2, c, d);
                     Index r3 = r2 + 1;
                     while(r3 < img.rows() && r3 < highPixel)
                     {
-                        sum += img(r3, c)(d);
+                        sum += img(r3, c, d);
                         ++r3;
                     }
 
                     if(r3 < img.rows())
                     {
-                        sum += (1 - (static_cast<Scalar>(r3) - highPixel)) * img(r3, c)(d);
-                        tmp(r, c)(d) = factor * sum;
+                        sum += (1 - (static_cast<Scalar>(r3) - highPixel)) * img(r3, c, d);
+                        tmp(r, c, d) = factor * sum;
                     }
                     else
                     {
-                        tmp(r, c)(d) = 1 / ((1 / factor) -
+                        tmp(r, c, d) = 1 / ((1 / factor) -
                             (highPixel - static_cast<Scalar>(r3) + 1)) * sum;
                     }
                 }
@@ -180,24 +200,24 @@ namespace cve
                 Scalar highPixel = static_cast<Scalar>(c+1) / factor;
                 Index c2 = static_cast<Index>(lowPixel) + 1;
 
-                for(Index d = 0; d < outImg(r, c).size(); ++d)
+                for(Index d = 0; d < outImg.depth(); ++d)
                 {
-                    Scalar sum = (static_cast<Scalar>(c2) - lowPixel) * tmp(r, c2)(d);
+                    Scalar sum = (static_cast<Scalar>(c2) - lowPixel) * tmp(r, c2, d);
                     Index c3 = c2 + 1;
                     while(c3 < tmp.cols() && c3 < highPixel)
                     {
-                        sum += tmp(r, c3)(d);
+                        sum += tmp(r, c3, d);
                         ++c3;
                     }
 
                     if(c3 < tmp.cols())
                     {
-                        sum += (1 - (static_cast<Scalar>(c3) - highPixel)) * tmp(r, c3)(d);
-                        outImg(r, c)(d) = factor * sum;
+                        sum += (1 - (static_cast<Scalar>(c3) - highPixel)) * tmp(r, c3, d);
+                        outImg(r, c, d) = factor * sum;
                     }
                     else
                     {
-                        outImg(r, c)(d) = 1 / ((1 / factor) -
+                        outImg(r, c, d) = 1 / ((1 / factor) -
                             (highPixel - static_cast<Scalar>(c3) + 1)) * sum;
                     }
                 }
