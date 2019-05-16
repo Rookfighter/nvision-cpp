@@ -8,7 +8,6 @@
 
 #include <string>
 #include <fstream>
-#include "cve/image.h"
 
 namespace cve
 {
