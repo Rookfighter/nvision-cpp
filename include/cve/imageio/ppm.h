@@ -119,9 +119,9 @@ namespace cve
             {
                 for(Index c = 0; c < img.cols(); ++c)
                 {
-                    os << static_cast<uint8_t>(img(row, col, 0)),
-                        static_cast<uint8_t>(img(row, col, 1)),
-                        static_cast<uint8_t>(img(row, col, 2));
+                    os << static_cast<uint8_t>(img(r, c, 0))
+                        << static_cast<uint8_t>(img(r, c, 1))
+                        << static_cast<uint8_t>(img(r, c, 2));
                 }
             }
         }
