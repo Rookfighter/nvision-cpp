@@ -116,9 +116,15 @@ namespace cve
                     }
                 }
             }
-
             destImg = gimg + fimg;
+        }
 
+        template<typename Image>
+        void apply(Image &img) const
+        {
+            Image tmp;
+            apply<Image, Image>(img, tmp);
+            img = tmp;
         }
     };
 }

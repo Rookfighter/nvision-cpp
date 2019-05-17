@@ -84,6 +84,14 @@ namespace cve
             kernel::apply(img, tmpImg, kernelX_, handling_);
             kernel::apply(tmpImg, outImg, kernelY_, handling_);
         }
+
+        template<typename Image>
+        void apply(Image &img) const
+        {
+            Image tmp;
+            apply<Image, Image>(img, tmp);
+            img = tmp;
+        }
     };
 }
 
