@@ -8,6 +8,7 @@
 #define CVE_LUCAS_KANADE_DETECTOR_H_
 
 #include "cve/filter/gauss_filter.h"
+#include "cve/filter/derivative_filter.h"
 #include "cve/filter/sobel_filter.h"
 
 namespace cve
@@ -21,8 +22,7 @@ namespace cve
         SmoothFilter smoothFilter_;
         GradientFilter gradientFilter_;
     public:
-        typedef Eigen::Array<Eigen::Matrix<Scalar, 2, 1>, Eigen::Dynamic,
-            Eigen::Dynamic> FlowImage;
+        typedef Image<Scalar, 2> FlowImage;
 
         LucasKanadeDetector()
             : smoothFilter_(), gradientFilter_()
@@ -87,11 +87,7 @@ namespace cve
             smoothFilter_.apply(gradYT, tmpImg);
             gradYT = tmpImg;
 
-            flowImg.resize(imgA.rows(), imgA.cols());
-            for(Index c = 0; c < flowImg.cols(); ++c)
-                for(Index r = 0; r < flowImg.rows(); ++r)
-                    flowImg(r, c).setZero();
-
+            flowImg.setZero(imgA.rows(), imgA.cols());
             for(Index c = 0; c < imgA.cols(); ++c)
             {
                 for(Index r = 0; r < imgA.rows(); ++r)
@@ -103,14 +99,14 @@ namespace cve
                             gradXY(r, c, d), gradYY(r, c, d);
                         Eigen::Matrix<Scalar, 2, 1> b;
                         b << -gradXT(r, c, d), -gradYT(r, c, d);
-                        flowImg(r, c) += A.inverse() * b;
+                        flowImg(r, c) += (A.inverse() * b).array();
                     }
                 }
             }
 
             for(Index c = 0; c < flowImg.cols(); ++c)
                 for(Index r = 0; r < flowImg.rows(); ++r)
-                    flowImg(r, c) /= imgA.depth();
+                    flowImg(r, c) /= static_cast<Scalar>(imgA.depth());
 
         }
     };

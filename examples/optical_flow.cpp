@@ -38,7 +38,7 @@ int main(int argc, const char **argv)
 
     typename LucasKanadeDetector<float>::FlowImage flowImg;
     LucasKanadeDetector<float> lkDetector;
-    lkDetector.setSmoothFilter({2});
+    lkDetector.setSmoothFilter({3});
     lkDetector.apply(imgA, imgB, flowImg);
     ImageRGB oimg;
     std::cout << "colorize" << std::endl;

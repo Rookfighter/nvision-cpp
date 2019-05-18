@@ -18,36 +18,33 @@ namespace cve
     class GaussFilter
     {
     public:
+        static_assert(Dim > 1, "GaussFilter dimension must be greater than one");
         static_assert(Dim % 2 == 1, "GaussFilter dimension must be odd");
     private:
         Scalar sigma_;
         BorderHandling handling_;
 
-        Eigen::Matrix<Scalar, Dim, 1> kernelX_;
-        Eigen::Matrix<Scalar, 1, Dim> kernelY_;
+        Eigen::Matrix<Scalar, Dim, 1> kernel_;
 
-        template<typename Derived>
-        void computeKernel(Eigen::MatrixBase<Derived> &kernel)
+        void computeKernel()
         {
-            Index rowHalf = kernel.rows() / 2;
-            Index colHalf = kernel.cols() / 2;
+            Index rowHalf = kernel_.rows() / 2;
 
-            for(Index c = 0; c < kernel.cols(); ++c)
+            for(Index i = 0; i < rowHalf + 1; ++i)
             {
-                Scalar x = c - colHalf;
-                for(Index r = 0; r < kernel.rows(); ++r)
-                {
-                    Scalar y = r - rowHalf;
-                    // omit gauss normalization factor
-                    // the kernel is normalized after the loop
-                    kernel(r, c) = std::exp(-(x * x + y * y) /
-                        (2 * sigma_ * sigma_));
-                }
+                Index idxA = rowHalf - i;
+                Index idxB = rowHalf + i;
+                // omit gauss normalization factor
+                // the kernel is normalized after the loop
+                Scalar value = std::exp(-(i * i) /
+                    (2 * sigma_ * sigma_));
+                kernel_(idxA) = value;
+                kernel_(idxB) = value;
             }
 
             // normalize kernel such that sum of elements is one
             // if it is not normalized, the image becomes darker
-            kernel /= kernel.sum();
+            kernel_ /= kernel_.sum();
         }
     public:
         GaussFilter()
@@ -56,8 +53,7 @@ namespace cve
         }
 
         GaussFilter(const Scalar sigma)
-            : sigma_(), handling_(BorderHandling::Reflect), kernelX_(),
-            kernelY_()
+            : sigma_(), handling_(BorderHandling::Reflect), kernel_()
         {
             setSigma(sigma);
         }
@@ -65,8 +61,7 @@ namespace cve
         void setSigma(const Scalar sigma)
         {
             sigma_ = sigma;
-            computeKernel(kernelX_);
-            computeKernel(kernelY_);
+            computeKernel();
         }
 
         void setBorderHandling(const BorderHandling handling)
@@ -75,14 +70,14 @@ namespace cve
         }
 
         template<typename ImageA, typename ImageB>
-        void apply(const ImageA &img, ImageB &outImg) const
+        void apply(const ImageA &srcImg, ImageB &destImg) const
         {
             static_assert(ImageA::Depth == ImageB::Depth,
                 "ImageA and ImageB must have same depth.");
 
             ImageB tmpImg;
-            kernel::apply(img, tmpImg, kernelX_, handling_);
-            kernel::apply(tmpImg, outImg, kernelY_, handling_);
+            kernel::apply(srcImg, tmpImg, kernel_, handling_);
+            kernel::apply(tmpImg, destImg, kernel_.transpose(), handling_);
         }
 
         template<typename Image>

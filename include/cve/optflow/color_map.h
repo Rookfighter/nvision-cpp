@@ -18,7 +18,7 @@ namespace cve
         class ColorMap
         {
         public:
-            typedef Eigen::Array<Eigen::Matrix<Scalar, 2, 1>, Eigen::Dynamic, Eigen::Dynamic> FlowImage;
+            typedef Image<Scalar, 2> FlowImage;
 
             ColorMap()
             {}
@@ -33,7 +33,7 @@ namespace cve
                 {
                     for(Index r = 0; r < flowImg.rows(); ++r)
                     {
-                        Eigen::Matrix<Scalar, 2, 1> vec = 0.5 * std::sqrt(0.5) * flowImg(r, c);
+                        Eigen::Matrix<Scalar, 2, 1> vec = flowImg(r, c).matrix();
 
                         Scalar phi = std::atan2(vec(1), vec(0)) + pi<Scalar>();
 
