@@ -88,6 +88,10 @@ namespace cve
             gradYT = tmpImg;
 
             flowImg.resize(imgA.rows(), imgA.cols());
+            for(Index c = 0; c < flowImg.cols(); ++c)
+                for(Index r = 0; r < flowImg.rows(); ++r)
+                    flowImg(r, c).setZero();
+
             for(Index c = 0; c < imgA.cols(); ++c)
             {
                 for(Index r = 0; r < imgA.rows(); ++r)
@@ -99,14 +103,14 @@ namespace cve
                             gradXY(r, c, d), gradYY(r, c, d);
                         Eigen::Matrix<Scalar, 2, 1> b;
                         b << -gradXT(r, c, d), -gradYT(r, c, d);
-                        flowImg(r, c) = A.inverse() * b;
+                        flowImg(r, c) += A.inverse() * b;
                     }
                 }
             }
 
-            // for(Index c = 0; c < flowImg.cols(); ++c)
-            //     for(Index r = 0; r < flowImg.rows(); ++r)
-            //         flowImg(r, c) /= imgA.depth();
+            for(Index c = 0; c < flowImg.cols(); ++c)
+                for(Index r = 0; r < flowImg.rows(); ++r)
+                    flowImg(r, c) /= imgA.depth();
 
         }
     };
