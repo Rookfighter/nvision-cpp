@@ -8,94 +8,36 @@
 #define CVE_IMAGE_H_
 
 #include <Eigen/Geometry>
+#include <unsupported/Eigen/CXX11/Tensor>
 
 namespace cve
 {
     typedef long int Index;
 
-    template<typename _Scalar,
-        int _Depth>
-    class Image : public Eigen::Array<Eigen::Array<_Scalar, _Depth, 1>, Eigen::Dynamic, Eigen::Dynamic>
-    {
-    public:
-        static_assert(_Depth > 0, "Image depth has to be greater than zero");
+    typedef Eigen::Tensor<uint8_t, 3> Image8;
+    typedef Eigen::Tensor<uint16_t, 3> Image16;
+    typedef Eigen::Tensor<uint32_t, 3> Image32;
+    typedef Eigen::Tensor<float, 3> Imagef;
+    typedef Eigen::Tensor<double, 3> Imaged;
 
-        static const int Depth = _Depth;
-
-        typedef _Scalar Scalar;
-        typedef Eigen::Array<Scalar, _Depth, 1> Pixel;
-        typedef Eigen::Array<Pixel, Eigen::Dynamic, Eigen::Dynamic> ParentType;
-        typedef typename ParentType::Index Index;
-
-
-
-        Image()
-            : ParentType()
-        { }
-
-        Image(const Index rows, const Index cols)
-            : ParentType(rows, cols)
-        { }
-
-        // This constructor allows you to construct Image from Eigen expressions
-        template<typename OtherDerived>
-        Image(const Eigen::ArrayBase<OtherDerived>& other)
-            : ParentType(other)
-        { }
-
-        Index depth() const
-        {
-            return _Depth;
-        }
-
-        // This method allows you to assign Eigen expressions to Image
-        template<typename OtherDerived>
-        Image<Scalar, _Depth>& operator=(const Eigen::ArrayBase <OtherDerived>& other)
-        {
-            this->ParentType::operator=(other);
-            return *this;
-        }
-
-        Pixel &operator()(const Index r, const Index c)
-        {
-            return this->ParentType::operator()(r, c);
-        }
-
-        const Pixel &operator()(const Index r, const Index c) const
-        {
-            return this->ParentType::operator()(r, c);
-        }
-
-        Scalar &operator()(const Index r, const Index c, const Index d)
-        {
-            return this->operator()(r, c)(d);
-        }
-
-        const Scalar &operator()(const Index r, const Index c, const Index d) const
-        {
-            return this->operator()(r, c)(d);
-        }
-    };
-
-    typedef Image<uint8_t, 1> ImageGray;
-    typedef Image<uint8_t, 3> ImageRGB;
-    typedef Image<uint8_t, 4> ImageRGBA;
-
-    typedef Image<float, 1> ImageGrayf;
-    typedef Image<float, 3> ImageRGBf;
-    typedef Image<float, 4> ImageRGBAf;
+    typedef Eigen::Tensor<uint8_t, 1> Pixel8;
+    typedef Eigen::Tensor<uint16_t, 1> Pixel16;
+    typedef Eigen::Tensor<uint32_t, 1> Pixel32;
+    typedef Eigen::Tensor<float, 1> Pixelf;
+    typedef Eigen::Tensor<double, 1> Pixeld;
 
     namespace image
     {
-        template<typename Image> void clamp(Image &img,
-            const typename Image::Scalar &minval,
-            const typename Image::Scalar &maxval)
+        template<typename Scalar>
+        void clamp(Eigen::Tensor<Scalar, 3> &img,
+            const Eigen::Tensor<Scalar, 1> &minval,
+            const Eigen::Tensor<Scalar, 1> &maxval)
         {
-            for(Index c = 0; c < img.cols(); ++c)
+            for(Index d = 0; d < img.dimension(2); ++d)
             {
-                for(Index r = 0; r < img.rows(); ++r)
+                for(Index c = 0; c < img.dimension(1); ++c)
                 {
-                    for(Index d = 0; d < img(r, c).size(); ++d)
+                    for(Index r = 0; r < img.dimension(0); ++r)
                     {
                         img(r, c, d) = std::min(maxval(d), std::max(minval(d),
                             img(r, c, d)));
@@ -104,108 +46,72 @@ namespace cve
             }
         }
 
-        template<typename ImageA, typename ImageB> void copy(
-            const ImageA &img,
-            ImageB &outImg)
+        template<typename Scalar>
+        void normalize(Eigen::Tensor<Scalar, 3> &img,
+            const Eigen::Tensor<Scalar, 1> &minval,
+            const Eigen::Tensor<Scalar, 1> &maxval)
         {
-            static_assert(ImageA::Depth == ImageB::Depth,
-                "ImageA and ImageB must have same depth.");
+            Eigen::Tensor<Scalar, 1> oldMin = img.minimum({0, 1});
+            Eigen::Tensor<Scalar, 1> oldMax = img.maximum({0, 1});;
 
-            outImg.resize(img.rows(), img.cols());
-
-            for(Index c = 0; c < img.cols(); ++c)
-            {
-                for(Index r = 0; r < img.rows(); ++r)
-                {
-                    for(Index d = 0; d < img.depth(); ++d)
-                    {
-                        outImg(r, c, d) = static_cast<
-                            typename ImageB::Scalar>(img(r, c, d));
-                    }
-                }
-            }
-        }
-
-        template<typename Image> void normalize(Image &img,
-            const typename Image::Pixel &minval,
-            const typename Image::Pixel &maxval)
-        {
-            typename Image::Pixel oldMin = img(0, 0);
-            typename Image::Pixel oldMax = img(0, 0);;
-
-            for(Index c = 0; c < img.cols(); ++c)
-            {
-                for(Index r = 0; r < img.rows(); ++r)
-                {
-                    for(Index d = 0; d < img.depth(); ++d)
-                    {
-                        if(img(r, c, d) < oldMin(d))
-                            oldMin(d) = img(r, c, d);
-                        if(img(r, c, d) > oldMax(d))
-                            oldMax(d) = img(r, c, d);
-                    }
-                }
-            }
-
-            typename Image::Pixel factor = (maxval - minval) / (oldMax - oldMin);
+            Eigen::Tensor<Scalar, 1> factor = (maxval - minval) / (oldMax - oldMin);
             img = (img - oldMin) * factor + minval;
         }
     }
 
-    template<typename Scalar, typename Image>
-    void downsample(const Scalar factor, const Image &img, Image &outImg)
+    template<typename ScalarA, typename ScalarB>
+    void downsample(const ScalarA factor,
+        const Eigen::Tensor<ScalarB, 3> &srcImg,
+        Eigen::Tensor<ScalarB, 3> &destImg)
     {
-        Index width = factor * img.cols();
-        Index height = factor * img.rows();
-
-        outImg.resize(height, width);
-        Image tmp(height, img.cols());
+        destImg.resize(srcImg.dimensions());
+        Eigen::Tensor<ScalarB, 3> tmp(srcImg.dimensions());
 
         // process downsample vertically
-        for(Index c = 0; c < tmp.cols(); ++c)
+        for(Index d = 0; d < srcImg.dimension(2); ++d)
         {
-            for(Index r = 0; r < tmp.rows(); ++r)
+            for(Index c = 0; c < srcImg.dimension(1); ++c)
             {
-                Scalar lowPixel = static_cast<Scalar>(r) / factor;
-                Scalar highPixel = static_cast<Scalar>(r+1) / factor;
-                Index r2 = static_cast<Index>(lowPixel) + 1;
-
-                for(Index d = 0; d < tmp.depth(); ++d)
+                for(Index r = 0; r < srcImg.dimension(0); ++r)
                 {
-                    Scalar sum = (static_cast<Scalar>(r2) - lowPixel) * img(r2, c, d);
+                    ScalarA lowPixel = static_cast<ScalarA>(r) / factor;
+                    ScalarA highPixel = static_cast<ScalarA>(r+1) / factor;
+                    Index r2 = static_cast<Index>(lowPixel) + 1;
+
+                    ScalarA sum = (static_cast<ScalarA>(r2) - lowPixel) * srcImg(r2, c, d);
                     Index r3 = r2 + 1;
-                    while(r3 < img.rows() && r3 < highPixel)
+                    while(r3 < srcImg.dimension(0) && r3 < highPixel)
                     {
-                        sum += img(r3, c, d);
+                        sum += srcImg(r3, c, d);
                         ++r3;
                     }
 
-                    if(r3 < img.rows())
+                    if(r3 < srcImg.dimension(0))
                     {
-                        sum += (1 - (static_cast<Scalar>(r3) - highPixel)) * img(r3, c, d);
+                        sum += (1 - (static_cast<ScalarA>(r3) - highPixel)) * srcImg(r3, c, d);
                         tmp(r, c, d) = factor * sum;
                     }
                     else
                     {
                         tmp(r, c, d) = 1 / ((1 / factor) -
-                            (highPixel - static_cast<Scalar>(r3) + 1)) * sum;
+                            (highPixel - static_cast<ScalarA>(r3) + 1)) * sum;
                     }
                 }
             }
         }
 
         // process downsample horizontally
-        for(Index r = 0; r < outImg.rows(); ++r)
+        for(Index d = 0; d < srcImg.dimension(2); ++d)
         {
-            for(Index c = 0; c < outImg.cols(); ++c)
+            for(Index c = 0; c < srcImg.dimension(1); ++c)
             {
-                Scalar lowPixel = static_cast<Scalar>(c) / factor;
-                Scalar highPixel = static_cast<Scalar>(c+1) / factor;
-                Index c2 = static_cast<Index>(lowPixel) + 1;
-
-                for(Index d = 0; d < outImg.depth(); ++d)
+                for(Index r = 0; r < srcImg.dimension(0); ++r)
                 {
-                    Scalar sum = (static_cast<Scalar>(c2) - lowPixel) * tmp(r, c2, d);
+                    ScalarA lowPixel = static_cast<ScalarA>(c) / factor;
+                    ScalarA highPixel = static_cast<ScalarA>(c+1) / factor;
+                    Index c2 = static_cast<Index>(lowPixel) + 1;
+
+                    ScalarA sum = (static_cast<ScalarA>(c2) - lowPixel) * tmp(r, c2, d);
                     Index c3 = c2 + 1;
                     while(c3 < tmp.cols() && c3 < highPixel)
                     {
@@ -215,13 +121,13 @@ namespace cve
 
                     if(c3 < tmp.cols())
                     {
-                        sum += (1 - (static_cast<Scalar>(c3) - highPixel)) * tmp(r, c3, d);
-                        outImg(r, c, d) = factor * sum;
+                        sum += (1 - (static_cast<ScalarA>(c3) - highPixel)) * tmp(r, c3, d);
+                        destImg(r, c, d) = factor * sum;
                     }
                     else
                     {
-                        outImg(r, c, d) = 1 / ((1 / factor) -
-                            (highPixel - static_cast<Scalar>(c3) + 1)) * sum;
+                        destImg(r, c, d) = 1 / ((1 / factor) -
+                            (highPixel - static_cast<ScalarA>(c3) + 1)) * sum;
                     }
                 }
             }
