@@ -30,18 +30,17 @@ int main(int argc, const char **argv)
     cve::pgm::load(argv[2], imgB);
     std::cout << "-- size " << imgB.cols() << "x" << imgB.rows() << std::endl;
 
-    GaussFilter<float, 3> preSmooth(6);
+    GaussFilter<float, 7> preSmooth(1);
     preSmooth.apply(imgA);
     preSmooth.apply(imgB);
 
     std::cout << "Apply lucas kanade detector" << std::endl;
 
     typename LucasKanadeDetector<float>::FlowImage flowImg;
-    LucasKanadeDetector<float> lkDetector;
-    lkDetector.setSmoothFilter({3});
+    LucasKanadeDetector<float, GaussFilter<float, 7>> lkDetector;
+    lkDetector.setSmoothFilter({1});
     lkDetector.apply(imgA, imgB, flowImg);
     ImageRGB oimg;
-    std::cout << "colorize" << std::endl;
     optflow::ColorMap<float> cmap;
     cmap.apply(flowImg, oimg);
 

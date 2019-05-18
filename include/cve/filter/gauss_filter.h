@@ -12,6 +12,8 @@
 namespace cve
 {
     /** Filter class to apply Gaussian blur.
+     *  A kernel size which is greater than ceil(6 * sigma) brings no advantage
+     *  in precision.
      *  @tparam Scalar value type of the underlying kernel
      *  @tparam Dim size of the underlying kernel */
     template<typename Scalar, unsigned int Dim = 3>

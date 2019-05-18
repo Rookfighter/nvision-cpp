@@ -14,7 +14,7 @@
 namespace cve
 {
     template<typename Scalar,
-        typename SmoothFilter = GaussFilter<Scalar, 3>,
+        typename SmoothFilter = GaussFilter<Scalar, 5>,
         typename GradientFilter = SobelFilter<Scalar>>
     class LucasKanadeDetector
     {

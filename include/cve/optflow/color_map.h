@@ -34,8 +34,8 @@ namespace cve
                 for(Index c = 0; c < flowImg.cols(); ++c)
                     for(Index r = 0; r < flowImg.rows(); ++r)
                         intensity(r, c) = flowImg(r, c).matrix().norm();
-                intensity -= intensity.minCoeff();
-                intensity /= intensity.maxCoeff();
+                // intensity -= intensity.minCoeff();
+                // intensity /= intensity.maxCoeff();
 
                 img.resize(flowImg.rows(), flowImg.cols());
                 for(Index c = 0; c < flowImg.cols(); ++c)
@@ -49,6 +49,8 @@ namespace cve
                             phi += 2 * pi<Scalar>();
 
                         Scalar intense = intensity(r, c);
+                        if(intense > 1)
+                            intense = 1;
                         Eigen::Array<Scalar, 3, 1> hsv;
                         hsv(0) = phi * 180 / pi<Scalar>();
                         hsv(1) = intense;
