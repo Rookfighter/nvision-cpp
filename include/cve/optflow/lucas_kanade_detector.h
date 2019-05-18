@@ -8,7 +8,6 @@
 #define CVE_LUCAS_KANADE_DETECTOR_H_
 
 #include "cve/filter/gauss_filter.h"
-#include "cve/filter/derivative_filter.h"
 #include "cve/filter/sobel_filter.h"
 
 namespace cve
