@@ -22,10 +22,11 @@ namespace cve
      *  (iterations -> inf).
      * @tparam Scalar value type of the underlying kernel
      * @tparam Dim size of the underlying kernel */
-    template<typename Scalar, unsigned int Dim = 3>
+    template<typename Scalar, int Dim = 3>
     class BoxFilter
     {
     public:
+        static_assert(Dim > 1, "BoxFilter dimension must be greater than one");
         static_assert(Dim % 2 == 1, "BoxFilter dimension must be odd");
     private:
         size_t iterations_;
@@ -61,13 +62,11 @@ namespace cve
             iterations_ = iterations;
         }
 
-        template<typename ImageA, typename ImageB>
-        void apply(const ImageA &srcImg, ImageB &destImg) const
+        template<typename ScalarA, typename ScalarB>
+        void apply(const Eigen::Tensor<ScalarA, 3> &srcImg,
+            Eigen::Tensor<ScalarB, 3> &destImg) const
         {
-            static_assert(ImageA::Depth == ImageB::Depth,
-                "ImageA and ImageB must have same depth.");
-
-            ImageB tmpImg;
+            Eigen::Tensor<ScalarB, 3> tmpImg;
             destImg = srcImg;
 
             for(size_t i = 0; i < iterations_; ++i)
@@ -77,11 +76,11 @@ namespace cve
             }
         }
 
-        template<typename Image>
-        void apply(Image &img) const
+        template<typename ScalarA>
+        void apply(Eigen::Tensor<ScalarA, 3> &img) const
         {
-            Image tmp;
-            apply<Image, Image>(img, tmp);
+            Eigen::Tensor<ScalarA, 3> tmp;
+            apply(img, tmp);
             img = tmp;
         }
     };

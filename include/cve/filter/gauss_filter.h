@@ -71,22 +71,20 @@ namespace cve
             handling_ = handling;
         }
 
-        template<typename ImageA, typename ImageB>
-        void apply(const ImageA &srcImg, ImageB &destImg) const
+        template<typename ScalarA, typename ScalarB>
+        void apply(const Eigen::Tensor<ScalarA, 3> &srcImg,
+            Eigen::Tensor<ScalarB, 3> &destImg) const
         {
-            static_assert(ImageA::Depth == ImageB::Depth,
-                "ImageA and ImageB must have same depth.");
-
-            ImageB tmpImg;
+            Eigen::Tensor<ScalarB, 3> tmpImg;
             kernel::apply(srcImg, tmpImg, kernel_, handling_);
             kernel::apply(tmpImg, destImg, kernel_.transpose(), handling_);
         }
 
-        template<typename Image>
-        void apply(Image &img) const
+        template<typename ScalarA>
+        void apply(Eigen::Tensor<ScalarA, 3> &img) const
         {
-            Image tmp;
-            apply<Image, Image>(img, tmp);
+            Eigen::Tensor<ScalarA, 3> tmp;
+            apply(img, tmp);
             img = tmp;
         }
     };

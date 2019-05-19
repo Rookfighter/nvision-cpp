@@ -21,25 +21,26 @@ int main(int argc, const char **argv)
     }
 
     std::cout << "Load \"" << argv[1] << "\"" << std::endl;
-    ImageGray img;
+    Image8 img;
+    Image8 oimg;
     cve::pgm::load(argv[1], img);
-
-    std::cout << "Apply gauss filter" << std::endl;
-    GaussFilter<float, 5> gaussFilter(6);
-    ImageGray oimg;
-    gaussFilter.apply<ImageGray>(img, oimg);
-
-    cve::pgm::save("gauss_smooth.pgm", oimg);
 
     std::cout << "Apply box filter" << std::endl;
     BoxFilter<float, 5> boxFilter(3);
-    boxFilter.apply<ImageGray>(img, oimg);
+    boxFilter.apply<uint8_t, uint8_t>(img, oimg);
 
     cve::pgm::save("box_smooth.pgm", oimg);
 
+    std::cout << "Apply gauss filter" << std::endl;
+    GaussFilter<float, 9> gaussFilter(3);
+    gaussFilter.apply(img, oimg);
+
+    cve::pgm::save("gauss_smooth.pgm", oimg);
+
+
     std::cout << "Apply recursive filter" << std::endl;
     RecursiveBlurFilter<float> recFilter(3);
-    recFilter.apply<ImageGray>(img, oimg);
+    recFilter.apply(img, oimg);
 
     cve::pgm::save("recursive_smooth.pgm", oimg);
 

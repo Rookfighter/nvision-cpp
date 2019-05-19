@@ -13,36 +13,36 @@ namespace cve
 {
     namespace kernel
     {
-        template<typename ImageA, typename ImageB, typename Derived>
-        void apply(const ImageA &srcImg,
-            ImageB &destImg,
-            const Eigen::MatrixBase<Derived> &kernel,
+        template<typename ScalarA, typename ScalarB, typename DerivedC>
+        void apply(const Eigen::Tensor<ScalarA, 3> &srcImg,
+            Eigen::Tensor<ScalarB, 3> &destImg,
+            const Eigen::MatrixBase<DerivedC> &kernel,
             const BorderHandling handling)
         {
-            static_assert(ImageA::Depth == ImageB::Depth,
-                "ImageA and ImageB must have same depth.");
+            destImg.resize(srcImg.dimensions());
+            destImg.setZero();
 
-            destImg.setZero(srcImg.rows(), srcImg.cols());
-
-            for(Index c = 0; c < srcImg.cols(); ++c)
+            for(Index d = 0; d < srcImg.dimension(2); ++d)
             {
-                for(Index r = 0; r < srcImg.rows(); ++r)
+                for(Index c = 0; c < srcImg.dimension(1); ++c)
                 {
-                    for(Index kcol = 0; kcol < kernel.cols(); ++kcol)
+                    for(Index r = 0; r < srcImg.dimension(0); ++r)
                     {
-                        Index offsetCol = kcol - kernel.cols() / 2;
-                        Index icol = border::handle(c + offsetCol, 0,
-                            srcImg.cols(), handling);
-
-                        for(Index krow = 0; krow < kernel.rows(); ++krow)
+                        for(Index kcol = 0; kcol < kernel.cols(); ++kcol)
                         {
-                            Index offsetRow = krow - kernel.rows() / 2;
-                            Index irow = border::handle(r + offsetRow, 0,
-                                srcImg.rows(), handling);
+                            Index offsetCol = kcol - kernel.cols() / 2;
+                            Index icol = border::handle(c + offsetCol, 0,
+                                srcImg.dimension(1), handling);
 
-                            for(Index d = 0; d < destImg.depth(); ++d)
+                            for(Index krow = 0; krow < kernel.rows(); ++krow)
+                            {
+                                Index offsetRow = krow - kernel.rows() / 2;
+                                Index irow = border::handle(r + offsetRow, 0,
+                                    srcImg.dimension(0), handling);
+
                                 destImg(r, c, d) += kernel(krow, kcol) *
                                     srcImg(irow, icol, d);
+                            }
                         }
                     }
                 }
@@ -50,7 +50,7 @@ namespace cve
         }
     }
 
-    template<typename Scalar, unsigned int Rows, unsigned int Cols>
+    template<typename Scalar, int Rows, int Cols>
     class Kernel
     {
     public:
@@ -98,12 +98,10 @@ namespace cve
             return Cols;
         }
 
-        template<typename ImageA, typename ImageB>
-        void apply(const ImageA &srcImg, ImageB &destImg) const
+        template<typename ScalarA, typename ScalarB>
+        void apply(const Eigen::Tensor<ScalarA, 3> &srcImg,
+            Eigen::Tensor<ScalarB, 3> &destImg) const
         {
-            static_assert(ImageA::Depth == ImageB::Depth,
-                "ImageA and ImageB must have same depth.");
-
             kernel::apply(srcImg, destImg, matrix_, handling_);
         }
     };
