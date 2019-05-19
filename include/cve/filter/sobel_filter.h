@@ -30,55 +30,46 @@ namespace cve
             handling_ = handling;
         }
 
-        template<typename ImageA, typename ImageB>
-        void applyX(const ImageA &srcImg,
-            ImageB &destImg) const
+        template<typename ScalarA, typename ScalarB>
+        void applyX(const Eigen::Tensor<ScalarA, 3> &srcImg,
+            Eigen::Tensor<ScalarB, 3> &destImg) const
         {
-            static_assert(ImageA::Depth == ImageB::Depth,
-                "ImageA and ImageB must have same depth.");
-
             Eigen::Matrix<Scalar, 1, 3> kernelX;
             Eigen::Matrix<Scalar, 3, 1> kernelY;
 
             kernelX << -1, 0, 1;
             kernelY << 1, 2, 1;
 
-            ImageB tmpImg;
+            Eigen::Tensor<ScalarB, 3> tmpImg;
             kernel::apply(srcImg, tmpImg, kernelX, handling_);
             kernel::apply(tmpImg, destImg, kernelY, handling_);
         }
 
-        template<typename ImageA, typename ImageB>
-        void applyY(const ImageA &srcImg,
-            ImageB &destImg) const
+        template<typename ScalarA, typename ScalarB>
+        void applyY(const Eigen::Tensor<ScalarA, 3> &srcImg,
+            Eigen::Tensor<ScalarB, 3> &destImg) const
         {
-            static_assert(ImageA::Depth == ImageB::Depth,
-                "ImageA and ImageB must have same depth.");
-
             Eigen::Matrix<Scalar, 1, 3> kernelX;
             Eigen::Matrix<Scalar, 3, 1> kernelY;
 
             kernelX << 1, 2, 1;
             kernelY << -1, 0, 1;
 
-            ImageB tmpImg;
+            Eigen::Tensor<ScalarB, 3> tmpImg;
             kernel::apply(srcImg, tmpImg, kernelX, handling_);
             kernel::apply(tmpImg, destImg, kernelY, handling_);
         }
 
-        template<typename ImageA, typename ImageB>
-        void apply(const ImageA &srcImg,
-            ImageB &destImg) const
+        template<typename ScalarA, typename ScalarB>
+        void apply(const Eigen::Tensor<ScalarA, 3> &srcImg,
+            Eigen::Tensor<ScalarB, 3> &destImg) const
         {
-            static_assert(ImageA::Depth == ImageB::Depth,
-                "ImageA and ImageB must have same depth.");
+            Eigen::Tensor<ScalarB, 3> gradX;
+            Eigen::Tensor<ScalarB, 3> gradY;
+            applyX(srcImg, gradX);
+            applyY(srcImg, gradY);
 
-            ImageB srcx;
-            ImageB srcy;
-            applyX(srcImg, srcx);
-            applyY(srcImg, srcy);
-
-            destImg = (srcx * srcx + srcy * srcy).sqrt();
+            destImg = (gradX * gradX + gradY * gradY).sqrt();
         }
     };
 }

@@ -30,13 +30,10 @@ namespace cve
             handling_ = handling;
         }
 
-        template<typename ImageA, typename ImageB>
-        void applyX(const ImageA &srcImg,
-            ImageB &destImg) const
+        template<typename ScalarA, typename ScalarB>
+        void applyX(const Eigen::Tensor<ScalarA, 3> &srcImg,
+            Eigen::Tensor<ScalarB, 3> &destImg) const
         {
-            static_assert(ImageA::Depth == ImageB::Depth,
-                "ImageA and ImageB must have same depth.");
-
             Eigen::Matrix<Scalar, 3, 3> kernel;
 
             kernel << 47, 0, -47,
@@ -46,9 +43,9 @@ namespace cve
             kernel::apply(srcImg, destImg, kernel, handling_);
         }
 
-        template<typename ImageA, typename ImageB>
-        void applyY(const ImageA &srcImg,
-            ImageB &destImg) const
+        template<typename ScalarA, typename ScalarB>
+        void applyY(const Eigen::Tensor<ScalarA, 3> &srcImg,
+            Eigen::Tensor<ScalarB, 3> &destImg) const
         {
             Eigen::Matrix<Scalar, 3, 3> kernel;
 
@@ -59,16 +56,16 @@ namespace cve
             kernel::apply(srcImg, destImg, kernel, handling_);
         }
 
-        template<typename ImageA, typename ImageB>
-        void apply(const ImageA &srcImg,
-            ImageB &destImg) const
+        template<typename ScalarA, typename ScalarB>
+        void apply(const Eigen::Tensor<ScalarA, 3> &srcImg,
+            Eigen::Tensor<ScalarB, 3> &destImg) const
         {
-            ImageB srcx;
-            ImageB srcy;
-            applyX(srcImg, srcx);
-            applyY(srcImg, srcy);
+            Eigen::Tensor<ScalarB, 3> gradX;
+            Eigen::Tensor<ScalarB, 3> gradY;
+            applyX(srcImg, gradX);
+            applyY(srcImg, gradY);
 
-            destImg = (srcx * srcx + srcy * srcy).sqrt();
+            destImg = (gradX * gradX + gradY * gradY).sqrt();
         }
     };
 }

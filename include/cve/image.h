@@ -51,11 +51,21 @@ namespace cve
             const Eigen::Tensor<Scalar, 1> &minval,
             const Eigen::Tensor<Scalar, 1> &maxval)
         {
-            Eigen::Tensor<Scalar, 1> oldMin = img.minimum({0, 1});
-            Eigen::Tensor<Scalar, 1> oldMax = img.maximum({0, 1});;
+            Eigen::Tensor<Scalar, 1> oldMin = img.minimum(Eigen::array<int, 2>({0, 1}));
+            Eigen::Tensor<Scalar, 1> oldMax = img.maximum(Eigen::array<int, 2>({0, 1}));
 
             Eigen::Tensor<Scalar, 1> factor = (maxval - minval) / (oldMax - oldMin);
-            img = (img - oldMin) * factor + minval;
+
+            for(Index d = 0; d < img.dimension(2); ++d)
+            {
+                for(Index c = 0; c < img.dimension(1); ++c)
+                {
+                    for(Index r = 0; r < img.dimension(0); ++r)
+                    {
+                        img(r, c, d) = (img(r, c, d) - oldMin(d)) * factor(d) + minval(d);
+                    }
+                }
+            }
         }
     }
 

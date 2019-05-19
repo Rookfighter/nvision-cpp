@@ -15,7 +15,7 @@ namespace cve
 {
     /** Class for Canny edge detection. */
     template<typename Scalar,
-        typename SmoothFilter=GaussFilter<Scalar, 5>,
+        typename SmoothFilter=GaussFilter<Scalar, 3>,
         typename GradientFilter=SobelFilter<Scalar>>
     class CannyDetector
     {
@@ -58,12 +58,13 @@ namespace cve
             gradientFilter_ = gradient;
         }
 
-        template<typename ImageA, typename ImageB>
-        void apply(const ImageA &srcImg, ImageB &destImg) const
+        template<typename ScalarA, typename ScalarB>
+        void apply(const Eigen::Tensor<ScalarA, 3> &srcImg,
+            Eigen::Tensor<ScalarB, 3> &destImg) const
         {
-            ImageB xgrad;
-            ImageB ygrad;
-            ImageB maggrad;
+            Eigen::Tensor<ScalarB, 3> xgrad;
+            Eigen::Tensor<ScalarB, 3> ygrad;
+            Eigen::Tensor<ScalarB, 3> maggrad;
 
             // smooth image
             smoothFilter_.apply(srcImg, destImg);
@@ -74,13 +75,13 @@ namespace cve
             maggrad = (xgrad * xgrad + ygrad * ygrad).sqrt();
 
             // apply non-maximum suppression
-            for(Index c = 0; c < maggrad.cols(); ++c)
+            for(Index d = 0; d < maggrad.dimension(2); ++d)
             {
-                for(Index r = 0; r < maggrad.rows(); ++r)
+                for(Index c = 0; c < maggrad.dimension(1); ++c)
                 {
-                    for(Index d = 0; d < maggrad(r, c).size(); ++d)
+                    for(Index r = 0; r < maggrad.dimension(0); ++r)
                     {
-                        Scalar angle = std::atan2(ygrad(r, c)(d), xgrad(r, c)(d));
+                        Scalar angle = std::atan2(ygrad(r, c, d), xgrad(r, c, d));
                         angle += pi<Scalar>();
                         int angIdx = angle / (pi<Scalar>() / 8);
 
@@ -92,66 +93,66 @@ namespace cve
                         // edge points in east-west and west-east
                         if(angIdx == 0 || angIdx == 15 || angIdx == 7 || angIdx == 8)
                         {
-                            rA = border::handle(r + 1, 0, maggrad.rows(), handling_);
-                            rB = border::handle(r - 1, 0, maggrad.rows(), handling_);
+                            rA = border::handle(r + 1, 0, maggrad.dimension(0), handling_);
+                            rB = border::handle(r - 1, 0, maggrad.dimension(0), handling_);
                         }
                         // edge points in north-south and south-north
                         else if(angIdx == 3 || angIdx == 4 || angIdx == 11 || angIdx == 12)
                         {
-                            cA = border::handle(c + 1, 0, maggrad.cols(), handling_);
-                            cB = border::handle(c - 1, 0, maggrad.cols(), handling_);
+                            cA = border::handle(c + 1, 0, maggrad.dimension(1), handling_);
+                            cB = border::handle(c - 1, 0, maggrad.dimension(1), handling_);
                         }
                         // edge points in northeast-southwest and southwest-northeast
                         else if(angIdx == 1 || angIdx == 2 || angIdx == 9 || angIdx == 10)
                         {
-                            rA = border::handle(r + 1, 0, maggrad.rows(), handling_);
-                            cA = border::handle(c - 1, 0, maggrad.cols(), handling_);
-                            rB = border::handle(r - 1, 0, maggrad.rows(), handling_);
-                            cB = border::handle(c + 1, 0, maggrad.cols(), handling_);
+                            rA = border::handle(r + 1, 0, maggrad.dimension(0), handling_);
+                            cA = border::handle(c - 1, 0, maggrad.dimension(1), handling_);
+                            rB = border::handle(r - 1, 0, maggrad.dimension(0), handling_);
+                            cB = border::handle(c + 1, 0, maggrad.dimension(1), handling_);
                         }
                         // edge points in northwest-southeast and southeast-northwest
                         else
                         {
-                            rA = border::handle(r + 1, 0, maggrad.rows(), handling_);
-                            cA = border::handle(c + 1, 0, maggrad.cols(), handling_);
-                            rB = border::handle(r - 1, 0, maggrad.rows(), handling_);
-                            cB = border::handle(c - 1, 0, maggrad.cols(), handling_);
+                            rA = border::handle(r + 1, 0, maggrad.dimension(0), handling_);
+                            cA = border::handle(c + 1, 0, maggrad.dimension(1), handling_);
+                            rB = border::handle(r - 1, 0, maggrad.dimension(0), handling_);
+                            cB = border::handle(c - 1, 0, maggrad.dimension(1), handling_);
                         }
 
-                        destImg(r, c)(d) = maggrad(r, c)(d);
+                        destImg(r, c, d) = maggrad(r, c, d);
                         // if both neighbours are stronger, suppress this pixel
-                        if(maggrad(r, c)(d) < maggrad(rA, cA)(d) &&
-                            maggrad(r, c)(d) < maggrad(rB, cB)(d))
+                        if(maggrad(r, c, d) < maggrad(rA, cA, d) &&
+                            maggrad(r, c, d) < maggrad(rB, cB, d))
                         {
-                            destImg(r, c)(d) = 0;
+                            destImg(r, c, d) = 0;
                         }
                     }
                 }
             }
 
             // perform hysteresis and follow edges
-            for(Index c = 0; c < destImg.cols(); ++c)
+            for(Index d = 0; d < destImg.dimension(2); ++d)
             {
-                for(Index r = 0; r < destImg.rows(); ++r)
+                for(Index c = 0; c < destImg.dimension(1); ++c)
                 {
-                    for(Index d = 0; d < destImg(r, c).size(); ++d)
+                    for(Index r = 0; r < destImg.dimension(0); ++r)
                     {
                         // if magnitude is below low threshold, suppress this pixel
-                        if(destImg(r, c)(d) < lowThreshold_)
+                        if(destImg(r, c, d) < lowThreshold_)
                         {
-                            destImg(r, c)(d) = 0;
+                            destImg(r, c, d) = 0;
                         }
                         // perform hyteresis if this is a weak pixel
-                        else if(destImg(r, c)(d) < highThreshold_)
+                        else if(destImg(r, c, d) < highThreshold_)
                         {
                             bool suppress = true;
                             for(Index dc = -1; dc < 2; ++dc)
                             {
-                                Index c2 = border::handle(c + dc, 0, destImg.cols(), handling_);
+                                Index c2 = border::handle(c + dc, 0, destImg.dimension(1), handling_);
                                 for(Index dr = -1; dr < 2; ++dr)
                                 {
-                                    Index r2 = border::handle(r + dr, 0, destImg.rows(), handling_);
-                                    if(destImg(r2, c2)(d) >= highThreshold_)
+                                    Index r2 = border::handle(r + dr, 0, destImg.dimension(0), handling_);
+                                    if(destImg(r2, c2, d) >= highThreshold_)
                                     {
                                         suppress = false;
                                         break;
@@ -160,7 +161,7 @@ namespace cve
                             }
 
                             if(suppress)
-                                destImg(r, c)(d) = 0;
+                                destImg(r, c, d) = 0;
                         }
                     }
                 }
