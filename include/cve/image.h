@@ -67,6 +67,8 @@ namespace cve
         destImg.resize(srcImg.dimensions());
         Eigen::Tensor<ScalarB, 3> tmp(srcImg.dimensions());
 
+        std::cout << "vertical" << std::endl;
+
         // process downsample vertically
         for(Index d = 0; d < srcImg.dimension(2); ++d)
         {
@@ -100,32 +102,38 @@ namespace cve
             }
         }
 
+        std::cout << "horizontal" << std::endl;
+
         // process downsample horizontally
         for(Index d = 0; d < srcImg.dimension(2); ++d)
         {
             for(Index c = 0; c < srcImg.dimension(1); ++c)
             {
+                ScalarA lowPixel = static_cast<ScalarA>(c) / factor;
+                ScalarA highPixel = static_cast<ScalarA>(c+1) / factor;
+                Index c2 = static_cast<Index>(lowPixel) + 1;
+
                 for(Index r = 0; r < srcImg.dimension(0); ++r)
                 {
-                    ScalarA lowPixel = static_cast<ScalarA>(c) / factor;
-                    ScalarA highPixel = static_cast<ScalarA>(c+1) / factor;
-                    Index c2 = static_cast<Index>(lowPixel) + 1;
-
+                    std::cout << "sum " << c2 << " " << tmp.dimension(1) << std::endl;
                     ScalarA sum = (static_cast<ScalarA>(c2) - lowPixel) * tmp(r, c2, d);
                     Index c3 = c2 + 1;
-                    while(c3 < tmp.cols() && c3 < highPixel)
+                    std::cout << "c3" << std::endl;
+                    while(c3 < tmp.dimension(1) && c3 < highPixel)
                     {
                         sum += tmp(r, c3, d);
                         ++c3;
                     }
 
-                    if(c3 < tmp.cols())
+                    if(c3 < tmp.dimension(1))
                     {
+                        std::cout << "A" << std::endl;
                         sum += (1 - (static_cast<ScalarA>(c3) - highPixel)) * tmp(r, c3, d);
                         destImg(r, c, d) = factor * sum;
                     }
                     else
                     {
+                        std::cout << "B" << std::endl;
                         destImg(r, c, d) = 1 / ((1 / factor) -
                             (highPixel - static_cast<ScalarA>(c3) + 1)) * sum;
                     }

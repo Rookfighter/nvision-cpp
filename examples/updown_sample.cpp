@@ -17,12 +17,14 @@ int main(int argc, const char **argv)
     }
 
     std::cout << "Load \"" << argv[1] << "\"" << std::endl;
-    cve::ImageGray img;
+    cve::Image8 img;
     cve::pgm::load(argv[1], img);
 
+    std::cout << img.dimension(0) << ',' << img.dimension(1) << ',' << img.dimension(2) << std::endl;
+
     std::cout << "Downsample" << std::endl;;
-    cve::ImageGray oimg;
-    cve::downsample<float, cve::ImageGray>(0.3, img, oimg);
+    cve::Image8 oimg;
+    cve::downsample(0.3, img, oimg);
 
     cve::pgm::save("downsample.pgm", oimg);
 

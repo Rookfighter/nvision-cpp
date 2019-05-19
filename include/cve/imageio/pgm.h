@@ -34,8 +34,9 @@ namespace cve
             }
         }
 
-        template<typename Image>
-        void load(const std::string &filename, Image &img)
+        template<typename Scalar>
+        void load(const std::string &filename,
+            Eigen::Tensor<Scalar, 3> &img)
         {
             std::ifstream is(filename);
 
@@ -87,7 +88,8 @@ namespace cve
 
             if(width <= 0 || height <= 0)
                 throw std::runtime_error(filename + ": invalid PGM image size");
-            img.setZero(height, width);
+            img.resize(height, width, 1);
+            img.setZero();
 
             // read image data, data is stored in row major format
             for(Index r = 0; r < height; ++r)
@@ -95,25 +97,26 @@ namespace cve
                 for(Index c = 0; c < width; ++c)
                 {
                     uint8_t val = (is.get() * 255) / pixmax;
-                    for(Index d = 0; d < img.depth(); ++d)
-                        img(r, c, d) = val;
+                    img(r, c, 0) = val;
                 }
             }
         }
 
-        template<typename Image>
-        void save(const std::string &filename, const Image &img)
+        template<typename Scalar>
+        void save(const std::string &filename,
+            const Eigen::Tensor<Scalar, 3> &img)
         {
+            assert(img.dimension(2) >= 1);
             std::ofstream os(filename);
 
             os << "P5\n"
-                << img.cols() << ' '
-                << img.rows() << '\n'
+                << img.dimension(1) << ' '
+                << img.dimension(0) << '\n'
                 << "255" << '\n';
 
-            for(Index row = 0; row < img.rows(); ++row)
-                for(Index col = 0; col < img.cols(); ++col)
-                    os << static_cast<uint8_t>(img(row, col, 0));
+            for(Index r = 0; r < img.dimension(1); ++r)
+                for(Index c = 0; c < img.dimension(0); ++c)
+                    os << static_cast<uint8_t>(img(r, c, 0));
         }
     }
 }
