@@ -42,6 +42,10 @@ namespace cve
             const Eigen::Tensor<ScalarA, 3> &imgB,
             Eigen::Tensor<Scalar, 3> &flowImg) const
         {
+            assert(imgA.dimension(0) == imgB.dimension(0));
+            assert(imgA.dimension(1) == imgB.dimension(1));
+            assert(imgA.dimension(2) == imgB.dimension(2));
+
             Eigen::Tensor<Scalar, 3> gradX(imgA.dimensions());
             Eigen::Tensor<Scalar, 3> gradY(imgA.dimensions());
             Eigen::Tensor<Scalar, 3> gradT(imgA.dimensions());

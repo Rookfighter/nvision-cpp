@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <cve/optflow/lucas_kanade_detector.h>
+#include <cve/optflow/horn_schunck_detector.h>
 #include <cve/optflow/color_map.h>
 #include <cve/imageio/pgm.h>
 #include <cve/imageio/ppm.h>
@@ -34,7 +35,7 @@ int main(int argc, const char **argv)
     preSmooth.apply(imgA);
     preSmooth.apply(imgB);
 
-    std::cout << "Apply lucas kanade detector" << std::endl;
+    std::cout << "Apply Lucas Kanade detector" << std::endl;
 
     Eigen::Tensor<float, 3> flowImg;
     LucasKanadeDetector<float, GaussFilter<float, 9>> lkDetector;
@@ -45,6 +46,14 @@ int main(int argc, const char **argv)
     cmap.apply(flowImg, oimg);
 
     cve::ppm::save("lucas_kanade.ppm", oimg);
+
+    std::cout << "Apply Horn Schunck detector" << std::endl;
+
+    HornSchunckDetector<float> hsDetector;
+    hsDetector.apply(imgA, imgB, flowImg);
+    cmap.apply(flowImg, oimg);
+
+    cve::ppm::save("horn_schunck.ppm", oimg);
 
     return 0;
 }
