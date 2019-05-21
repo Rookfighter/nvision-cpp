@@ -21,7 +21,6 @@ namespace cve
         SmoothFilter smoothFilter_;
         GradientFilter gradientFilter_;
     public:
-        typedef Image<Scalar, 2> FlowImage;
 
         LucasKanadeDetector()
             : smoothFilter_(), gradientFilter_()
@@ -38,43 +37,31 @@ namespace cve
             gradientFilter_ = filter;
         }
 
-        template<typename Image>
-        void apply(const Image &imgA,
-            const Image &imgB,
-            FlowImage &flowImg) const
+        template<typename ScalarA>
+        void apply(const Eigen::Tensor<ScalarA, 3> &imgA,
+            const Eigen::Tensor<ScalarA, 3> &imgB,
+            Eigen::Tensor<Scalar, 3> &flowImg) const
         {
-            typedef cve::Image<Scalar, Image::Depth> CompImage;
-
-            CompImage gradX(imgA.rows(), imgA.cols());
-            CompImage gradY(imgA.rows(), imgA.cols());
-            CompImage gradT(imgA.rows(), imgA.cols());
-            CompImage gradXX(imgA.rows(), imgA.cols());
-            CompImage gradYY(imgA.rows(), imgA.cols());
-            CompImage gradXY(imgA.rows(), imgA.cols());
-            CompImage gradXT(imgA.rows(), imgA.cols());
-            CompImage gradYT(imgA.rows(), imgA.cols());
+            Eigen::Tensor<Scalar, 3> gradX(imgA.dimensions());
+            Eigen::Tensor<Scalar, 3> gradY(imgA.dimensions());
+            Eigen::Tensor<Scalar, 3> gradT(imgA.dimensions());
+            Eigen::Tensor<Scalar, 3> gradXX(imgA.dimensions());
+            Eigen::Tensor<Scalar, 3> gradYY(imgA.dimensions());
+            Eigen::Tensor<Scalar, 3> gradXY(imgA.dimensions());
+            Eigen::Tensor<Scalar, 3> gradXT(imgA.dimensions());
+            Eigen::Tensor<Scalar, 3> gradYT(imgA.dimensions());
 
             gradientFilter_.applyX(imgA, gradX);
             gradientFilter_.applyY(imgA, gradY);
 
-            for(Index c = 0; c < gradT.cols(); ++c)
-            {
-                for(Index r = 0; r < gradT.rows(); ++r)
-                {
-                    for(Index d = 0; d < gradT.depth(); ++d)
-                    {
-                        gradT(r, c, d) = static_cast<Scalar>(imgB(r, c, d)) -
-                            static_cast<Scalar>(imgA(r, c, d));
-                        gradXX(r, c, d) = gradX(r, c, d) * gradX(r, c, d);
-                        gradYY(r, c, d) = gradY(r, c, d) * gradY(r, c, d);
-                        gradXY(r, c, d) = gradX(r, c, d) * gradY(r, c, d);
-                        gradXT(r, c, d) = gradX(r, c, d) * gradT(r, c, d);
-                        gradYT(r, c, d) = gradY(r, c, d) * gradT(r, c, d);
-                    }
-                }
-            }
+            gradT = imgB.template cast<Scalar>() - imgA.template cast<Scalar>();
+            gradXX = gradX * gradX;
+            gradYY = gradY * gradY;
+            gradXY = gradX * gradY;
+            gradXT = gradX * gradT;
+            gradYT = gradY * gradT;
 
-            CompImage tmpImg;
+            Eigen::Tensor<Scalar, 3> tmpImg;
             smoothFilter_.apply(gradXX, tmpImg);
             gradXX = tmpImg;
             smoothFilter_.apply(gradYY, tmpImg);
@@ -86,27 +73,27 @@ namespace cve
             smoothFilter_.apply(gradYT, tmpImg);
             gradYT = tmpImg;
 
-            flowImg.setZero(imgA.rows(), imgA.cols());
-            for(Index c = 0; c < imgA.cols(); ++c)
+            flowImg.resize(imgA.dimension(0), imgA.dimension(1), 2);
+            flowImg.setZero();
+            for(Index d = 0; d < imgA.dimension(2); ++d)
             {
-                for(Index r = 0; r < imgA.rows(); ++r)
+                for(Index c = 0; c < imgA.dimension(1); ++c)
                 {
-                    for(Index d = 0; d < imgA.depth(); ++d)
+                    for(Index r = 0; r < imgA.dimension(0); ++r)
                     {
                         Eigen::Matrix<Scalar, 2, 2> A;
                         A << gradXX(r, c, d), gradXY(r, c, d),
                             gradXY(r, c, d), gradYY(r, c, d);
                         Eigen::Matrix<Scalar, 2, 1> b;
                         b << -gradXT(r, c, d), -gradYT(r, c, d);
-                        flowImg(r, c) += (A.inverse() * b).array();
+                        Eigen::Matrix<Scalar, 2, 1> flow = (A.inverse() * b).array();
+                        flowImg(r, c, 0) += flow(0);
+                        flowImg(r, c, 1) += flow(1);
                     }
                 }
             }
 
-            for(Index c = 0; c < flowImg.cols(); ++c)
-                for(Index r = 0; r < flowImg.rows(); ++r)
-                    flowImg(r, c) /= static_cast<Scalar>(imgA.depth());
-
+            flowImg /= flowImg.constant(imgA.dimension(2));
         }
     };
 }

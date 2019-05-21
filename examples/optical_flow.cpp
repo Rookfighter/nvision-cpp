@@ -21,26 +21,26 @@ int main(int argc, const char **argv)
     }
 
     std::cout << "Load \"" << argv[1] << "\"" << std::endl;
-    ImageGray imgA;
+    Image8 imgA;
     cve::pgm::load(argv[1], imgA);
-    std::cout << "-- size " << imgA.cols() << "x" << imgA.rows() << std::endl;
+    std::cout << "-- size " << imgA.dimension(1) << "x" << imgA.dimension(0) << std::endl;
 
     std::cout << "Load \"" << argv[2] << "\"" << std::endl;
-    ImageGray imgB;
+    Image8 imgB;
     cve::pgm::load(argv[2], imgB);
-    std::cout << "-- size " << imgB.cols() << "x" << imgB.rows() << std::endl;
+    std::cout << "-- size " << imgB.dimension(1) << "x" << imgB.dimension(0) << std::endl;
 
-    GaussFilter<float, 7> preSmooth(1);
+    GaussFilter<float, 9> preSmooth(2);
     preSmooth.apply(imgA);
     preSmooth.apply(imgB);
 
     std::cout << "Apply lucas kanade detector" << std::endl;
 
-    typename LucasKanadeDetector<float>::FlowImage flowImg;
-    LucasKanadeDetector<float, GaussFilter<float, 7>> lkDetector;
-    lkDetector.setSmoothFilter({1});
+    Eigen::Tensor<float, 3> flowImg;
+    LucasKanadeDetector<float, GaussFilter<float, 9>> lkDetector;
+    lkDetector.setSmoothFilter({1.4});
     lkDetector.apply(imgA, imgB, flowImg);
-    ImageRGB oimg;
+    Image8 oimg;
     optflow::ColorMap<float> cmap;
     cmap.apply(flowImg, oimg);
 

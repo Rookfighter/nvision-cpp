@@ -19,36 +19,28 @@ namespace cve
         class ColorMap
         {
         public:
-            typedef Image<Scalar, 2> FlowImage;
-
             ColorMap()
             {}
 
-            template<typename Image>
-            void apply(const FlowImage &flowImg, Image &img) const
+            template<typename ScalarA>
+            void apply(const Eigen::Tensor<Scalar, 3> &flowImg,
+                Eigen::Tensor<ScalarA, 3> &img) const
             {
-                static_assert(Image::Depth >= 3, "Image needs at least depth of 3");
+                assert(flowImg.dimension(2) == 2);
 
-                Eigen::Array<Scalar, Eigen::Dynamic, Eigen::Dynamic> intensity;
-                intensity.resize(flowImg.rows(), flowImg.cols());
-                for(Index c = 0; c < flowImg.cols(); ++c)
-                    for(Index r = 0; r < flowImg.rows(); ++r)
-                        intensity(r, c) = flowImg(r, c).matrix().norm();
-                // intensity -= intensity.minCoeff();
-                // intensity /= intensity.maxCoeff();
-
-                img.resize(flowImg.rows(), flowImg.cols());
-                for(Index c = 0; c < flowImg.cols(); ++c)
+                img.resize(flowImg.dimension(0), flowImg.dimension(1), 3);
+                for(Index c = 0; c < flowImg.dimension(1); ++c)
                 {
-                    for(Index r = 0; r < flowImg.rows(); ++r)
+                    for(Index r = 0; r < flowImg.dimension(0); ++r)
                     {
-                        Eigen::Matrix<Scalar, 2, 1> vec = flowImg(r, c).matrix();
+                        Eigen::Matrix<Scalar, 2, 1> vec;
+                        vec << flowImg(r, c, 0), flowImg(r, c, 1);
 
                         Scalar phi = std::atan2(vec(1), vec(0));
                         if(phi < 0)
                             phi += 2 * pi<Scalar>();
 
-                        Scalar intense = intensity(r, c);
+                        Scalar intense = std::min<Scalar>(1, vec.norm());
                         if(intense > 1)
                             intense = 1;
                         Eigen::Array<Scalar, 3, 1> hsv;
@@ -57,7 +49,10 @@ namespace cve
                         hsv(2) = 0.9;
 
                         ColorConverter conv;
-                        img(r, c) = conv.hsv2rgb<Scalar, typename Image::Scalar>(hsv);
+                        Eigen::Array<ScalarA, 3, 1> rgb = conv.hsv2rgb<Scalar, ScalarA>(hsv);
+                        img(r, c, 0) = rgb(0);
+                        img(r, c, 1) = rgb(1);
+                        img(r, c, 2) = rgb(2);
                     }
                 }
             }

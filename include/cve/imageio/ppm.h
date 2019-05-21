@@ -34,11 +34,9 @@ namespace cve
             }
         }
 
-        template<typename Image>
-        void load(const std::string &filename, Image &img)
+        template<typename Scalar>
+        void load(const std::string &filename, Eigen::Tensor<Scalar, 3> &img)
         {
-            static_assert(Image::Depth >= 3, "Image must have a depth of 3 at least");
-
             std::ifstream is(filename);
 
             if(is.bad() || is.fail())
@@ -87,7 +85,7 @@ namespace cve
 
             if(width <= 0 || height <= 0)
                 throw std::runtime_error(filename + ": invalid PPM image size");
-            img.setZero(height, width);
+            img.resize(height, width, 3);
 
             // read image data, data is stored in row major format
             for(Index r = 0; r < height; ++r)
@@ -104,20 +102,22 @@ namespace cve
             }
         }
 
-        template<typename Image>
-        void save(const std::string &filename, const Image &img)
+        template<typename Scalar>
+        void save(const std::string &filename,
+            const Eigen::Tensor<Scalar, 3> &img)
         {
-            static_assert(Image::Depth >= 3, "Image must have a depth of 3 at least");
+            assert(img.dimension(2) >= 3);
+
             std::ofstream os(filename);
 
             os << "P6\n"
-                << img.cols() << ' '
-                << img.rows() << '\n'
+                << img.dimension(1) << ' '
+                << img.dimension(0) << '\n'
                 << "255" << '\n';
 
-            for(Index r = 0; r < img.rows(); ++r)
+            for(Index r = 0; r < img.dimension(0); ++r)
             {
-                for(Index c = 0; c < img.cols(); ++c)
+                for(Index c = 0; c < img.dimension(1); ++c)
                 {
                     os << static_cast<uint8_t>(img(r, c, 0))
                         << static_cast<uint8_t>(img(r, c, 1))
