@@ -30,6 +30,7 @@ include_directories(
     ${CATCH2_INCLUDE_DIR}
 )
 
+add_executable(detect_corners "examples/detect_corners.cpp")
 add_executable(detect_edges "examples/detect_edges.cpp")
 add_executable(filter_smooth "examples/filter_smooth.cpp")
 add_executable(optical_flow "examples/optical_flow.cpp")

@@ -48,6 +48,11 @@ namespace cve
             highThreshold_ = high;
         }
 
+        void setBorderHandling(const BorderHandling handling)
+        {
+            handling_ = handling;
+        }
+
         void setSmoothFilter(const SmoothFilter &filter)
         {
             smoothFilter_ = filter;
