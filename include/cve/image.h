@@ -54,6 +54,8 @@ namespace cve
             Eigen::Tensor<Scalar, 1> oldMin = img.minimum(Eigen::array<int, 2>({0, 1}));
             Eigen::Tensor<Scalar, 1> oldMax = img.maximum(Eigen::array<int, 2>({0, 1}));
 
+            assert(oldMin.dimension(0) == img.dimension(2));
+            assert(oldMax.dimension(0) == img.dimension(2));
 
             for(Index d = 0; d < img.dimension(2); ++d)
             {

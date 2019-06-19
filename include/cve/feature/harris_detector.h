@@ -9,7 +9,6 @@
 
 #include "cve/math.h"
 #include "cve/image.h"
-#include "cve/imageio/pgm.h"
 #include "cve/filter/gauss_filter.h"
 #include "cve/filter/sobel_filter.h"
 
@@ -17,8 +16,7 @@ namespace cve
 {
     /** Class for harris corner detection. */
     template<typename Scalar,
-        int Window = 5,
-        typename SmoothFilter=GaussFilter<Scalar, 7>,
+        typename SmoothFilter=GaussFilter<Scalar, 5>,
         typename GradientFilter=SobelFilter<Scalar>>
     class HarrisDetector
     {
@@ -28,25 +26,34 @@ namespace cve
         typedef Eigen::Matrix<Scalar, 2, 1> Vector2;
 
         Scalar traceFactor_;
+        Scalar qualityLevel_;
+        Index minDistance_;
+        Index maxCorners_;
 
         SmoothFilter smoothFilter_;
         GradientFilter gradientFilter_;
 
-        /** Determines of given pixel is a corner.
-          * If the harris response of this pixel is greater than all response
-          * values in its local neighbourhood then the pixel is a corner. */
+        /** Determines if given pixel is a corner.
+          * A pixel is considered a suitable corner if:
+          *   - its response is greater than qualityLevel * maximum(response)
+          *   - it has the maximum response in its local neighbourhood */
         bool isCorner(const Eigen::Tensor<Scalar, 3> &response,
             const Index row,
-            const Index col) const
+            const Index col,
+            const Scalar maxResponse) const
         {
-            Index winHalf = Window / 2;
             Scalar val = response(row, col, 0);
-            for(Index x = -winHalf; x < winHalf+1; ++x)
+            // check if corner value is high enough to be considered
+            if(val < qualityLevel_ * maxResponse)
+                return false;
+
+            for(Index x = -minDistance_; x < minDistance_+1; ++x)
             {
                 Index c2 = col + x;
                 if(c2 < 0 || c2 >= response.dimension(1))
                     continue;
-                for(Index y = -1; y < 2; ++y)
+
+                for(Index y = -minDistance_; y < minDistance_+1; ++y)
                 {
                     Index r2 = row + y;
                     if(r2 < 0 || r2 >= response.dimension(0))
@@ -62,13 +69,17 @@ namespace cve
 
     public:
         HarrisDetector()
-            : HarrisDetector(0.05)
+            : HarrisDetector(0.04, 0.01, 10, 0)
         {
 
         }
 
-        HarrisDetector(const Scalar traceFactor)
-            : traceFactor_(traceFactor)
+        HarrisDetector(const Scalar traceFactor,
+            const Scalar qualityLevel,
+            const size_t minDistance,
+            const size_t maxCorners)
+            : traceFactor_(traceFactor), qualityLevel_(qualityLevel),
+            minDistance_(minDistance), maxCorners_(maxCorners), smoothFilter_(), gradientFilter_()
         {
 
         }
@@ -83,11 +94,33 @@ namespace cve
             gradientFilter_ = gradient;
         }
 
+        void setTraceFactor(const Scalar traceFactor)
+        {
+            traceFactor_ = traceFactor;
+        }
 
-        /** Compute Harris corner features in the given Image.
+        void setQualityLevel(const Scalar level)
+        {
+            qualityLevel_ = level;
+        }
+
+        void setMaximumCorners(const size_t cnt)
+        {
+            maxCorners_ = cnt;
+        }
+
+        void setMinDistance(const size_t distance)
+        {
+            minDistance_ = distance;
+        }
+
+
+        /** Compute Harris corner features in the given image.
           * The keypoints are returned in a matrix, where each column
           * represents a single 2D point. Each keypoint is stored in (x y), i.e.
           * (column row), format.
+          * The keypoints are stored in descending order according to their
+          * quality measure.
           * @param srcImg input image
           * @param keypoints 2xN matrix with N keypoints
           */
@@ -135,33 +168,51 @@ namespace cve
 
                     Scalar trace = M(0, 0) + M(1, 1);
                     Scalar det = M(0, 0) * M(1, 1) - M(0, 1) * M(1, 0);
-                    response(r, c, 0) = det - traceFactor_ * trace;
+                    response(r, c, 0) = det - traceFactor_ * trace * trace;
                 }
             }
 
-            image::normalize(response, (Scalar) 0, (Scalar) 255);
-            pgm::save("response.pgm", response);
-
-            size_t cnt = 0;
+            // calculate maximum response value
+            Scalar maxResponse = 0;
             for(Index c = 0; c < response.dimension(1); ++c)
                 for(Index r = 0; r < response.dimension(0); ++r)
-                    if(isCorner(response, r, c))
+                    maxResponse = std::max(maxResponse, response(r, c, 0));
+
+            std::cout << "Max response:" << maxResponse << std::endl;
+
+            Index cnt = 0;
+            for(Index c = 0; c < response.dimension(1); ++c)
+                for(Index r = 0; r < response.dimension(0); ++r)
+                    if(isCorner(response, r, c, maxResponse))
                         ++cnt;
-            keypoints.resize(2, cnt);
+
+            std::vector<Vector2> pointsTmp(cnt);
 
             cnt = 0;
             for(Index c = 0; c < response.dimension(1); ++c)
             {
                 for(Index r = 0; r < response.dimension(0); ++r)
                 {
-                    if(isCorner(response, r, c))
+                    if(isCorner(response, r, c, maxResponse))
                     {
-                        keypoints(0, cnt) = c;
-                        keypoints(1, cnt) = r;
+                        pointsTmp[cnt] << c, r;
                         ++cnt;
                     }
                 }
             }
+
+            std::sort(pointsTmp.begin(), pointsTmp.end(),
+                [&response](const Vector2 &v1, const Vector2 &v2)
+                { return response(v1(1), v1(0), 0) < response(v2(1), v2(0), 0); }
+            );
+
+            if(maxCorners_ > 0)
+                cnt = std::min(maxCorners_, static_cast<Index>(pointsTmp.size()));
+            else
+                cnt = pointsTmp.size();
+            keypoints.resize(2, cnt);
+            for(Index i = 0; i < cnt; ++i)
+                keypoints.col(i) = pointsTmp[i];
         }
     };
 }
