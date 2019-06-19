@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <cve/feature/harris_detector.h>
+#include <cve/feature/shi_tomasi_detector.h>
 #include <cve/draw/shape_drawer.h>
 #include <cve/draw/colors.h>
 #include <cve/imageio/imageio.h>
@@ -33,12 +34,20 @@ int main(int argc, const char **argv)
     HarrisDetector<float> harrisDetector;
     harrisDetector.apply(img, keypoints);
 
-    // image::gray2rgb(img, oimg);
     oimg = img;
     ShapeDrawer<float> shapeDrawer;
     shapeDrawer.drawCircle(keypoints, 10, Colorf::Red(), oimg);
 
     cve::imsave("harris_corners." + ext, oimg);
+
+    std::cout << "Apply shi tomasi detector" << std::endl;
+    ShiTomasiDetector<float> shiDetector;
+    shiDetector.apply(img, keypoints);
+
+    oimg = img;
+    shapeDrawer.drawCircle(keypoints, 10, Colorf::Red(), oimg);
+
+    cve::imsave("shi_tomasi_corners." + ext, oimg);
 
     return 0;
 }
