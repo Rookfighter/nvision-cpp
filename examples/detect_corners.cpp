@@ -6,7 +6,9 @@
 
 #include <iostream>
 #include <cve/feature/harris_detector.h>
-#include <cve/imageio/pgm.h>
+#include <cve/draw/shape_drawer.h>
+#include <cve/draw/colors.h>
+#include <cve/imageio/imageio.h>
 
 using namespace cve;
 
@@ -24,13 +26,19 @@ int main(int argc, const char **argv)
     Imagef img;
     Imagef oimg;
     Matrix keypoints;
-    cve::pgm::load(argv[1], img);
+    cve::imload(argv[1], img);
+    std::string ext = cve::extension(argv[1]);
 
     std::cout << "Apply harris detector" << std::endl;
     HarrisDetector<float> harrisDetector;
     harrisDetector.apply(img, keypoints);
 
-    cve::pgm::save("harris_corners.pgm", oimg);
+    // image::gray2rgb(img, oimg);
+    oimg = img;
+    ShapeDrawer<float> shapeDrawer;
+    shapeDrawer.drawCircle(keypoints, 10, Colorf::Red(), oimg);
+
+    cve::imsave("harris_corners." + ext, oimg);
 
     return 0;
 }

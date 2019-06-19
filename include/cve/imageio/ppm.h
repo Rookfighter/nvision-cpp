@@ -3,6 +3,7 @@
  * Author: Fabian Meyer
  * Created On: 04 Mar 2019
  */
+ 
 #ifndef CVE_IMAGEIO_PPM_H_
 #define CVE_IMAGEIO_PPM_H_
 

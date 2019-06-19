@@ -9,7 +9,7 @@
 #include <cve/filter/scharr_filter.h>
 #include <cve/filter/laplace_filter.h>
 #include <cve/feature/canny_detector.h>
-#include <cve/imageio/pgm.h>
+#include <cve/imageio/imageio.h>
 
 using namespace cve;
 
@@ -24,40 +24,36 @@ int main(int argc, const char **argv)
     std::cout << "Load \"" << argv[1] << "\"" << std::endl;
     Imagef img;
     Imagef oimg;
-    cve::pgm::load(argv[1], img);
-
-    Eigen::Tensor<float, 1> pixLow(1);
-    pixLow.setConstant(0);
-    Eigen::Tensor<float, 1> pixHigh(1);
-    pixHigh.setConstant(255);
+    cve::imload(argv[1], img);
+    std::string ext = cve::extension(argv[1]);
 
     std::cout << "Apply sobel filter" << std::endl;
     SobelFilter<float> sobelFilter;
     sobelFilter.apply(img, oimg);
-    image::normalize(oimg, pixLow, pixHigh);
+    image::normalize(oimg, 0.0f, 255.0f);
 
-    cve::pgm::save("sobel_edges.pgm", oimg);
+    cve::imsave("sobel_edges." + ext, oimg);
 
     std::cout << "Apply scharr filter" << std::endl;
     ScharrFilter<float> scharrFilter;
     scharrFilter.apply(img, oimg);
-    image::normalize(oimg, pixLow, pixHigh);
+    image::normalize(oimg, 0.0f, 255.0f);
 
-    cve::pgm::save("scharr_edges.pgm", oimg);
+    cve::imsave("scharr_edges." + ext, oimg);
 
     std::cout << "Apply laplace filter" << std::endl;
     LaplaceFilter<float> laplaceFilter;
     laplaceFilter.apply(img, oimg);
-    image::normalize(oimg, pixLow, pixHigh);
+    image::normalize(oimg, 0.0f, 255.0f);
 
-    cve::pgm::save("laplace_edges.pgm", oimg);
+    cve::imsave("laplace_edges." + ext, oimg);
 
     std::cout << "Apply canny detector" << std::endl;
     CannyDetector<float> cannyDetector;
     cannyDetector.setSmoothFilter({1.4});
     cannyDetector.apply(img, oimg);
 
-    cve::pgm::save("canny_edges.pgm", oimg);
+    cve::imsave("canny_edges." + ext, oimg);
 
     return 0;
 }

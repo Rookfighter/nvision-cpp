@@ -8,6 +8,8 @@
 #define CVE_HARRIS_DETECTOR_H_
 
 #include "cve/math.h"
+#include "cve/image.h"
+#include "cve/imageio/pgm.h"
 #include "cve/filter/gauss_filter.h"
 #include "cve/filter/sobel_filter.h"
 
@@ -15,7 +17,8 @@ namespace cve
 {
     /** Class for harris corner detection. */
     template<typename Scalar,
-        typename SmoothFilter=GaussFilter<Scalar, 3>,
+        int Window = 5,
+        typename SmoothFilter=GaussFilter<Scalar, 7>,
         typename GradientFilter=SobelFilter<Scalar>>
     class HarrisDetector
     {
@@ -25,7 +28,6 @@ namespace cve
         typedef Eigen::Matrix<Scalar, 2, 1> Vector2;
 
         Scalar traceFactor_;
-        BorderHandling handling_;
 
         SmoothFilter smoothFilter_;
         GradientFilter gradientFilter_;
@@ -37,8 +39,9 @@ namespace cve
             const Index row,
             const Index col) const
         {
+            Index winHalf = Window / 2;
             Scalar val = response(row, col, 0);
-            for(Index x = -1; x < 2; ++x)
+            for(Index x = -winHalf; x < winHalf+1; ++x)
             {
                 Index c2 = col + x;
                 if(c2 < 0 || c2 >= response.dimension(1))
@@ -65,14 +68,9 @@ namespace cve
         }
 
         HarrisDetector(const Scalar traceFactor)
-            : traceFactor_(traceFactor), handling_(BorderHandling::Reflect)
+            : traceFactor_(traceFactor)
         {
 
-        }
-
-        void setBorderHandling(const BorderHandling handling)
-        {
-            handling_ = handling;
         }
 
         void setSmoothFilter(const SmoothFilter &filter)
@@ -102,7 +100,6 @@ namespace cve
             Eigen::Tensor<Scalar, 3> gradXX(srcImg.dimensions());
             Eigen::Tensor<Scalar, 3> gradYY(srcImg.dimensions());
             Eigen::Tensor<Scalar, 3> gradXY(srcImg.dimensions());
-            Eigen::Tensor<Scalar, 3> tmpImg(srcImg.dimensions());
             Eigen::Tensor<Scalar, 3> response(srcImg.dimension(0), srcImg.dimension(1), 1);
 
             // calculate gradients
@@ -115,30 +112,35 @@ namespace cve
             gradXY = gradX * gradY;
 
             // accumulate values from local neighbourhood with smooth filter
-            smoothFilter_.apply(gradXX, tmpImg);
-            gradXX = tmpImg;
-            smoothFilter_.apply(gradYY, tmpImg);
-            gradYY = tmpImg;
-            smoothFilter_.apply(gradXY, tmpImg);
-            gradXY = tmpImg;
+            smoothFilter_.apply(gradXX);
+            smoothFilter_.apply(gradYY);
+            smoothFilter_.apply(gradXY);
 
             // compute the harris response
-            response.setZero();
-            for(Index d = 0; d < gradXX.dimension(2); ++d)
+            for(Index c = 0; c < gradXX.dimension(1); ++c)
             {
-                for(Index c = 0; c < gradXX.dimension(1); ++c)
+                for(Index r = 0; r < gradXX.dimension(0); ++r)
                 {
-                    for(Index r = 0; r < gradXX.dimension(0); ++r)
+                    Matrix2 M;
+                    M.setZero();
+
+                    for(Index d = 0; d < gradXX.dimension(2); ++d)
                     {
-                        Matrix2 M;
-                        M << gradXX(r, c, d), gradXY(r, c, d),
-                            gradXY(r, c, d), gradYY(r, c, d);
-                        Scalar trace = M(0, 0) + M(1, 1);
-                        Scalar det = M.determinant();
-                        response(r, c, 0) += det - traceFactor_ * trace;
+                        M(0, 0) += gradXX(r, c, d);
+                        M(0, 1) += gradXY(r, c, d);
+                        M(1, 0) += gradXY(r, c, d);
+                        M(1, 1) += gradYY(r, c, d);
                     }
+                    M /= gradXX.dimension(2);
+
+                    Scalar trace = M(0, 0) + M(1, 1);
+                    Scalar det = M(0, 0) * M(1, 1) - M(0, 1) * M(1, 0);
+                    response(r, c, 0) = det - traceFactor_ * trace;
                 }
             }
+
+            image::normalize(response, (Scalar) 0, (Scalar) 255);
+            pgm::save("response.pgm", response);
 
             size_t cnt = 0;
             for(Index c = 0; c < response.dimension(1); ++c)
@@ -154,7 +156,8 @@ namespace cve
                 {
                     if(isCorner(response, r, c))
                     {
-                        keypoints.col(cnt) << c, r;
+                        keypoints(0, cnt) = c;
+                        keypoints(1, cnt) = r;
                         ++cnt;
                     }
                 }

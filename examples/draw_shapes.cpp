@@ -20,9 +20,9 @@ int main()
 
     std::cout << "Apply harris detector" << std::endl;
     ShapeDrawer<float> shapeDrawer;
-    shapeDrawer.drawCircle({150, 150}, 10, Color8::Magenta(), img);
+    shapeDrawer.drawCircle(Eigen::Vector2f{150, 150}, 10, Color8::Red(), img);
 
-    shapeDrawer.drawRect({200, 30}, {10, 15}, Color8::Yellow(), img);
+    shapeDrawer.drawRect(Eigen::Vector2f{200, 30}, {10, 15}, Color8::Green(), img);
 
     cve::ppm::save("shapes.ppm", img);
 

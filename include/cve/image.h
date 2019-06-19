@@ -48,13 +48,12 @@ namespace cve
 
         template<typename Scalar>
         void normalize(Eigen::Tensor<Scalar, 3> &img,
-            const Eigen::Tensor<Scalar, 1> &minval,
-            const Eigen::Tensor<Scalar, 1> &maxval)
+            const Scalar &minval,
+            const Scalar &maxval)
         {
             Eigen::Tensor<Scalar, 1> oldMin = img.minimum(Eigen::array<int, 2>({0, 1}));
             Eigen::Tensor<Scalar, 1> oldMax = img.maximum(Eigen::array<int, 2>({0, 1}));
 
-            Eigen::Tensor<Scalar, 1> factor = (maxval - minval) / (oldMax - oldMin);
 
             for(Index d = 0; d < img.dimension(2); ++d)
             {
@@ -62,8 +61,26 @@ namespace cve
                 {
                     for(Index r = 0; r < img.dimension(0); ++r)
                     {
-                        img(r, c, d) = (img(r, c, d) - oldMin(d)) * factor(d) + minval(d);
+                        Scalar factor = (maxval - minval) / (oldMax(d) - oldMin(d));
+                        img(r, c, d) = (img(r, c, d) - oldMin(d)) * factor + minval;
                     }
+                }
+            }
+        }
+
+        template<typename Scalar>
+        void gray2rgb(const Eigen::Tensor<Scalar, 3> &src,
+            Eigen::Tensor<Scalar, 3> &dest)
+        {
+            dest.resize(src.dimension(0), src.dimension(1), 3);
+
+            for(Index c = 0; c < src.dimension(1); ++c)
+            {
+                for(Index r = 0; r < src.dimension(0); ++r)
+                {
+                    dest(r, c, 0) = src(r, c, 0);
+                    dest(r, c, 1) = src(r, c, 0);
+                    dest(r, c, 2) = src(r, c, 0);
                 }
             }
         }
