@@ -36,7 +36,7 @@ int main(int argc, const char **argv)
 
     std::cout << "Apply harris detector" << std::endl;
     HarrisDetector<float> harrisDetector;
-    harrisDetector.apply(img, keypoints);
+    harrisDetector.detect(img, keypoints);
 
     oimg = img;
     ShapeDrawer<float> shapeDrawer;
@@ -46,7 +46,7 @@ int main(int argc, const char **argv)
 
     std::cout << "Apply shi tomasi detector" << std::endl;
     ShiTomasiDetector<float> shiDetector;
-    shiDetector.apply(img, keypoints);
+    shiDetector.detect(img, keypoints);
 
     oimg = img;
     shapeDrawer.drawCircle(keypoints, 10, Colorf::Red(), oimg);
@@ -55,7 +55,7 @@ int main(int argc, const char **argv)
 
     std::cout << "Apply FAST detector" << std::endl;
     FASTDetector<float> fastDetector;
-    fastDetector.apply(imgGray, keypoints);
+    fastDetector.detect(imgGray, keypoints);
 
     oimg = img;
     shapeDrawer.drawCircle(keypoints, 10, Colorf::Red(), oimg);

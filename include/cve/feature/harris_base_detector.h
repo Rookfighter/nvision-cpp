@@ -136,7 +136,7 @@ namespace cve
           * @param keypoints 2xN matrix with N keypoints
           */
         template<typename ScalarA>
-        void apply(const Eigen::Tensor<ScalarA, 3> &img,
+        void detect(const Eigen::Tensor<ScalarA, 3> &img,
             Matrix &keypoints) const
         {
             Eigen::Tensor<Scalar, 3> gradX(img.dimensions());
