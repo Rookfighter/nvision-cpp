@@ -6,7 +6,7 @@
 
 #include <iostream>
 #include <cve/optflow/lucas_kanade_detector.h>
-#include <cve/optflow/horn_schunck_detector.h>
+// #include <cve/optflow/horn_schunck_detector.h>
 #include <cve/optflow/color_map.h>
 #include <cve/imageio/pgm.h>
 #include <cve/imageio/ppm.h>
@@ -47,13 +47,13 @@ int main(int argc, const char **argv)
 
     cve::ppm::save("lucas_kanade.ppm", oimg);
 
-    std::cout << "Apply Horn Schunck detector" << std::endl;
-
-    HornSchunckDetector<float> hsDetector;
-    hsDetector.apply(imgA, imgB, flowImg);
-    cmap.apply(flowImg, oimg);
-
-    cve::ppm::save("horn_schunck.ppm", oimg);
+    // std::cout << "Apply Horn Schunck detector" << std::endl;
+    //
+    // HornSchunckDetector<float> hsDetector;
+    // hsDetector.apply(imgA, imgB, flowImg);
+    // cmap.apply(flowImg, oimg);
+    //
+    // cve::ppm::save("horn_schunck.ppm", oimg);
 
     return 0;
 }

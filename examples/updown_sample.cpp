@@ -24,7 +24,7 @@ int main(int argc, const char **argv)
 
     std::cout << "Downsample" << std::endl;;
     cve::Image8 oimg;
-    cve::downsample(0.3, img, oimg);
+    cve::image::downsample(0.3, img, oimg);
 
     cve::pgm::save("downsample.pgm", oimg);
 

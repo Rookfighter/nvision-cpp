@@ -86,90 +86,115 @@ namespace cve
                 }
             }
         }
-    }
 
-    template<typename ScalarA, typename ScalarB>
-    void downsample(const ScalarA factor,
-        const Eigen::Tensor<ScalarB, 3> &srcImg,
-        Eigen::Tensor<ScalarB, 3> &destImg)
-    {
-        Index height = factor * srcImg.dimension(0);
-        Index width = factor * srcImg.dimension(1);
-        Index depth = srcImg.dimension(2);
-
-        Eigen::Tensor<ScalarB, 3> tmpImg(height, srcImg.dimension(1), depth);
-        destImg.resize(height, width, depth);
-
-        // process downsample vertically
-        for(Index d = 0; d < tmpImg.dimension(2); ++d)
+        template<typename Scalar>
+        void rgb2gray(const Eigen::Tensor<Scalar, 3> &src,
+            Eigen::Tensor<Scalar, 3> &dest)
         {
-            for(Index c = 0; c < tmpImg.dimension(1); ++c)
+            assert(src.dimension(2) >= 3);
+            dest.resize(src.dimension(0), src.dimension(1), 1);
+
+            for(Index c = 0; c < src.dimension(1); ++c)
             {
-                for(Index r = 0; r < tmpImg.dimension(0); ++r)
+                for(Index r = 0; r < src.dimension(0); ++r)
                 {
-                    ScalarA lowPixel = static_cast<ScalarA>(r) / factor;
-                    ScalarA highPixel = static_cast<ScalarA>(r+1) / factor;
-                    Index r2 = static_cast<Index>(lowPixel) + 1;
+                    dest(r, c, 0) = 0.2126 * src(r, c, 0) +
+                        0.7152 * src(r, c, 1) + 0.0722 * src(r, c, 2);
+                }
+            }
+        }
 
-                    ScalarA sum = (static_cast<ScalarA>(r2) - lowPixel) * srcImg(r2, c, d);
-                    Index r3 = r2 + 1;
-                    while(r3 < srcImg.dimension(0) && r3 < highPixel)
-                    {
-                        sum += srcImg(r3, c, d);
-                        ++r3;
-                    }
+        template<typename Scalar>
+        bool isInside(const Index row, const Index col,
+            const Eigen::Tensor<Scalar, 3> &img)
+        {
+            return row >= 0 && row < img.dimension(0) &&
+                col >= 0 && col < img.dimension(1);
+        }
 
-                    if(r3 < srcImg.dimension(0))
+        template<typename ScalarA, typename ScalarB>
+        void downsample(const ScalarA factor,
+            const Eigen::Tensor<ScalarB, 3> &srcImg,
+            Eigen::Tensor<ScalarB, 3> &destImg)
+        {
+            Index height = factor * srcImg.dimension(0);
+            Index width = factor * srcImg.dimension(1);
+            Index depth = srcImg.dimension(2);
+
+            Eigen::Tensor<ScalarB, 3> tmpImg(height, srcImg.dimension(1), depth);
+            destImg.resize(height, width, depth);
+
+            // process downsample vertically
+            for(Index d = 0; d < tmpImg.dimension(2); ++d)
+            {
+                for(Index c = 0; c < tmpImg.dimension(1); ++c)
+                {
+                    for(Index r = 0; r < tmpImg.dimension(0); ++r)
                     {
-                        sum += (1 - (static_cast<ScalarA>(r3) - highPixel)) * srcImg(r3, c, d);
-                        tmpImg(r, c, d) = factor * sum;
+                        ScalarA lowPixel = static_cast<ScalarA>(r) / factor;
+                        ScalarA highPixel = static_cast<ScalarA>(r+1) / factor;
+                        Index r2 = static_cast<Index>(lowPixel) + 1;
+
+                        ScalarA sum = (static_cast<ScalarA>(r2) - lowPixel) * srcImg(r2, c, d);
+                        Index r3 = r2 + 1;
+                        while(r3 < srcImg.dimension(0) && r3 < highPixel)
+                        {
+                            sum += srcImg(r3, c, d);
+                            ++r3;
+                        }
+
+                        if(r3 < srcImg.dimension(0))
+                        {
+                            sum += (1 - (static_cast<ScalarA>(r3) - highPixel)) * srcImg(r3, c, d);
+                            tmpImg(r, c, d) = factor * sum;
+                        }
+                        else
+                        {
+                            tmpImg(r, c, d) = 1 / ((1 / factor) -
+                                (highPixel - static_cast<ScalarA>(r3) + 1)) * sum;
+                        }
                     }
-                    else
+                }
+            }
+
+            // process downsample horizontally
+            for(Index d = 0; d < destImg.dimension(2); ++d)
+            {
+                for(Index c = 0; c < destImg.dimension(1); ++c)
+                {
+                    ScalarA lowPixel = static_cast<ScalarA>(c) / factor;
+                    ScalarA highPixel = static_cast<ScalarA>(c+1) / factor;
+                    Index c2 = static_cast<Index>(lowPixel) + 1;
+
+                    for(Index r = 0; r < destImg.dimension(0); ++r)
                     {
-                        tmpImg(r, c, d) = 1 / ((1 / factor) -
-                            (highPixel - static_cast<ScalarA>(r3) + 1)) * sum;
+                        ScalarA sum = (static_cast<ScalarA>(c2) - lowPixel) * tmpImg(r, c2, d);
+                        Index c3 = c2 + 1;
+                        while(c3 < tmpImg.dimension(1) && c3 < highPixel)
+                        {
+                            sum += tmpImg(r, c3, d);
+                            ++c3;
+                        }
+
+                        if(c3 < tmpImg.dimension(1))
+                        {
+                            sum += (1 - (static_cast<ScalarA>(c3) - highPixel)) * tmpImg(r, c3, d);
+                            destImg(r, c, d) = factor * sum;
+                        }
+                        else
+                        {
+                            destImg(r, c, d) = 1 / ((1 / factor) -
+                                (highPixel - static_cast<ScalarA>(c3) + 1)) * sum;
+                        }
                     }
                 }
             }
         }
 
-        // process downsample horizontally
-        for(Index d = 0; d < destImg.dimension(2); ++d)
+        template<typename Scalar, typename Image>
+        void upsample(const Scalar factor, Image &img)
         {
-            for(Index c = 0; c < destImg.dimension(1); ++c)
-            {
-                ScalarA lowPixel = static_cast<ScalarA>(c) / factor;
-                ScalarA highPixel = static_cast<ScalarA>(c+1) / factor;
-                Index c2 = static_cast<Index>(lowPixel) + 1;
-
-                for(Index r = 0; r < destImg.dimension(0); ++r)
-                {
-                    ScalarA sum = (static_cast<ScalarA>(c2) - lowPixel) * tmpImg(r, c2, d);
-                    Index c3 = c2 + 1;
-                    while(c3 < tmpImg.dimension(1) && c3 < highPixel)
-                    {
-                        sum += tmpImg(r, c3, d);
-                        ++c3;
-                    }
-
-                    if(c3 < tmpImg.dimension(1))
-                    {
-                        sum += (1 - (static_cast<ScalarA>(c3) - highPixel)) * tmpImg(r, c3, d);
-                        destImg(r, c, d) = factor * sum;
-                    }
-                    else
-                    {
-                        destImg(r, c, d) = 1 / ((1 / factor) -
-                            (highPixel - static_cast<ScalarA>(c3) + 1)) * sum;
-                    }
-                }
-            }
         }
-    }
-
-    template<typename Scalar, typename Image>
-    void upsample(const Scalar factor, Image &img)
-    {
     }
 }
 

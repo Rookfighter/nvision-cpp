@@ -132,23 +132,23 @@ namespace cve
           * (column row), format.
           * The keypoints are stored in descending order according to their
           * quality measure.
-          * @param srcImg input image
+          * @param img input image
           * @param keypoints 2xN matrix with N keypoints
           */
         template<typename ScalarA>
-        void apply(const Eigen::Tensor<ScalarA, 3> &srcImg,
+        void apply(const Eigen::Tensor<ScalarA, 3> &img,
             Matrix &keypoints) const
         {
-            Eigen::Tensor<Scalar, 3> gradX(srcImg.dimensions());
-            Eigen::Tensor<Scalar, 3> gradY(srcImg.dimensions());
-            Eigen::Tensor<Scalar, 3> gradXX(srcImg.dimensions());
-            Eigen::Tensor<Scalar, 3> gradYY(srcImg.dimensions());
-            Eigen::Tensor<Scalar, 3> gradXY(srcImg.dimensions());
-            Eigen::Tensor<Scalar, 3> response(srcImg.dimension(0), srcImg.dimension(1), 1);
+            Eigen::Tensor<Scalar, 3> gradX(img.dimensions());
+            Eigen::Tensor<Scalar, 3> gradY(img.dimensions());
+            Eigen::Tensor<Scalar, 3> gradXX(img.dimensions());
+            Eigen::Tensor<Scalar, 3> gradYY(img.dimensions());
+            Eigen::Tensor<Scalar, 3> gradXY(img.dimensions());
+            Eigen::Tensor<Scalar, 3> response(img.dimension(0), img.dimension(1), 1);
 
             // calculate gradients
-            gradientFilter_.applyX(srcImg, gradX);
-            gradientFilter_.applyY(srcImg, gradY);
+            gradientFilter_.applyX(img, gradX);
+            gradientFilter_.applyY(img, gradY);
 
             // calculate gradients magnitudes
             gradXX = gradX * gradX;
