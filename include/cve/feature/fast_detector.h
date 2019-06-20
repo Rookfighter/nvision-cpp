@@ -112,12 +112,13 @@ namespace cve
         }
 
         /** Compute FAST corner features in the given image.
+          * Note that FAST requires a grayscale image as input!
           * The keypoints are returned in a matrix, where each column
           * represents a single 2D point. Each keypoint is stored in (x y), i.e.
           * (column row), format.
           * Each corner has at least 12 pixels on a circle with a 3 pixel
           * radius, which are signficantly brighter or darker than itself.
-          * @param img input image
+          * @param img input grayscale image
           * @param keypoints 2xN matrix with N keypoints
           */
         template<typename ScalarA>
