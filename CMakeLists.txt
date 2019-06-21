@@ -22,11 +22,14 @@ if(OPENMP_FOUND)
     set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif(OPENMP_FOUND)
 
-find_package(Eigen3 REQUIRED)
+# find_package(Eigen3 REQUIRED)
+add_definitions(-Dcimg_display=0)
+add_subdirectory(dep)
 
 include_directories(
     include
     ${EIGEN3_INCLUDE_DIR}
+    ${CIMG_INCLUDE_DIR}
     ${CATCH2_INCLUDE_DIR}
 )
 
