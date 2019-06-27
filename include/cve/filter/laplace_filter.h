@@ -7,7 +7,7 @@
 #ifndef CVE_LAPLACE_FILTER_H_
 #define CVE_LAPLACE_FILTER_H_
 
-#include "cve/kernel.h"
+#include "cve/core/kernel.h"
 
 namespace cve
 {

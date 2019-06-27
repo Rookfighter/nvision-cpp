@@ -7,9 +7,8 @@
 #ifndef CVE_OPTFLOW_COLOR_MAP_H_
 #define CVE_OPTFLOW_COLOR_MAP_H_
 
-#include <Eigen/Geometry>
-#include "cve/color_converter.h"
-#include "cve/math.h"
+#include "cve/draw/color_converter.h"
+#include "cve/core/math.h"
 
 namespace cve
 {

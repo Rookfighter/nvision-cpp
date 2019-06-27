@@ -7,7 +7,7 @@
 #ifndef CVE_BOX_FILTER_H_
 #define CVE_BOX_FILTER_H_
 
-#include "cve/border_handling.h"
+#include "cve/core/border_handling.h"
 
 namespace cve
 {

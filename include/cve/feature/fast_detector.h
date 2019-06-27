@@ -7,8 +7,8 @@
 #ifndef CVE_FAST_DETECTOR_H_
 #define CVE_FAST_DETECTOR_H_
 
-#include "cve/math.h"
-#include "cve/image.h"
+#include "cve/core/math.h"
+#include "cve/core/image.h"
 
 namespace cve
 {

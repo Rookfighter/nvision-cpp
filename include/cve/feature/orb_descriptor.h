@@ -8,7 +8,7 @@
 #define CVE_ORB_DESCRIPTOR_H_
 
 #include <random>
-#include "cve/image.h"
+#include "cve/core/image.h"
 
 namespace cve
 {

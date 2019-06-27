@@ -7,7 +7,7 @@
 #ifndef CVE_CANNY_DETECTOR_H_
 #define CVE_CANNY_DETECTOR_H_
 
-#include "cve/math.h"
+#include "cve/core/math.h"
 #include "cve/filter/gauss_filter.h"
 #include "cve/filter/sobel_filter.h"
 

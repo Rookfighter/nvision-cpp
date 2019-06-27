@@ -7,7 +7,7 @@
 #ifndef CVE_CENTRAL_DIFFERENCES_FILTER_H_
 #define CVE_CENTRAL_DIFFERENCES_FILTER_H_
 
-#include "cve/kernel.h"
+#include "cve/core/kernel.h"
 
 namespace cve
 {

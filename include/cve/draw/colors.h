@@ -7,7 +7,7 @@
 #ifndef CVE_COLORS_H_
 #define CVE_COLORS_H_
 
-#include "cve/image.h"
+#include "cve/core/image.h"
 
 namespace cve
 {

@@ -7,8 +7,8 @@
 #ifndef CVE_HARRIS_BASE_DETECTOR_H_
 #define CVE_HARRIS_BASE_DETECTOR_H_
 
-#include "cve/math.h"
-#include "cve/image.h"
+#include "cve/core/math.h"
+#include "cve/core/image.h"
 #include "cve/filter/gauss_filter.h"
 #include "cve/filter/sobel_filter.h"
 

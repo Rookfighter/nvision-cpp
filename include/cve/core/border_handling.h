@@ -7,7 +7,7 @@
 #ifndef CVE_BORDER_HANDLING_H_
 #define CVE_BORDER_HANDLING_H_
 
-#include "cve/image.h"
+#include "cve/core/image.h"
 
 namespace cve
 {

@@ -7,7 +7,7 @@
 #ifndef CVE_SHAPE_DRAWER_H_
 #define CVE_SHAPE_DRAWER_H_
 
-#include "cve/image.h"
+#include "cve/core/image.h"
 
 namespace cve
 {

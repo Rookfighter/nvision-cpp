@@ -8,7 +8,7 @@
 #define CVE_EIGEN_REQUIRE_H_
 
 #include <catch.hpp>
-#include <cve/image.h>
+#include <cve/core/image.h>
 
 #define REQUIRE_MATRIX_APPROX(a, b, eps) do {                                 \
         REQUIRE(a.cols() == b.cols());                                        \

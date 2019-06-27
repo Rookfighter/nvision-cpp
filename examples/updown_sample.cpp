@@ -5,7 +5,7 @@
  */
 
 #include <iostream>
-#include <cve/image.h>
+#include <cve/core/image.h>
 #include <cve/imageio/pgm.h>
 
 int main(int argc, const char **argv)
