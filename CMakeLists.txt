@@ -30,7 +30,6 @@ include_directories(
     include
     ${EIGEN3_INCLUDE_DIR}
     ${CIMG_INCLUDE_DIR}
-    ${CATCH2_INCLUDE_DIR}
 )
 
 add_executable(detect_corners "examples/detect_corners.cpp")
@@ -47,10 +46,5 @@ install(DIRECTORY "include/cve"
 
 if(${BUILD_TESTS})
     # Compile tests
-    add_executable(run_tests
-        "test/main.cpp"
-        # "test/test_kernel.cpp"
-        # "test/test_sobel_operator.cpp"
-        # "test/test_gaussian_filter.cpp"
-    )
+    add_subdirectory(test)
 endif(${BUILD_TESTS})
