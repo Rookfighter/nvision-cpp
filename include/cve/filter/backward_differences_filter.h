@@ -1,25 +1,25 @@
-/* derivative_filter.h
+/* backward_differences_filter.h
  *
  * Author: Fabian Meyer
  * Created On: 18 May 2019
  */
 
-#ifndef CVE_DERIVATIVE_FILTER_H_
-#define CVE_DERIVATIVE_FILTER_H_
+#ifndef CVE_BACKWARD_DIFFERENCES_FILTER_H_
+#define CVE_BACKWARD_DIFFERENCES_FILTER_H_
 
 #include "cve/kernel.h"
 
 namespace cve
 {
-    /** Filter class to compute central differences gradients.
+    /** Filter class to compute backward differences gradients.
      *  @tparam Scalar value type of the underlying kernel*/
     template<typename Scalar>
-    class DerivativeFilter
+    class BackwardDifferencesFilter
     {
     private:
         BorderHandling handling_;
     public:
-        DerivativeFilter()
+        BackwardDifferencesFilter()
             : handling_(BorderHandling::Reflect)
         {
         }
@@ -34,7 +34,7 @@ namespace cve
             Eigen::Tensor<ScalarB, 3> &destImg) const
         {
             Eigen::Matrix<Scalar, 1, 3> kernel;
-            kernel << -1, 0, 1;
+            kernel << -1, 1, 0;
 
             kernel::apply(srcImg, destImg, kernel, handling_);
         }
@@ -44,7 +44,7 @@ namespace cve
             Eigen::Tensor<ScalarB, 3> &destImg) const
         {
             Eigen::Matrix<Scalar, 3, 1> kernel;
-            kernel << -1, 0, 1;
+            kernel << -1, 1, 0;
 
             kernel::apply(srcImg, destImg, kernel, handling_);
         }
