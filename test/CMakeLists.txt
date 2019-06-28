@@ -10,6 +10,7 @@ set(TEST_SRC
     "filter/backward_differences_filter.cpp"
     "filter/central_differences_filter.cpp"
     "filter/forward_differences_filter.cpp"
+    "filter/scharr_filter.cpp"
     "filter/sobel_filter.cpp"
 )
 

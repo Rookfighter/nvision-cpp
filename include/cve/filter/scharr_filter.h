@@ -36,9 +36,9 @@ namespace cve
         {
             Eigen::Matrix<Scalar, 3, 3> kernel;
 
-            kernel << 47, 0, -47,
-                      162, 0, -162,
-                      47, 0, -47;
+            kernel << -47, 0, 47,
+                      -162, 0, 162,
+                      -47, 0, 47;
 
             kernel::apply(srcImg, destImg, kernel, handling_);
         }
@@ -49,9 +49,9 @@ namespace cve
         {
             Eigen::Matrix<Scalar, 3, 3> kernel;
 
-            kernel << 47, 162, 47,
+            kernel << -47, -162, -47,
                       0, 0, 0,
-                      -47, -162, -47;
+                      47, 162, 47;
 
             kernel::apply(srcImg, destImg, kernel, handling_);
         }
