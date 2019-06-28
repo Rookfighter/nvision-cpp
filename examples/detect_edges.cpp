@@ -23,20 +23,24 @@ int main(int argc, const char **argv)
 
     std::cout << "Load \"" << argv[1] << "\"" << std::endl;
     Imagef img;
+    Imagef gradX;
+    Imagef gradY;
     Imagef oimg;
     cve::imload(argv[1], img);
     std::string ext = cve::extension(argv[1]);
 
     std::cout << "Apply sobel filter" << std::endl;
     SobelFilter<float> sobelFilter;
-    sobelFilter.apply(img, oimg);
+    sobelFilter(img, gradX, gradY);
+    image::magnitude(gradX, gradY, oimg);
     image::normalize(oimg, 0.0f, 255.0f);
 
     cve::imsave("sobel_edges." + ext, oimg);
 
     std::cout << "Apply scharr filter" << std::endl;
     ScharrFilter<float> scharrFilter;
-    scharrFilter.apply(img, oimg);
+    scharrFilter(img, gradX, gradY);
+    image::magnitude(gradX, gradY, oimg);
     image::normalize(oimg, 0.0f, 255.0f);
 
     cve::imsave("scharr_edges." + ext, oimg);

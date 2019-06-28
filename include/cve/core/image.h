@@ -195,6 +195,26 @@ namespace cve
         void upsample(const Scalar factor, Image &img)
         {
         }
+
+        template<typename ScalarA, typename ScalarB>
+        void magnitude(const Eigen::Tensor<ScalarA, 3> &x,
+            const Eigen::Tensor<ScalarA, 3> &y,
+            Eigen::Tensor<ScalarB, 3> &magnitude)
+        {
+            magnitude = (x * x + y * y).sqrt();
+        }
+
+        template<typename ScalarA, typename ScalarB>
+        void direction(const Eigen::Tensor<ScalarA, 3> &x,
+            const Eigen::Tensor<ScalarA, 3> &y,
+            Eigen::Tensor<ScalarB, 3> &direction)
+        {
+            direction.resize(x.dimensions());
+            for(Index d = 0; d < x.dimension(2); ++d)
+                for(Index c = 0; c < x.dimension(1); ++c)
+                    for(Index r = 0; r < x.dimension(0); ++r)
+                        direction(r, c, d) = std::atan2(y(r, c, d), x(r, c, d));
+        }
     }
 }
 

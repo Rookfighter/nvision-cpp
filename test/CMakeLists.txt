@@ -10,6 +10,7 @@ set(TEST_SRC
     "filter/backward_differences_filter.cpp"
     "filter/central_differences_filter.cpp"
     "filter/forward_differences_filter.cpp"
+    "filter/sobel_filter.cpp"
 )
 
 add_executable(run_tests ${TEST_SRC})

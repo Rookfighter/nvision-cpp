@@ -61,15 +61,12 @@ namespace cve
         }
 
         template<typename ScalarA, typename ScalarB>
-        void apply(const Eigen::Tensor<ScalarA, 3> &srcImg,
-            Eigen::Tensor<ScalarB, 3> &destImg) const
+        void operator()(const Eigen::Tensor<ScalarA, 3> &srcImg,
+            Eigen::Tensor<ScalarB, 3> &destImgX,
+            Eigen::Tensor<ScalarB, 3> &destImgY)
         {
-            Eigen::Tensor<ScalarB, 3> gradX;
-            Eigen::Tensor<ScalarB, 3> gradY;
-            applyX(srcImg, gradX);
-            applyY(srcImg, gradY);
-
-            destImg = (gradX * gradX + gradY * gradY).sqrt();
+            applyX(srcImg, destImgX);
+            applyY(srcImg, destImgY);
         }
     };
 }

@@ -19,33 +19,43 @@ TEST_CASE("backward_differences_filter")
     img(2, 0, 0) = 255; img(2, 1, 0) = 255; img(2, 2, 0) = 255; img(2, 3, 0) = 0;
     img(3, 0, 0) = 125; img(3, 1, 0) = 0;   img(3, 2, 0) = 255; img(3, 3, 0) = 125;
 
+    Imagef gradExpX(4, 4, 1);
+    gradExpX(0, 0, 0) = -255; gradExpX(0, 1, 0) = 255;  gradExpX(0, 2, 0) = -130; gradExpX(0, 3, 0) = 130;
+    gradExpX(1, 0, 0) = 255;  gradExpX(1, 1, 0) = -255; gradExpX(1, 2, 0) = 0;    gradExpX(1, 3, 0) = 125;
+    gradExpX(2, 0, 0) = 0;    gradExpX(2, 1, 0) = 0;    gradExpX(2, 2, 0) = 0;    gradExpX(2, 3, 0) = -255;
+    gradExpX(3, 0, 0) = 125;  gradExpX(3, 1, 0) = -125; gradExpX(3, 2, 0) = 255;  gradExpX(3, 3, 0) = -130;
+
+    Imagef gradExpY(4, 4, 1);
+    gradExpY(0, 0, 0) = -255; gradExpY(0, 1, 0) = 255;  gradExpY(0, 2, 0) = 125;  gradExpY(0, 3, 0) = 130;
+    gradExpY(1, 0, 0) = 255;  gradExpY(1, 1, 0) = -255; gradExpY(1, 2, 0) = -125; gradExpY(1, 3, 0) = -130;
+    gradExpY(2, 0, 0) = 0;    gradExpY(2, 1, 0) = 255;  gradExpY(2, 2, 0) = 255;  gradExpY(2, 3, 0) = -125;
+    gradExpY(3, 0, 0) = -130; gradExpY(3, 1, 0) = -255; gradExpY(3, 2, 0) = 0;    gradExpY(3, 3, 0) = 125;
+
     BackwardDifferencesFilter<float> filter;
 
     SECTION("x-derivative")
     {
         Imagef gradAct;
-        Imagef gradExp(4, 4, 1);
-
-        gradExp(0, 0, 0) = -255; gradExp(0, 1, 0) = 255;  gradExp(0, 2, 0) = -130; gradExp(0, 3, 0) = 130;
-        gradExp(1, 0, 0) = 255;  gradExp(1, 1, 0) = -255; gradExp(1, 2, 0) = 0;    gradExp(1, 3, 0) = 125;
-        gradExp(2, 0, 0) = 0;    gradExp(2, 1, 0) = 0;    gradExp(2, 2, 0) = 0;    gradExp(2, 3, 0) = -255;
-        gradExp(3, 0, 0) = 125;  gradExp(3, 1, 0) = -125; gradExp(3, 2, 0) = 255;  gradExp(3, 3, 0) = -130;
 
         filter.applyX(img, gradAct);
-        REQUIRE_IMAGE_APPROX(gradExp, gradAct, eps);
+        REQUIRE_IMAGE_APPROX(gradExpX, gradAct, eps);
     }
 
     SECTION("y-derivative")
     {
         Imagef gradAct;
-        Imagef gradExp(4, 4, 1);
-
-        gradExp(0, 0, 0) = -255; gradExp(0, 1, 0) = 255;  gradExp(0, 2, 0) = 125;  gradExp(0, 3, 0) = 130;
-        gradExp(1, 0, 0) = 255;  gradExp(1, 1, 0) = -255; gradExp(1, 2, 0) = -125; gradExp(1, 3, 0) = -130;
-        gradExp(2, 0, 0) = 0;    gradExp(2, 1, 0) = 255;  gradExp(2, 2, 0) = 255;  gradExp(2, 3, 0) = -125;
-        gradExp(3, 0, 0) = -130; gradExp(3, 1, 0) = -255; gradExp(3, 2, 0) = 0;    gradExp(3, 3, 0) = 125;
 
         filter.applyY(img, gradAct);
-        REQUIRE_IMAGE_APPROX(gradExp, gradAct, eps);
+        REQUIRE_IMAGE_APPROX(gradExpY, gradAct, eps);
+    }
+
+    SECTION("x- and y-derivative")
+    {
+        Imagef gradActX;
+        Imagef gradActY;
+
+        filter(img, gradActX, gradActY);
+        REQUIRE_IMAGE_APPROX(gradExpX, gradActX, eps);
+        REQUIRE_IMAGE_APPROX(gradExpY, gradActY, eps);
     }
 }
