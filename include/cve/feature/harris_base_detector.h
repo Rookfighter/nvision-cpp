@@ -147,8 +147,7 @@ namespace cve
             Eigen::Tensor<Scalar, 3> response(img.dimension(0), img.dimension(1), 1);
 
             // calculate gradients
-            gradientFilter_.applyX(img, gradX);
-            gradientFilter_.applyY(img, gradY);
+            gradientFilter_(img, gradX, gradY);
 
             // calculate gradients magnitudes
             gradXX = gradX * gradX;
@@ -156,9 +155,9 @@ namespace cve
             gradXY = gradX * gradY;
 
             // accumulate values from local neighbourhood with smooth filter
-            smoothFilter_.apply(gradXX);
-            smoothFilter_.apply(gradYY);
-            smoothFilter_.apply(gradXY);
+            smoothFilter_(gradXX);
+            smoothFilter_(gradYY);
+            smoothFilter_(gradXY);
 
             // compute the harris response
             for(Index c = 0; c < gradXX.dimension(1); ++c)

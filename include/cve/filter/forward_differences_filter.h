@@ -52,7 +52,7 @@ namespace cve
         template<typename ScalarA, typename ScalarB>
         void operator()(const Eigen::Tensor<ScalarA, 3> &srcImg,
             Eigen::Tensor<ScalarB, 3> &destImgX,
-            Eigen::Tensor<ScalarB, 3> &destImgY)
+            Eigen::Tensor<ScalarB, 3> &destImgY) const
         {
             applyX(srcImg, destImgX);
             applyY(srcImg, destImgY);

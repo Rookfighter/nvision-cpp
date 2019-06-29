@@ -55,8 +55,7 @@ namespace cve
             Eigen::Tensor<Scalar, 3> gradXT(imgA.dimensions());
             Eigen::Tensor<Scalar, 3> gradYT(imgA.dimensions());
 
-            gradientFilter_.applyX(imgA, gradX);
-            gradientFilter_.applyY(imgA, gradY);
+            gradientFilter_(imgA, gradX, gradY);
 
             gradT = imgB.template cast<Scalar>() - imgA.template cast<Scalar>();
             gradXX = gradX * gradX;
@@ -65,17 +64,11 @@ namespace cve
             gradXT = gradX * gradT;
             gradYT = gradY * gradT;
 
-            Eigen::Tensor<Scalar, 3> tmpImg;
-            smoothFilter_.apply(gradXX, tmpImg);
-            gradXX = tmpImg;
-            smoothFilter_.apply(gradYY, tmpImg);
-            gradYY = tmpImg;
-            smoothFilter_.apply(gradXY, tmpImg);
-            gradXY = tmpImg;
-            smoothFilter_.apply(gradXT, tmpImg);
-            gradXT = tmpImg;
-            smoothFilter_.apply(gradYT, tmpImg);
-            gradYT = tmpImg;
+            smoothFilter_(gradXX);
+            smoothFilter_(gradYY);
+            smoothFilter_(gradXY);
+            smoothFilter_(gradXT);
+            smoothFilter_(gradYT);
 
             flowImg.resize(imgA.dimension(0), imgA.dimension(1), 2);
             flowImg.setZero();

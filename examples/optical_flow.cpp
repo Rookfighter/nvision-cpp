@@ -32,8 +32,8 @@ int main(int argc, const char **argv)
     std::cout << "-- size " << imgB.dimension(1) << "x" << imgB.dimension(0) << std::endl;
 
     GaussFilter<float, 9> preSmooth(2);
-    preSmooth.apply(imgA);
-    preSmooth.apply(imgB);
+    preSmooth(imgA);
+    preSmooth(imgB);
 
     std::cout << "Apply Lucas Kanade detector" << std::endl;
 

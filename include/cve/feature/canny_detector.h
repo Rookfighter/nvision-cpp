@@ -67,26 +67,24 @@ namespace cve
         void apply(const Eigen::Tensor<ScalarA, 3> &srcImg,
             Eigen::Tensor<ScalarB, 3> &destImg) const
         {
-            Eigen::Tensor<ScalarB, 3> xgrad;
-            Eigen::Tensor<ScalarB, 3> ygrad;
-            Eigen::Tensor<ScalarB, 3> maggrad;
+            Eigen::Tensor<Scalar, 3> gradX;
+            Eigen::Tensor<Scalar, 3> gradY;
+            Eigen::Tensor<Scalar, 3> gradMag;
 
             // smooth image
-            smoothFilter_.apply(srcImg, destImg);
+            smoothFilter_(srcImg, gradMag);
             // calculate x and y gradient
-            gradientFilter_.applyX(destImg, xgrad);
-            gradientFilter_.applyY(destImg, ygrad);
-
-            maggrad = (xgrad * xgrad + ygrad * ygrad).sqrt();
+            gradientFilter_(destImg, gradX, gradY);
+            image::magnitude(gradX, gradY, gradMag);
 
             // apply non-maximum suppression
-            for(Index d = 0; d < maggrad.dimension(2); ++d)
+            for(Index d = 0; d < gradMag.dimension(2); ++d)
             {
-                for(Index c = 0; c < maggrad.dimension(1); ++c)
+                for(Index c = 0; c < gradMag.dimension(1); ++c)
                 {
-                    for(Index r = 0; r < maggrad.dimension(0); ++r)
+                    for(Index r = 0; r < gradMag.dimension(0); ++r)
                     {
-                        Scalar angle = std::atan2(ygrad(r, c, d), xgrad(r, c, d));
+                        Scalar angle = std::atan2(gradY(r, c, d), gradX(r, c, d));
                         angle += pi<Scalar>();
                         int angIdx = angle / (pi<Scalar>() / 8);
 
@@ -98,36 +96,36 @@ namespace cve
                         // edge points in east-west and west-east
                         if(angIdx == 0 || angIdx == 15 || angIdx == 7 || angIdx == 8)
                         {
-                            rA = border::handle(r + 1, 0, maggrad.dimension(0), handling_);
-                            rB = border::handle(r - 1, 0, maggrad.dimension(0), handling_);
+                            rA = border::handle(r + 1, 0, gradMag.dimension(0), handling_);
+                            rB = border::handle(r - 1, 0, gradMag.dimension(0), handling_);
                         }
                         // edge points in north-south and south-north
                         else if(angIdx == 3 || angIdx == 4 || angIdx == 11 || angIdx == 12)
                         {
-                            cA = border::handle(c + 1, 0, maggrad.dimension(1), handling_);
-                            cB = border::handle(c - 1, 0, maggrad.dimension(1), handling_);
+                            cA = border::handle(c + 1, 0, gradMag.dimension(1), handling_);
+                            cB = border::handle(c - 1, 0, gradMag.dimension(1), handling_);
                         }
                         // edge points in northeast-southwest and southwest-northeast
                         else if(angIdx == 1 || angIdx == 2 || angIdx == 9 || angIdx == 10)
                         {
-                            rA = border::handle(r + 1, 0, maggrad.dimension(0), handling_);
-                            cA = border::handle(c - 1, 0, maggrad.dimension(1), handling_);
-                            rB = border::handle(r - 1, 0, maggrad.dimension(0), handling_);
-                            cB = border::handle(c + 1, 0, maggrad.dimension(1), handling_);
+                            rA = border::handle(r + 1, 0, gradMag.dimension(0), handling_);
+                            cA = border::handle(c - 1, 0, gradMag.dimension(1), handling_);
+                            rB = border::handle(r - 1, 0, gradMag.dimension(0), handling_);
+                            cB = border::handle(c + 1, 0, gradMag.dimension(1), handling_);
                         }
                         // edge points in northwest-southeast and southeast-northwest
                         else
                         {
-                            rA = border::handle(r + 1, 0, maggrad.dimension(0), handling_);
-                            cA = border::handle(c + 1, 0, maggrad.dimension(1), handling_);
-                            rB = border::handle(r - 1, 0, maggrad.dimension(0), handling_);
-                            cB = border::handle(c - 1, 0, maggrad.dimension(1), handling_);
+                            rA = border::handle(r + 1, 0, gradMag.dimension(0), handling_);
+                            cA = border::handle(c + 1, 0, gradMag.dimension(1), handling_);
+                            rB = border::handle(r - 1, 0, gradMag.dimension(0), handling_);
+                            cB = border::handle(c - 1, 0, gradMag.dimension(1), handling_);
                         }
 
-                        destImg(r, c, d) = maggrad(r, c, d);
+                        destImg(r, c, d) = gradMag(r, c, d);
                         // if both neighbours are stronger, suppress this pixel
-                        if(maggrad(r, c, d) < maggrad(rA, cA, d) &&
-                            maggrad(r, c, d) < maggrad(rB, cB, d))
+                        if(gradMag(r, c, d) < gradMag(rA, cA, d) &&
+                            gradMag(r, c, d) < gradMag(rB, cB, d))
                         {
                             destImg(r, c, d) = 0;
                         }

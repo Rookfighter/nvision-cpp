@@ -28,20 +28,20 @@ int main(int argc, const char **argv)
 
     std::cout << "Apply box filter" << std::endl;
     BoxFilter<float, 5> boxFilter(3);
-    boxFilter.apply<uint8_t, uint8_t>(img, oimg);
+    boxFilter(img, oimg);
 
     cve::imsave("box_smooth." + ext, oimg);
 
     std::cout << "Apply gauss filter" << std::endl;
     GaussFilter<float, 9> gaussFilter(3);
-    gaussFilter.apply(img, oimg);
+    gaussFilter(img, oimg);
 
     cve::imsave("gauss_smooth." + ext, oimg);
 
 
     std::cout << "Apply recursive filter" << std::endl;
     RecursiveBlurFilter<float> recFilter(3);
-    recFilter.apply(img, oimg);
+    recFilter(img, oimg);
 
     cve::imsave("recursive_smooth." + ext, oimg);
 
