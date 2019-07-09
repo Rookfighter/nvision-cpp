@@ -7,7 +7,7 @@
 #ifndef CVE_BOX_FILTER_H_
 #define CVE_BOX_FILTER_H_
 
-#include "cve/core/border_handling.h"
+#include "cve/core/kernel.h"
 
 namespace cve
 {
@@ -20,36 +20,31 @@ namespace cve
      *
      *  The iterated box filter becomes a Gaussian filter in the limit
      *  (iterations -> inf).
-     * @tparam Scalar value type of the underlying kernel
-     * @tparam Dim size of the underlying kernel */
-    template<typename Scalar, int Dim = 3>
+     *  @tparam Scalar value type of the underlying kernel
+     *  @tparam Dim size of the underlying kernel */
+    template<typename Scalar>
     class BoxFilter
     {
     public:
-        static_assert(Dim > 1, "BoxFilter dimension must be greater than one");
-        static_assert(Dim % 2 == 1, "BoxFilter dimension must be odd");
+        typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> Vector;
+        typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;
     private:
-        size_t iterations_;
+        Index iterations_;
         BorderHandling handling_;
 
-        Eigen::Matrix<Scalar, 1, Dim> kernelX_;
-        Eigen::Matrix<Scalar, Dim, 1> kernelY_;
+        Vector kernel_;
     public:
 
         BoxFilter()
-            : BoxFilter(1)
+            : BoxFilter(1, 3)
         {
         }
 
-        BoxFilter(const size_t iterations)
+        BoxFilter(const Index ksize, const Index iterations)
             : iterations_(iterations), handling_(BorderHandling::Reflect),
-            kernelX_(), kernelY_()
+            kernel_(ksize)
         {
-            kernelX_.setOnes();
-            kernelX_ /= Dim;
-
-            kernelY_.setOnes();
-            kernelY_ /= Dim;
+            setKernelSize(ksize);
         }
 
         void setBorderHandling(const BorderHandling handling)
@@ -57,22 +52,39 @@ namespace cve
             handling_ = handling;
         }
 
-        void setIterations(const size_t iterations)
+        void setIterations(const Index iterations)
         {
             iterations_ = iterations;
+        }
+
+        void setKernelSize(const Index ksize)
+        {
+            kernel_.setOnes(ksize);
+            kernel_ /= ksize;
+        }
+
+        Index kernelSize() const
+        {
+            return kernel_.size();
+        }
+
+        Matrix kernel() const
+        {
+            return kernel_ * kernel_.transpose();
         }
 
         template<typename ScalarA, typename ScalarB>
         void operator()(const Eigen::Tensor<ScalarA, 3> &srcImg,
             Eigen::Tensor<ScalarB, 3> &destImg) const
         {
-            Eigen::Tensor<ScalarB, 3> tmpImg;
-            destImg = srcImg;
+            Eigen::Tensor<ScalarB, 3> tmpImg(srcImg.dimensions());
+            destImg.resize(srcImg.dimensions());
+            destImg = srcImg.template cast<ScalarB>();
 
-            for(size_t i = 0; i < iterations_; ++i)
+            for(Index i = 0; i < iterations_; ++i)
             {
-                kernel::apply(destImg, tmpImg, kernelX_, handling_);
-                kernel::apply(tmpImg, destImg, kernelY_, handling_);
+                kernel::apply(destImg, tmpImg, kernel_, handling_);
+                kernel::apply(tmpImg, destImg, kernel_.transpose(), handling_);
             }
         }
 

@@ -27,7 +27,7 @@ int main(int argc, const char **argv)
     std::string ext = cve::extension(argv[1]);
 
     std::cout << "Apply box filter" << std::endl;
-    BoxFilter<float, 5> boxFilter(3);
+    BoxFilter<float> boxFilter(5, 3);
     boxFilter(img, oimg);
 
     cve::imsave("box_smooth." + ext, oimg);

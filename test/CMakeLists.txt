@@ -8,6 +8,7 @@ set(TEST_SRC
     "main.cpp"
 
     "filter/backward_differences_filter.cpp"
+    "filter/box_filter.cpp"
     "filter/central_differences_filter.cpp"
     "filter/forward_differences_filter.cpp"
     "filter/gauss_filter.cpp"
