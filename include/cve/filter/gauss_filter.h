@@ -14,19 +14,18 @@ namespace cve
     /** Filter class to apply Gaussian blur.
      *  A kernel size which is greater than ceil(6 * sigma) brings no advantage
      *  in precision.
-     *  @tparam Scalar value type of the underlying kernel
-     *  @tparam Dim size of the underlying kernel */
-    template<typename Scalar, unsigned int Dim = 3>
+     *  @tparam Scalar value type of the underlying kernel */
+    template<typename Scalar>
     class GaussFilter
     {
     public:
-        static_assert(Dim > 1, "GaussFilter dimension must be greater than one");
-        static_assert(Dim % 2 == 1, "GaussFilter dimension must be odd");
+        typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;
+        typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> Vector;
     private:
         Scalar sigma_;
         BorderHandling handling_;
 
-        Eigen::Matrix<Scalar, Dim, 1> kernel_;
+        Vector kernel_;
 
         void computeKernel()
         {
@@ -55,20 +54,49 @@ namespace cve
         }
 
         GaussFilter(const Scalar sigma)
-            : sigma_(), handling_(BorderHandling::Reflect), kernel_()
+            : sigma_(0), handling_(BorderHandling::Reflect), kernel_()
         {
             setSigma(sigma);
         }
 
+        GaussFilter(const Scalar sigma, const Index ksize)
+            : sigma_(0), handling_(BorderHandling::Reflect), kernel_()
+        {
+            setSigma(sigma, ksize);
+        }
+
         void setSigma(const Scalar sigma)
         {
+            Index ksize = static_cast<Index>(sigma * 2);
+            ksize = ksize + (ksize + 1) % 2;
+            setSigma(sigma, ksize);
+        }
+
+        void setSigma(const Scalar sigma, const Index ksize)
+        {
             sigma_ = sigma;
+            kernel_.resize(ksize);
             computeKernel();
         }
 
         void setBorderHandling(const BorderHandling handling)
         {
             handling_ = handling;
+        }
+
+        Scalar sigma() const
+        {
+            return sigma_;
+        }
+
+        Index kernelSize() const
+        {
+            return kernel_.size();
+        }
+
+        Matrix kernel() const
+        {
+            return kernel_ * kernel_.transpose();
         }
 
         template<typename ScalarA, typename ScalarB>

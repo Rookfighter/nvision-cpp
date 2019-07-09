@@ -13,7 +13,7 @@ namespace cve
 {
     /** Class for Harris corner detection. */
     template<typename Scalar,
-        typename SmoothFilter=GaussFilter<Scalar, 5>,
+        typename SmoothFilter=GaussFilter<Scalar>,
         typename GradientFilter=SobelFilter<Scalar>>
     class HarrisDetector : public HarrisBaseDetector<Scalar, SmoothFilter, GradientFilter>
     {

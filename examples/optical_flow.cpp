@@ -31,14 +31,14 @@ int main(int argc, const char **argv)
     cve::pgm::load(argv[2], imgB);
     std::cout << "-- size " << imgB.dimension(1) << "x" << imgB.dimension(0) << std::endl;
 
-    GaussFilter<float, 9> preSmooth(2);
+    GaussFilter<float> preSmooth(2);
     preSmooth(imgA);
     preSmooth(imgB);
 
     std::cout << "Apply Lucas Kanade detector" << std::endl;
 
     Eigen::Tensor<float, 3> flowImg;
-    LucasKanadeDetector<float, GaussFilter<float, 9>> lkDetector;
+    LucasKanadeDetector<float> lkDetector;
     lkDetector.setSmoothFilter({1.4});
     lkDetector.apply(imgA, imgB, flowImg);
     Image8 oimg;

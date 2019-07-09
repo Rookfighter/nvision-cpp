@@ -33,7 +33,7 @@ int main(int argc, const char **argv)
     cve::imsave("box_smooth." + ext, oimg);
 
     std::cout << "Apply gauss filter" << std::endl;
-    GaussFilter<float, 9> gaussFilter(3);
+    GaussFilter<float> gaussFilter(3);
     gaussFilter(img, oimg);
 
     cve::imsave("gauss_smooth." + ext, oimg);

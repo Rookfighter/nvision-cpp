@@ -15,7 +15,7 @@ namespace cve
 {
     /** Class for Canny edge detection. */
     template<typename Scalar,
-        typename SmoothFilter=GaussFilter<Scalar, 3>,
+        typename SmoothFilter=GaussFilter<Scalar>,
         typename GradientFilter=SobelFilter<Scalar>>
     class CannyDetector
     {
