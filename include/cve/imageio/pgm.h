@@ -106,7 +106,6 @@ namespace cve
         void save(const std::string &filename,
             const Eigen::Tensor<Scalar, 3> &img)
         {
-            assert(img.dimension(2) >= 1);
             std::ofstream os(filename);
 
             os << "P5\n"

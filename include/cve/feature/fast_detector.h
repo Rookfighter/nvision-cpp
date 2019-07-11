@@ -125,6 +125,9 @@ namespace cve
         void detect(const Eigen::Tensor<ScalarA, 3> &img,
             Matrix &keypoints) const
         {
+            if(img.dimension(2) > 1)
+                throw std::runtime_error("FAST can only compute single channel images");
+
             std::vector<Vector2> points;
             points.reserve(5000);
             for(Index c = 0; c < img.dimension(1); ++c)

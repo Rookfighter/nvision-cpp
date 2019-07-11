@@ -7,6 +7,8 @@ include_directories(
 set(TEST_SRC
     "main.cpp"
 
+    "feature/fast_detector.cpp"
+
     "filter/backward_differences_filter.cpp"
     "filter/box_filter.cpp"
     "filter/central_differences_filter.cpp"

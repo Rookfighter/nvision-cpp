@@ -3,7 +3,7 @@
  * Author: Fabian Meyer
  * Created On: 04 Mar 2019
  */
- 
+
 #ifndef CVE_IMAGEIO_PPM_H_
 #define CVE_IMAGEIO_PPM_H_
 
@@ -107,7 +107,8 @@ namespace cve
         void save(const std::string &filename,
             const Eigen::Tensor<Scalar, 3> &img)
         {
-            assert(img.dimension(2) >= 3);
+            if(img.dimension(2) < 3)
+                throw std::runtime_error("imsave needs at least 3 channels");
 
             std::ofstream os(filename);
 
