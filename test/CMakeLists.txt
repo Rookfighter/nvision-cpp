@@ -8,6 +8,7 @@ set(TEST_SRC
     "main.cpp"
 
     "feature/fast_detector.cpp"
+    "feature/shi_tomasi_detector.cpp"
 
     "filter/backward_differences_filter.cpp"
     "filter/box_filter.cpp"

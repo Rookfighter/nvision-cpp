@@ -20,8 +20,9 @@ namespace cve
         typename GradientFilter=SobelFilter<Scalar>>
     class HarrisBaseDetector
     {
-    protected:
+    public:
         typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;
+    protected:
         typedef Eigen::Matrix<Scalar, 2, 2> Matrix2;
         typedef Eigen::Matrix<Scalar, 2, 1> Vector2;
 
@@ -46,6 +47,7 @@ namespace cve
             if(val < qualityLevel_ * maxResponse)
                 return false;
 
+            bool allSame = true;
             for(Index x = -minDistance_; x < minDistance_+1; ++x)
             {
                 Index c2 = col + x;
@@ -60,10 +62,12 @@ namespace cve
 
                     if(val < response(r2, c2, 0))
                         return false;
+                    if(val != response(r2, c2, 0))
+                        allSame = false;
                 }
             }
 
-            return true;
+            return !allSame;
         }
 
         virtual Scalar computeScore(const Matrix2 &M) const = 0;

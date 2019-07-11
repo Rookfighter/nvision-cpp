@@ -18,6 +18,8 @@ namespace cve
         typename GradientFilter=SobelFilter<Scalar>>
     class ShiTomasiDetector : public HarrisBaseDetector<Scalar, SmoothFilter, GradientFilter>
     {
+    public:
+        typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;;
     protected:
         typedef Eigen::Matrix<Scalar, 2, 2> Matrix2;
         typedef Eigen::Matrix<Scalar, 2, 1> Vector2;
