@@ -197,6 +197,46 @@ namespace cve
         }
 
         template<typename ScalarA, typename ScalarB>
+        ScalarA bilinear(const Eigen::Tensor<ScalarA, 3> &img,
+            const ScalarB r,
+            const ScalarB c,
+            const Index d)
+        {
+            ScalarB r1 = std::floor(r);
+            ScalarB r2 = std::ceil(r);
+            ScalarB c1 = std::floor(c);
+            ScalarB c2 = std::ceil(c);
+
+            ScalarB val11 = img(static_cast<Index>(r1), static_cast<Index>(c1), d);
+            ScalarB val12 = img(static_cast<Index>(r1), static_cast<Index>(c2), d);
+            ScalarB val21 = img(static_cast<Index>(r2), static_cast<Index>(c1), d);
+            ScalarB val22 = img(static_cast<Index>(r2), static_cast<Index>(c2), d);
+
+            // calculate factors in x direction
+            ScalarB fac1 = 1;
+            ScalarB fac2 = 0;
+            if(c2 != c1)
+            {
+                fac1 = (c2 - c) / (c2 - c1);
+                fac2 = (c - c1) / (c2 - c1);
+            }
+
+            ScalarB f1 = fac1 * val11 + fac2 * val12;
+            ScalarB f2 = fac1 * val21 + fac2 * val22;
+
+            // calculate factors in y direction
+            fac1 = 1;
+            fac2 = 0;
+            if(r2 != r1)
+            {
+                fac1 = (r2 - r) / (r2 - r1);
+                fac2 = (r - r1) / (r2 - r1);
+            }
+
+            return static_cast<ScalarA>(fac1 * f1 + fac2 * f2);
+        }
+
+        template<typename ScalarA, typename ScalarB>
         void magnitude(const Eigen::Tensor<ScalarA, 3> &x,
             const Eigen::Tensor<ScalarA, 3> &y,
             Eigen::Tensor<ScalarB, 3> &magnitude)
