@@ -15,7 +15,6 @@
 using namespace cve;
 
 typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> Matrix;
-typedef Eigen::Matrix<uint8_t, Eigen::Dynamic, Eigen::Dynamic> Matrixu8;
 
 int main(int argc, const char **argv)
 {
@@ -33,8 +32,8 @@ int main(int argc, const char **argv)
     Image8 oimg;
     Matrix keypointsA;
     Matrix keypointsB;
-    Matrixu8 descriptorsA;
-    Matrixu8 descriptorsB;
+    Matrixu32 descriptorsA;
+    Matrixu32 descriptorsB;
     std::string ext = cve::extension(argv[1]);
 
     cve::imload(argv[1], imgA);

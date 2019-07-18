@@ -22,13 +22,11 @@ namespace cve
             Scalar dist = 0;
             for(Index i = 0; i < lhs.size(); ++i)
             {
-                uint8_t hamDist = 0;
-                for(uint8_t val = lhs(i) ^ rhs(i); val > 0; val >>= 1)
+                for(Index val = lhs(i) ^ rhs(i); val > 0; val >>= 1)
                 {
-                    if(val & 0x01 == 0x01)
-                        ++hamDist;
+                    if(val & 1 == 1)
+                        dist += 1;
                 }
-                dist += static_cast<Scalar>(hamDist);
             }
 
             return dist;

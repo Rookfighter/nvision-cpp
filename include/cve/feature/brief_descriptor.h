@@ -17,10 +17,8 @@ namespace cve
     {
     public:
         typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;
-        typedef Eigen::Matrix<uint8_t, Eigen::Dynamic, Eigen::Dynamic> Matrixu8;
-
     private:
-        ssize_t seed_;
+        Index seed_;
         Scalar patchSize_;
         Matrix pointPairs_;
 
@@ -41,9 +39,9 @@ namespace cve
 
         }
 
-        BRIEFDescriptor(const size_t descriptorLength,
+        BRIEFDescriptor(const Index descriptorLength,
             const Scalar patchSize,
-            const ssize_t seed = 1297)
+            const Index seed = 1297)
             : seed_(seed), patchSize_(patchSize), pointPairs_(4, descriptorLength)
         {
             assert(patchSize > 1);
@@ -52,7 +50,7 @@ namespace cve
             computePointPairs();
         }
 
-        void setPatchSize(const size_t patchSize)
+        void setPatchSize(const Scalar patchSize)
         {
             assert(patchSize > 1);
 
@@ -60,13 +58,13 @@ namespace cve
             computePointPairs();
         }
 
-        void setSeed(const ssize_t seed)
+        void setSeed(const Index seed)
         {
             seed_ = seed;
             computePointPairs();
         }
 
-        void setDescriptorLength(const size_t descriptorLength)
+        void setDescriptorLength(const Index descriptorLength)
         {
             assert(descriptorLength % 64 == 0);
 
@@ -80,9 +78,9 @@ namespace cve
         template<typename ScalarA>
         void compute(const Eigen::Tensor<ScalarA, 3> &img,
             const Matrix &keypoints,
-            Matrixu8 &descriptors) const
+            Matrixu32 &descriptors) const
         {
-            descriptors.resize(pointPairs_.cols() / 8, keypoints.cols());
+            descriptors.resize(pointPairs_.cols() / 32, keypoints.cols());
 
             descriptors.setZero();
             for(Index c = 0; c < descriptors.cols(); ++c)
@@ -101,8 +99,8 @@ namespace cve
                         image::isInside(yB, xB, img) &&
                         img(yA, xA, 0) > img(yB, xB, 0))
                     {
-                        Index r = i / 8;
-                        descriptors(r, c) |= 0x01 << (i % 8);
+                        Index r = i / 32;
+                        descriptors(r, c) |= 0x00000001 << (i % 32);
                     }
                 }
             }
