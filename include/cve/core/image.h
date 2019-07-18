@@ -7,13 +7,11 @@
 #ifndef CVE_IMAGE_H_
 #define CVE_IMAGE_H_
 
-#include <Eigen/Geometry>
 #include <unsupported/Eigen/CXX11/Tensor>
+#include "cve/core/matrix.h"
 
 namespace cve
 {
-    typedef long int Index;
-
     typedef Eigen::Tensor<uint8_t, 3> Image8;
     typedef Eigen::Tensor<uint16_t, 3> Image16;
     typedef Eigen::Tensor<uint32_t, 3> Image32;
