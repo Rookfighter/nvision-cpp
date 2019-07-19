@@ -19,8 +19,6 @@ namespace cve
     public:
         typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;
         typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> Vector;
-        typedef Eigen::Matrix<Index, Eigen::Dynamic, Eigen::Dynamic> Matrixi;
-        typedef Eigen::Matrix<Scalar, 2, 1> Vector2;
     private:
         enum class IntensityClass
         {
@@ -32,6 +30,8 @@ namespace cve
         Scalar threshold_;
         Matrixi circle_;
         Index neighs_;
+        Index minDist_;
+        Index maxFeatures_;
 
         IntensityClass determineClass(const Scalar value,
             const Scalar low,
@@ -92,15 +92,39 @@ namespace cve
 
             return false;
         }
+
+        template<typename ScalarA>
+        Scalar computeScore(const Index row, const Index col,
+            const Eigen::Tensor<ScalarA, 3> &img) const
+        {
+            Scalar score = 0;
+            Scalar val = static_cast<Scalar>(img(row, col, 0));
+            for(Index i = 0; i < circle_.cols(); ++i)
+            {
+                Index r2 = row + circle_(1, i);
+                Index c2 = col + circle_(0, i);
+
+                if(image::isInside(r2, c2, img))
+                {
+                    Scalar val2 = static_cast<Scalar>(img(r2, c2, 0));
+                    score += std::abs(val - val2);
+                }
+            }
+
+            return score;
+        }
     public:
         FASTDetector()
-            : FASTDetector(50)
+            : FASTDetector(10, 7, 0)
         {
 
         }
 
-        FASTDetector(const Scalar threshold)
-            : threshold_(threshold), circle_(2, 16), neighs_(12)
+        FASTDetector(const Scalar threshold,
+            const Index minDist,
+            const Index maxFeatures)
+            : threshold_(threshold), circle_(2, 16), neighs_(12),
+            minDist_(minDist), maxFeatures_(maxFeatures)
         {
             circle_ <<  0,  1,  2,  3, 3, 3, 2, 1, 0, -1, -2, -3, -3, -3, -2, -1,
                        -3, -3, -2, -1, 0, 1, 2, 3, 3,  3,  2,  1,  0, -1, -2, -3;
@@ -109,6 +133,16 @@ namespace cve
         void setThreshold(const Scalar threshold)
         {
             threshold_ = threshold;
+        }
+
+        void setMinDistance(const Index minDist)
+        {
+            minDist_ = minDist;
+        }
+
+        void setMaxFeatures(const Index maxFeatures)
+        {
+            maxFeatures_ = maxFeatures;
         }
 
         /** Compute FAST corner features in the given image.
@@ -128,20 +162,66 @@ namespace cve
             if(img.dimension(2) > 1)
                 throw std::runtime_error("FAST can only compute single channel images");
 
-            std::vector<Vector2> points;
-            points.reserve(5000);
+            Matrix score(img.dimension(0), img.dimension(1));
+            score.setZero();
+
+            std::vector<Vector2i> points1;
+            points1.reserve(5000);
             for(Index c = 0; c < img.dimension(1); ++c)
             {
                 for(Index r = 0; r < img.dimension(0); ++r)
                 {
                     if(isCorner(r, c, img))
-                        points.push_back({c, r});
+                    {
+                        points1.push_back({c, r});
+                        score(r, c) = computeScore(r, c, img);
+                    }
                 }
             }
 
-            keypoints.resize(2, points.size());
-            for(size_t i = 0; i < points.size(); ++i)
-                keypoints.col(i) = points[i];
+            // perform non-maxima suppression
+            std::vector<Vector2i> points2;
+            points2.reserve(points1.size());
+            for(size_t i = 0; i < points1.size(); ++i)
+            {
+                Index c = points1[i](0);
+                Index r = points1[i](1);
+                Scalar val = score(r, c);
+                bool best = true;
+                for(Index x =  c - minDist_; x < c + minDist_; ++x)
+                {
+                    for(Index y =  r - minDist_; y < r + minDist_; ++y)
+                    {
+                        if(image::isInside(y, x, img) && val < score(y, x))
+                        {
+                            best = false;
+                            break;
+                        }
+                    }
+
+                    if(!best)
+                        break;
+                }
+
+                if(best)
+                    points2.push_back({c, r});
+            }
+
+            // check if maximum features has been reached
+            if(maxFeatures_ > 0 &&
+                static_cast<Index>(points2.size()) > maxFeatures_)
+            {
+                std::sort(points2.begin(), points2.end(),
+                    [&score](const Vector2i &lhs, const Vector2i &rhs)
+                    { return score(lhs(1), lhs(0)) < score(rhs(1), rhs(0)); });
+            }
+
+            Index featureCnt = points2.size();
+            if(maxFeatures_ > 0)
+                featureCnt = std::min(maxFeatures_, featureCnt);
+            keypoints.resize(2, featureCnt);
+            for(Index i = 0; i < keypoints.cols(); ++i)
+                keypoints.col(i) << points2[i](0), points2[i](1);
         }
     };
 }
