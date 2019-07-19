@@ -64,7 +64,7 @@ int main(int argc, const char **argv)
 
     matchDrawer.draw(imgA, imgB,
         keypointsA.block(0, 0, 2, 10),
-        keypointsB.block(0, 0, 2, 10),
+        keypointsB,
         indices.block(0, 0, 1, 10),
         oimg);
 
