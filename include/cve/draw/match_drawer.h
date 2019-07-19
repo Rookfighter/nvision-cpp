@@ -56,7 +56,7 @@ namespace cve
                         img(r, c + imgA.dimension(1), d) = imgB(r, c, d);
 
             Eigen::Matrix<Scalar, 2, 2> points;
-            Eigen::Array<ScalarB, 3, 1> color
+            Eigen::Array<ScalarB, 3, 1> color;
             for(Index i = 0; i < indices.cols(); ++i)
             {
                 if(indices(0, i) < 0 || indices(0, i) >= keypointsB.cols())
