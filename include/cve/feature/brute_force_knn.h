@@ -24,7 +24,7 @@ namespace cve
             {
                 for(Index val = lhs(i) ^ rhs(i); val > 0; val >>= 1)
                 {
-                    if(val & 1 == 1)
+                    if((val & 1) == 1)
                         dist += 1;
                 }
             }
