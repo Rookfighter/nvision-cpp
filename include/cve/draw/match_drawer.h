@@ -30,6 +30,13 @@ namespace cve
             const Eigen::MatrixBase<DerivedB> &indices,
             Eigen::Tensor<ScalarB, 3> &img) const
         {
+            assert(keypointsA.rows() == 2);
+            assert(keypointsB.rows() == 2);
+            assert(indices.rows() >= 1);
+            assert(keypointsA.cols() == indices.cols());
+            assert(imgA.dimension(2) >= 3);
+            assert(imgB.dimension(2) >= 3);
+
             ColorSeries<ScalarB> colorSeries;
             ShapeDrawer<Scalar> shapeDrawer;
 
@@ -46,9 +53,12 @@ namespace cve
                     for(Index r = 0; r < imgB.dimension(0); ++r)
                         img(r, c + imgA.dimension(1), d) = imgB(r, c, d);
 
-            Matrix points(2, 2);
+            Eigen::Matrix<Scalar, 2, 2> points;
             for(Index i = 0; i < indices.cols(); ++i)
             {
+                if(indices(0, i) < 0 || indices(0, i) >= keypointsB.cols())
+                    continue;
+
                 Eigen::Array<ScalarB, 3, 1> color = colorSeries.next();
                 points.col(0) = keypointsA.col(i);
                 points.col(1) = keypointsB.col(indices(0, i));

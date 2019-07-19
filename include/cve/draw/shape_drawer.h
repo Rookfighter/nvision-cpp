@@ -26,7 +26,7 @@ namespace cve
             Eigen::Tensor<ScalarA, 3> &img)
         {
             assert(img.dimension(2) >= 3);
-            assert(center.rows() >= 2);
+            assert(centers.rows() == 2);
 
             for(Index c = 0; c < centers.cols(); ++c)
             {
