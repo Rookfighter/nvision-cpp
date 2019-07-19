@@ -113,8 +113,8 @@ namespace cve
                 << img.dimension(0) << '\n'
                 << "255" << '\n';
 
-            for(Index r = 0; r < img.dimension(1); ++r)
-                for(Index c = 0; c < img.dimension(0); ++c)
+            for(Index r = 0; r < img.dimension(0); ++r)
+                for(Index c = 0; c < img.dimension(1); ++c)
                     os << static_cast<uint8_t>(img(r, c, 0));
         }
     }
