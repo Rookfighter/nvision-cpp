@@ -32,19 +32,15 @@ include_directories(
     ${CIMG_INCLUDE_DIR}
 )
 
-add_executable(detect_corners "examples/detect_corners.cpp")
-add_executable(detect_edges "examples/detect_edges.cpp")
-add_executable(draw_shapes "examples/draw_shapes.cpp")
-add_executable(filter_smooth "examples/filter_smooth.cpp")
-add_executable(find_matches "examples/find_matches.cpp")
-add_executable(optical_flow "examples/optical_flow.cpp")
-add_executable(updown_sample "examples/updown_sample.cpp")
-
 install(DIRECTORY "include/cve"
     DESTINATION include)
-
 
 if(${BUILD_TESTS})
     # Compile tests
     add_subdirectory(test)
 endif(${BUILD_TESTS})
+
+if(${BUILD_EXAMPLES})
+    # Compile examples
+    add_subdirectory(examples)
+endif(${BUILD_EXAMPLES})
