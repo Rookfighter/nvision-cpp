@@ -22,12 +22,13 @@ namespace cve
 
         }
 
-        template<typename ScalarA, typename ScalarB, typename DerivedA, typename DerivedB>
+        template<typename ScalarA, typename ScalarB,
+            typename DerivedA, typename DerivedB, typename DerivedC>
         void draw(const Eigen::Tensor<ScalarA, 3> &imgA,
             const Eigen::Tensor<ScalarA, 3> &imgB,
             const Eigen::MatrixBase<DerivedA> &keypointsA,
-            const Eigen::MatrixBase<DerivedA> &keypointsB,
-            const Eigen::MatrixBase<DerivedB> &indices,
+            const Eigen::MatrixBase<DerivedB> &keypointsB,
+            const Eigen::MatrixBase<DerivedC> &indices,
             Eigen::Tensor<ScalarB, 3> &img) const
         {
             assert(keypointsA.rows() == 2);
@@ -40,7 +41,8 @@ namespace cve
             ColorSeries<ScalarB> colorSeries;
             ShapeDrawer<Scalar> shapeDrawer;
 
-            img.resize(std::max(imgA.dimension(0), imgB.dimension(0)), imgA.dimension(1) + imgB.dimension(1), 3);
+            img.resize(std::max(imgA.dimension(0), imgB.dimension(0)),
+                imgA.dimension(1) + imgB.dimension(1), 3);
             img.setZero();
             // copy image A onto result image
             for(Index d = 0; d < imgA.dimension(2); ++d)
@@ -54,12 +56,13 @@ namespace cve
                         img(r, c + imgA.dimension(1), d) = imgB(r, c, d);
 
             Eigen::Matrix<Scalar, 2, 2> points;
+            Eigen::Array<ScalarB, 3, 1> color
             for(Index i = 0; i < indices.cols(); ++i)
             {
                 if(indices(0, i) < 0 || indices(0, i) >= keypointsB.cols())
                     continue;
 
-                Eigen::Array<ScalarB, 3, 1> color = colorSeries.next();
+                color = colorSeries.next();
                 points.col(0) = keypointsA.col(i);
                 points.col(1) = keypointsB.col(indices(0, i));
                 points(0, 1) += imgA.dimension(1);
