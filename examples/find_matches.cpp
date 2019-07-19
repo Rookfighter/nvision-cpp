@@ -8,7 +8,8 @@
 #include <cve/feature/fast_detector.h>
 #include <cve/feature/brief_descriptor.h>
 #include <cve/feature/orb_descriptor.h>
-#include <cve/draw/shape_drawer.h>
+#include <cve/feature/brute_force_knn.h>
+#include <cve/draw/match_drawer.h>
 #include <cve/draw/colors.h>
 #include <cve/imageio/imageio.h>
 
@@ -29,12 +30,16 @@ int main(int argc, const char **argv)
     Image8 imgB;
     Image8 grayA;
     Image8 grayB;
-    Image8 oimg;
+    Imagef oimg;
     Matrix keypointsA;
     Matrix keypointsB;
+    Matrixi indices;
+    Matrix distances;
     Matrixu32 descriptorsA;
     Matrixu32 descriptorsB;
     std::string ext = cve::extension(argv[1]);
+    BruteForceKNN<float, HammingDistance<uint32_t>, uint32_t> knn;
+    MatchDrawer<float> matchDrawer;
 
     cve::imload(argv[1], imgA);
     cve::imload(argv[2], imgB);
@@ -54,12 +59,22 @@ int main(int argc, const char **argv)
     briefDescriptor.compute(grayA, keypointsA, descriptorsA);
     briefDescriptor.compute(grayB, keypointsB, descriptorsB);
 
-    std::cout << std::hex << descriptorsA.block(0,0,16,5) << std::endl;
+    knn.setData(descriptorsB);
+    knn.query(descriptorsA, 1, indices, distances);
 
-    std::cout << "Compute ORB descriptors" << std::endl;
-    ORBDescriptor<float> orbDescriptor;
-    orbDescriptor.compute(grayA, keypointsA, descriptorsA);
-    orbDescriptor.compute(grayB, keypointsB, descriptorsB);
+    matchDrawer.draw(imgA, imgB,
+        keypointsA.block(0, 0, 2, 10),
+        keypointsB.block(0, 0, 2, 10),
+        indices.block(0, 0, 1, 10),
+        oimg);
+
+    cve::imsave("brief_matches." + ext, oimg);
+
+    // std::cout << "Compute ORB descriptors" << std::endl;
+    // ORBDescriptor<float> orbDescriptor;
+    // orbDescriptor.compute(grayA, keypointsA, descriptorsA);
+    // orbDescriptor.compute(grayB, keypointsB, descriptorsB);
+
 
     // cve::imsave("fast_corners." + ext, oimg);
 
