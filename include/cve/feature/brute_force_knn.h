@@ -70,6 +70,7 @@ namespace cve
 
         Index threads_;
         bool sorted_;
+        Scalar maxDist_;
 
         class QueryHeap
         {
@@ -181,12 +182,12 @@ namespace cve
 
         BruteForceKNN()
             : distance_(), dataDescriptors_(nullptr), dataCopy_(), threads_(1),
-            sorted_(true)
+            sorted_(true), maxDist_(0)
         { }
 
         BruteForceKNN(const MatrixD &dataDescriptors, const bool copy = false)
             : distance_(), dataDescriptors_(nullptr), dataCopy_(), threads_(1),
-            sorted_(true)
+            sorted_(true), maxDist_(0)
         {
             setData(dataDescriptors, copy);
         }
@@ -217,6 +218,11 @@ namespace cve
         void setSorted(const bool sorted)
         {
             sorted_ = sorted;
+        }
+
+        void setMaxDistance(const Scalar distance)
+        {
+            maxDist_ = distance;
         }
 
         Index dimension() const
@@ -258,7 +264,8 @@ namespace cve
                     Scalar dist = distance_(queryDescriptors.col(i),
                         dataDescriptors.col(j));
 
-                    if(!heap.full() || dist < heap.front())
+                    if((maxDist_ <= 0 || dist <= maxDist_) &&
+                        (!heap.full() || dist < heap.front()))
                     {
                         if(heap.full())
                             heap.pop();
