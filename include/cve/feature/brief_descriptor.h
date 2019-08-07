@@ -12,6 +12,14 @@
 
 namespace cve
 {
+    /** Class to compute BRIEF feature descriptors.
+      *
+      * This descriptor compares pair-wise pixel in a patch around each keypoint.
+      * If the image value of the first pixel is greater than the second the
+      * algorithm sets the number in the respective bitmap to one.
+      *
+      * The pairs in the patch are determined randomly.
+      */
     template<typename Scalar>
     class BRIEFDescriptor
     {
@@ -30,26 +38,31 @@ namespace cve
 
         }
 
-        BRIEFDescriptor(const Index bitLength,
+        BRIEFDescriptor(const Index length,
             const Scalar patchSize,
             const Index seed = 1297)
             : seed_(), patchSize_(), pattern_()
         {
-            computePattern(bitLength, patchSize, seed);
+            computePattern(length, patchSize, seed);
         }
 
-        void computePattern(const Index bitLength,
+        /** Computes a random pattern for the given patch size with the given
+          * number of neighbors.
+          * @param length number of neighbors to be computed (must be multiple of 8!)
+          * @param patchSize size of the observed area around each keypoint
+          * @param seed seed for the random number generator */
+        void computePattern(const Index length,
             const Scalar patchSize,
             const Index seed)
         {
-            if(bitLength % 8 != 0)
+            if(length % 8 != 0)
                 throw std::runtime_error("BRIEF bit length must be multiple of 8");
             if(patchSize <= 1)
                 throw std::runtime_error("BRIEF patch size must be greater than one");
 
             seed_ = seed;
             patchSize_ = patchSize;
-            pattern_.resize(4, bitLength);
+            pattern_.resize(4, length);
 
             std::default_random_engine gen(seed);
             std::uniform_real_distribution<Scalar> distrib(-0.5, 0.5);
@@ -84,8 +97,11 @@ namespace cve
             return seed_;
         }
 
-        /**
-          *
+        /** Computes the descriptors for the given keypoints.
+          * @param img input image
+          * @param keypoints matrix of keypoints, each column represents a point
+          * @param descriptors output matrix of descriptors, each column is a
+          *        descriptor for the respective keypoint
           */
         template<typename ScalarA>
         void compute(const Eigen::Tensor<ScalarA, 3> &img,
