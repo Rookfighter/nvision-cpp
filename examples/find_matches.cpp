@@ -35,10 +35,10 @@ int main(int argc, const char **argv)
     Matrix keypointsB;
     Matrixi indices;
     Matrix distances;
-    Matrixu32 descriptorsA;
-    Matrixu32 descriptorsB;
+    Matrixu8 descriptorsA;
+    Matrixu8 descriptorsB;
     std::string ext = cve::extension(argv[1]);
-    BruteForceKNN<float, HammingDistance<uint32_t>, uint32_t> knn;
+    BruteForceKNN<float, HammingDistance<uint8_t>, uint8_t> knn;
     MatchDrawer<float> matchDrawer;
 
     cve::imload(argv[1], imgA);
@@ -60,12 +60,13 @@ int main(int argc, const char **argv)
     briefDescriptor.compute(grayB, keypointsB, descriptorsB);
 
     knn.setData(descriptorsB);
+    knn.setMaxDistance(10);
     knn.query(descriptorsA, 1, indices, distances);
 
     matchDrawer.draw(imgA, imgB,
-        keypointsA.block(0, 0, 2, 10),
+        keypointsA,
         keypointsB,
-        indices.block(0, 0, 1, 10),
+        indices,
         oimg);
 
     cve::imsave("brief_matches." + ext, oimg);

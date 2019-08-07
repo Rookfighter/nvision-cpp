@@ -16,13 +16,13 @@ namespace cve
     struct HammingDistance
     {
         template<typename Derived>
-        Scalar operator()(const Eigen::MatrixBase<Derived> &lhs,
+        Index operator()(const Eigen::MatrixBase<Derived> &lhs,
             const Eigen::MatrixBase<Derived> &rhs) const
         {
-            Scalar dist = 0;
+            Index dist = 0;
             for(Index i = 0; i < lhs.size(); ++i)
             {
-                for(Index val = lhs(i) ^ rhs(i); val > 0; val >>= 1)
+                for(Scalar val = lhs(i) ^ rhs(i); val > 0; val >>= 1)
                 {
                     if((val & 1) == 1)
                         dist += 1;

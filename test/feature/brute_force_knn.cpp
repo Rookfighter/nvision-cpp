@@ -106,7 +106,7 @@ TEST_CASE("brute_force_knn")
 
     SECTION("hamming distance query multiple")
     {
-        BruteForceKNN<Scalar, HammingDistance<Scalar>, uint8_t> matcher;
+        BruteForceKNN<Scalar, HammingDistance<uint8_t>, uint8_t> matcher;
 
         Matrixu8 data(3, 9);
         data << 0x01, 0x03, 0xa3, 0x03, 0xd9, 0xcf, 0x88, 0x8a, 0x13,
