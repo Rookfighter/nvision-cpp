@@ -71,13 +71,22 @@ int main(int argc, const char **argv)
 
     cve::imsave("brief_matches." + ext, oimg);
 
-    // std::cout << "Compute ORB descriptors" << std::endl;
-    // ORBDescriptor<float> orbDescriptor;
-    // orbDescriptor.compute(grayA, keypointsA, descriptorsA);
-    // orbDescriptor.compute(grayB, keypointsB, descriptorsB);
+    std::cout << "Compute ORB descriptors" << std::endl;
+    ORBDescriptor<float> orbDescriptor;
+    orbDescriptor.compute(grayA, keypointsA, descriptorsA);
+    orbDescriptor.compute(grayB, keypointsB, descriptorsB);
 
+    knn.setData(descriptorsB);
+    knn.setMaxDistance(15);
+    knn.query(descriptorsA, 1, indices, distances);
 
-    // cve::imsave("fast_corners." + ext, oimg);
+    matchDrawer.draw(imgA, imgB,
+        keypointsA,
+        keypointsB,
+        indices,
+        oimg);
+
+    cve::imsave("orb_matches." + ext, oimg);
 
     return 0;
 }

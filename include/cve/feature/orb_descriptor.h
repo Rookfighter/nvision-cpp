@@ -16,27 +16,17 @@ namespace cve
     class ORBDescriptor
     {
     public:
-
         typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;
         typedef Eigen::Matrix<Scalar, 4, 4> Matrix4;
 
     private:
         Index seed_;
         Scalar patchSize_;
-        Matrix pointPairs_;
-
-        void computePointPairs()
-        {
-            std::default_random_engine gen(seed_);
-            std::uniform_real_distribution<Scalar> distrib(-0.5, 0.5);
-
-            for(Index c = 0; c < pointPairs_.cols(); ++c)
-                for(Index r = 0; r < pointPairs_.rows(); ++r)
-                    pointPairs_(r, c) = distrib(gen) * patchSize_;
-        }
+        Matrix pattern_;
 
         template<typename ScalarA>
-        Scalar computeRotationAngle(const Index row, const Index col,
+        Scalar computeRotationAngle(const Index row,
+            const Index col,
             const Eigen::Tensor<ScalarA, 3> &img) const
         {
             Scalar m01 = 0;
@@ -68,37 +58,63 @@ namespace cve
 
         }
 
-        ORBDescriptor(const Index descriptorLength,
+        ORBDescriptor(const Index length,
             const Scalar patchSize,
             const Index seed = 1297)
-            : seed_(seed), patchSize_(patchSize), pointPairs_(4, descriptorLength)
+            : seed_(), patchSize_(), pattern_()
         {
-            assert(patchSize > 1);
-            assert(descriptorLength % 64 == 0);
-
-            computePointPairs();
+            computePattern(length, patchSize, seed);
         }
 
-        void setPatchSize(const size_t patchSize)
+        /** Computes a random pattern for the given patch size with the given
+          * number of neighbors.
+          * @param length number of neighbors to be computed (must be multiple of 8!)
+          * @param patchSize size of the observed area around each keypoint
+          * @param seed seed for the random number generator */
+        void computePattern(const Index length,
+            const Scalar patchSize,
+            const Index seed = 1297)
         {
-            assert(patchSize > 1);
+            if(length % 8 != 0)
+                throw std::runtime_error("ORBDescriptor bit length must be multiple of 8");
+            if(patchSize <= 1)
+                throw std::runtime_error("ORBDescriptor patch size must be greater than one");
 
-            patchSize_ = patchSize;
-            computePointPairs();
-        }
-
-        void setSeed(const Index seed)
-        {
             seed_ = seed;
-            computePointPairs();
+            patchSize_ = patchSize;
+            pattern_.resize(4, length);
+
+            std::default_random_engine gen(seed);
+            std::uniform_real_distribution<Scalar> distrib(-0.5, 0.5);
+
+            for(Index c = 0; c < pattern_.cols(); ++c)
+                for(Index r = 0; r < pattern_.rows(); ++r)
+                    pattern_(r, c) = std::floor(distrib(gen) * patchSize);
         }
 
-        void setDescriptorLength(const size_t descriptorLength)
+        void setPattern(const Matrixi &pattern)
         {
-            assert(descriptorLength % 64 == 0);
+            if(pattern.rows() != 4)
+                throw std::runtime_error("ORBDescriptor pattern must have 4 rows");
+            if(pattern.cols() % 8 != 0)
+                throw std::runtime_error("ORBDescriptor pattern columns must be multiple of 8");
 
-            pointPairs_.resize(4, descriptorLength);
-            computePointPairs();
+            pattern_ = pattern;
+        }
+
+        const Matrixi &pattern() const
+        {
+            return pattern_;
+        }
+
+        Scalar patchSize() const
+        {
+            return patchSize_;
+        }
+
+        Index seed() const
+        {
+            return seed_;
         }
 
         /**
@@ -107,16 +123,16 @@ namespace cve
         template<typename ScalarA>
         void compute(const Eigen::Tensor<ScalarA, 3> &img,
             const Matrix &keypoints,
-            Matrixu32 &descriptors) const
+            Matrixu8 &descriptors) const
         {
-            descriptors.resize(pointPairs_.cols() / 32, keypoints.cols());
-            Matrix points(pointPairs_.rows(), pointPairs_.cols());
+            descriptors.resize(pattern_.cols() / 8, keypoints.cols());
+            Matrix points(pattern_.rows(), pattern_.cols());
 
             descriptors.setZero();
             for(Index c = 0; c < descriptors.cols(); ++c)
             {
-                Scalar x = keypoints(0, c);
-                Scalar y = keypoints(1, c);
+                Index x = std::floor(keypoints(0, c));
+                Index y = std::floor(keypoints(1, c));
 
                 // compute a rotation angle for rotation invariance
                 Scalar theta = computeRotationAngle(y, x, img);
@@ -129,21 +145,21 @@ namespace cve
                        sinVal, cosVal, 0, 0,
                        0, 0, cosVal, -sinVal,
                        0, 0, sinVal, cosVal;
-                points = rot * pointPairs_;
+                points = rot * pattern_;
 
-                for(Index i = 0; i < pointPairs_.cols(); ++i)
+                for(Index i = 0; i < points.cols(); ++i)
                 {
-                    Index xA = std::floor(x + points(0, i));
-                    Index yA = std::floor(y + points(1, i));
-                    Index xB = std::floor(x + points(2, i));
-                    Index yB = std::floor(y + points(3, i));
+                    Index xA = x + std::floor(points(0, i));
+                    Index yA = y + std::floor(points(1, i));
+                    Index xB = x + std::floor(points(2, i));
+                    Index yB = y + std::floor(points(3, i));
 
                     if(image::isInside(yA, xA, img) &&
                         image::isInside(yB, xB, img) &&
                         img(yA, xA, 0) > img(yB, xB, 0))
                     {
-                        Index r = i / 32;
-                        descriptors(r, c) |= 0x00000001 << (i / 32);
+                        Index r = i / 8;
+                        descriptors(r, c) |= 0x01 << (7 - (i % 8));
                     }
                 }
             }

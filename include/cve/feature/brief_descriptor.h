@@ -56,9 +56,9 @@ namespace cve
             const Index seed)
         {
             if(length % 8 != 0)
-                throw std::runtime_error("BRIEF bit length must be multiple of 8");
+                throw std::runtime_error("BRIEFDescriptor bit length must be multiple of 8");
             if(patchSize <= 1)
-                throw std::runtime_error("BRIEF patch size must be greater than one");
+                throw std::runtime_error("BRIEFDescriptor patch size must be greater than one");
 
             seed_ = seed;
             patchSize_ = patchSize;
@@ -75,9 +75,9 @@ namespace cve
         void setPattern(const Matrixi &pattern)
         {
             if(pattern.rows() != 4)
-                throw std::runtime_error("BRIEF pattern must have 4 rows");
+                throw std::runtime_error("BRIEFDescriptor pattern must have 4 rows");
             if(pattern.cols() % 8 != 0)
-                throw std::runtime_error("BRIEF pattern columns must be multiple of 8");
+                throw std::runtime_error("BRIEFDescriptor pattern columns must be multiple of 8");
 
             pattern_ = pattern;
         }
