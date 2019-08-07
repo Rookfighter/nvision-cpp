@@ -20,56 +20,63 @@ namespace cve
     private:
         Index seed_;
         Scalar patchSize_;
-        Matrix pointPairs_;
+        Matrixi pattern_;
 
-        void computePointPairs()
-        {
-            std::default_random_engine gen(seed_);
-            std::uniform_real_distribution<Scalar> distrib(-0.5, 0.5);
-
-            for(Index c = 0; c < pointPairs_.cols(); ++c)
-                for(Index r = 0; r < pointPairs_.rows(); ++r)
-                    pointPairs_(r, c) = distrib(gen) * patchSize_;
-        }
     public:
 
         BRIEFDescriptor()
-            : BRIEFDescriptor(128, 16, 1297)
+            : BRIEFDescriptor(128, 31, 1297)
         {
 
         }
 
-        BRIEFDescriptor(const Index descriptorLength,
+        BRIEFDescriptor(const Index bitLength,
             const Scalar patchSize,
             const Index seed = 1297)
-            : seed_(seed), patchSize_(patchSize), pointPairs_(4, descriptorLength)
+            : seed_(), patchSize_(), pattern_()
         {
-            assert(patchSize > 1);
-            assert(descriptorLength % 64 == 0);
-
-            computePointPairs();
+            computePattern(bitLength, patchSize, seed);
         }
 
-        void setPatchSize(const Scalar patchSize)
+        void computePattern(const Index bitLength,
+            const Scalar patchSize,
+            const Index seed)
         {
+            assert(descriptorLength % 8 == 0);
             assert(patchSize > 1);
 
-            patchSize_ = patchSize;
-            computePointPairs();
-        }
-
-        void setSeed(const Index seed)
-        {
             seed_ = seed;
-            computePointPairs();
+            patchSize_ = patchSize;
+            pattern_.resize(4, bitLength);
+
+            std::default_random_engine gen(seed);
+            std::uniform_real_distribution<Scalar> distrib(-0.5, 0.5);
+
+            for(Index c = 0; c < pattern_.cols(); ++c)
+                for(Index r = 0; r < pattern_.rows(); ++r)
+                    pattern_(r, c) = std::floor(distrib(gen) * patchSize);
         }
 
-        void setDescriptorLength(const Index descriptorLength)
+        void setPattern(const Matrixi &pattern)
         {
-            assert(descriptorLength % 64 == 0);
+            assert(pattern.rows() == 4);
+            assert(pattern.cols() % 8 == 0);
+            pattern_ = pattern;
+        }
 
-            pointPairs_.resize(4, descriptorLength);
-            computePointPairs();
+        const Matrixi &pattern() const
+        {
+            return pattern_;
+        }
+
+        Scalar patchSize() const
+        {
+            return patchSize_;
+        }
+
+        Index seed() const
+        {
+            return seed_;
         }
 
         /**
@@ -78,29 +85,29 @@ namespace cve
         template<typename ScalarA>
         void compute(const Eigen::Tensor<ScalarA, 3> &img,
             const Matrix &keypoints,
-            Matrixu32 &descriptors) const
+            Matrixu8 &descriptors) const
         {
-            descriptors.resize(pointPairs_.cols() / 32, keypoints.cols());
+            descriptors.resize(pattern_.cols() / 8, keypoints.cols());
 
             descriptors.setZero();
             for(Index c = 0; c < descriptors.cols(); ++c)
             {
-                Scalar x = keypoints(0, c);
-                Scalar y = keypoints(1, c);
+                Index x = std::floor(keypoints(0, c));
+                Index y = std::floor(keypoints(1, c));
 
-                for(Index i = 0; i < pointPairs_.cols(); ++i)
+                for(Index i = 0; i < pattern_.cols(); ++i)
                 {
-                    Index xA = std::floor(x + pointPairs_(0, i));
-                    Index yA = std::floor(y + pointPairs_(1, i));
-                    Index xB = std::floor(x + pointPairs_(2, i));
-                    Index yB = std::floor(y + pointPairs_(3, i));
+                    Index xA = x + pattern_(0, i);
+                    Index yA = y + pattern_(1, i);
+                    Index xB = x + pattern_(2, i);
+                    Index yB = y + pattern_(3, i);
 
                     if(image::isInside(yA, xA, img) &&
                         image::isInside(yB, xB, img) &&
                         img(yA, xA, 0) > img(yB, xB, 0))
                     {
-                        Index r = i / 32;
-                        descriptors(r, c) |= 0x00000001 << (i % 32);
+                        Index r = i / 8;
+                        descriptors(r, c) |= 0x01 << (7 - (i % 8));
                     }
                 }
             }
