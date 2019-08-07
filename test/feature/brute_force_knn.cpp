@@ -1,4 +1,4 @@
-/* brute_force_matcher.h
+/* brute_force_matcher.cpp
  *
  * Author: Fabian Meyer
  * Created On: 18 Jul 2019

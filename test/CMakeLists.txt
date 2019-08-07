@@ -7,6 +7,7 @@ include_directories(
 set(TEST_SRC
     "main.cpp"
 
+    "feature/brief_descriptor.cpp"
     "feature/brute_force_knn.cpp"
     "feature/fast_detector.cpp"
     "feature/harris_detector.cpp"
