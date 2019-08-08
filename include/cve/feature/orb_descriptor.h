@@ -97,7 +97,7 @@ namespace cve
     public:
 
         ORBDescriptor()
-            : ORBDescriptor(256, 16, 1297)
+            : ORBDescriptor(256, 31, 1297)
         {
 
         }
