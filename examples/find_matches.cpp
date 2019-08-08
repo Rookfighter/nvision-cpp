@@ -60,7 +60,7 @@ int main(int argc, const char **argv)
     briefDescriptor.compute(grayB, keypointsB, descriptorsB);
 
     knn.setData(descriptorsB);
-    knn.setMaxDistance(10);
+    knn.setMaxDistance(20);
     knn.query(descriptorsA, 1, indices, distances);
 
     matchDrawer.draw(imgA, imgB,
@@ -77,7 +77,7 @@ int main(int argc, const char **argv)
     orbDescriptor.compute(grayB, keypointsB, descriptorsB);
 
     knn.setData(descriptorsB);
-    knn.setMaxDistance(15);
+    knn.setMaxDistance(30);
     knn.query(descriptorsA, 1, indices, distances);
 
     matchDrawer.draw(imgA, imgB,
