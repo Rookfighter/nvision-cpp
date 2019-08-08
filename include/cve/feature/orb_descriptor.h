@@ -12,6 +12,15 @@
 
 namespace cve
 {
+    /** Class to compute ORB feature descriptors.
+      *
+      * ORB is a binary descriptor, which compares the instensity values of
+      * pixel pairs, similar to BRIEF. ORB also adds a rotation compensation
+      * to make it rotation invariant.
+      *
+      * The pixel pairs are sampled from a fixed size patch around each keypoint.
+      * The pattern of pixel pairs in a patch is determined randomly, but stays
+      * consistent across different keypoints. */
     template<typename Scalar>
     class ORBDescriptor
     {
@@ -22,38 +31,73 @@ namespace cve
     private:
         Index seed_;
         Scalar patchSize_;
-        Matrix pattern_;
+        std::vector<Matrixi> patterns_;
+        Index partitions_;
+
+        void computeRandomPattern(const Index length,
+            const Scalar patchSize,
+            const Index seed,
+            Matrix &pattern)
+        {
+            // compute pattern randomly
+            pattern.resize(4, length);
+            std::default_random_engine gen(seed);
+            std::uniform_real_distribution<Scalar> distrib(-0.5, 0.5);
+            for(Index c = 0; c < pattern.cols(); ++c)
+                for(Index r = 0; r < pattern.rows(); ++r)
+                    pattern(r, c) = distrib(gen) * patchSize;
+        }
+
+        void computeRotatedPatterns(const Matrix &pattern,
+            std::vector<Matrixi> &patterns) const
+        {
+            // compute discretized rotated patterns
+            Scalar anglePartition = 2 * pi<Scalar>() / static_cast<Scalar>(partitions_);
+            patterns.resize(partitions_);
+            for(size_t i = 0; i < patterns.size(); ++i)
+            {
+                Scalar theta = static_cast<Scalar>(i) * anglePartition;
+                Scalar sinVal = std::sin(theta);
+                Scalar cosVal = std::cos(theta);
+                Matrix4 rot;
+                rot << cosVal, -sinVal, 0, 0,
+                       sinVal, cosVal, 0, 0,
+                       0, 0, cosVal, -sinVal,
+                       0, 0, sinVal, cosVal;
+                patterns[i].resize(pattern.rows(), pattern.cols());
+                patterns[i] = (rot * pattern).template cast<Index>();
+            }
+        }
 
         template<typename ScalarA>
-        Scalar computeRotationAngle(const Index row,
+        Index calcPatternIndex(const Index row,
             const Index col,
             const Eigen::Tensor<ScalarA, 3> &img) const
         {
+            Index patchSize = static_cast<Index>(patchSize_);
             Scalar m01 = 0;
             Scalar m10 = 0;
-            for(Index c2 = col - patchSize_; c2 < col + patchSize_ + 1; ++c2)
+            for(Index cOff = -patchSize; cOff < patchSize + 1; ++cOff)
             {
-                for(Index r2 = row - patchSize_; r2 < row + patchSize_ + 1; ++r2)
+                Index c2 = col + cOff;
+                for(Index rOff = -patchSize; rOff < patchSize + 1; ++rOff)
                 {
+                    Index r2 = row + rOff;
                     if(image::isInside(r2, c2, img))
                     {
-                        m01 += r2 * img(r2, c2, 0);
-                        m10 += c2 * img(r2, c2, 0);
+                        m01 += rOff * img(r2, c2, 0);
+                        m10 += cOff * img(r2, c2, 0);
                     }
                 }
             }
 
-            // discretize angle to a certain partitioning
-            // 2 * pi / 30
-            Scalar anglePartition = 0.2094395102393195;
-            Scalar theta = std::atan2(m01, m10);
-            theta = std::floor(theta / anglePartition) * anglePartition;
-            return theta;
+            Scalar theta = angle::normalize(std::atan2(m01, m10));
+            return static_cast<Index>(theta / (2 * pi<Scalar>() / partitions_));
         }
     public:
 
         ORBDescriptor()
-            : ORBDescriptor(128, 16, 1297)
+            : ORBDescriptor(256, 16, 1297)
         {
 
         }
@@ -61,7 +105,7 @@ namespace cve
         ORBDescriptor(const Index length,
             const Scalar patchSize,
             const Index seed = 1297)
-            : seed_(), patchSize_(), pattern_()
+            : seed_(), patchSize_(), patterns_(), partitions_(12)
         {
             computePattern(length, patchSize, seed);
         }
@@ -82,29 +126,25 @@ namespace cve
 
             seed_ = seed;
             patchSize_ = patchSize;
-            pattern_.resize(4, length);
 
-            std::default_random_engine gen(seed);
-            std::uniform_real_distribution<Scalar> distrib(-0.5, 0.5);
-
-            for(Index c = 0; c < pattern_.cols(); ++c)
-                for(Index r = 0; r < pattern_.rows(); ++r)
-                    pattern_(r, c) = std::floor(distrib(gen) * patchSize);
+            Matrix pattern;
+            computeRandomPattern(length, patchSize, seed, pattern);
+            computeRotatedPatterns(pattern, patterns_);
         }
 
-        void setPattern(const Matrixi &pattern)
+        void setPattern(const Matrix &pattern)
         {
             if(pattern.rows() != 4)
                 throw std::runtime_error("ORBDescriptor pattern must have 4 rows");
             if(pattern.cols() % 8 != 0)
                 throw std::runtime_error("ORBDescriptor pattern columns must be multiple of 8");
 
-            pattern_ = pattern;
+            computeRotatedPatterns(pattern);
         }
 
         const Matrixi &pattern() const
         {
-            return pattern_;
+            return patterns_[0];
         }
 
         Scalar patchSize() const
@@ -125,34 +165,27 @@ namespace cve
             const Matrix &keypoints,
             Matrixu8 &descriptors) const
         {
-            descriptors.resize(pattern_.cols() / 8, keypoints.cols());
-            Matrix points(pattern_.rows(), pattern_.cols());
+            descriptors.resize(patterns_[0].cols() / 8, keypoints.cols());
 
             descriptors.setZero();
             for(Index c = 0; c < descriptors.cols(); ++c)
             {
-                Index x = std::floor(keypoints(0, c));
-                Index y = std::floor(keypoints(1, c));
+                Index x = static_cast<Index>(keypoints(0, c));
+                Index y = static_cast<Index>(keypoints(1, c));
 
-                // compute a rotation angle for rotation invariance
-                Scalar theta = computeRotationAngle(y, x, img);
+                // compute which pattern should be used here
+                std:: cout << "calc pattern" << std::endl;
+                Index idx = calcPatternIndex(y, x, img);
+                const Matrixi &pattern = patterns_[idx];
 
-                // compute rotation matrix and rotate point pairs
-                Scalar sinVal = std::sin(theta);
-                Scalar cosVal = std::cos(theta);
-                Matrix4 rot;
-                rot << cosVal, -sinVal, 0, 0,
-                       sinVal, cosVal, 0, 0,
-                       0, 0, cosVal, -sinVal,
-                       0, 0, sinVal, cosVal;
-                points = rot * pattern_;
-
-                for(Index i = 0; i < points.cols(); ++i)
+                std:: cout << "foo" << std::endl;
+                std::cout << pattern.rows() << ',' << pattern.cols() << std::endl;
+                for(Index i = 0; i < pattern.cols(); ++i)
                 {
-                    Index xA = x + std::floor(points(0, i));
-                    Index yA = y + std::floor(points(1, i));
-                    Index xB = x + std::floor(points(2, i));
-                    Index yB = y + std::floor(points(3, i));
+                    Index xA = x + pattern(0, i);
+                    Index yA = y + pattern(1, i);
+                    Index xB = x + pattern(2, i);
+                    Index yB = y + pattern(3, i);
 
                     if(image::isInside(yA, xA, img) &&
                         image::isInside(yB, xB, img) &&
@@ -163,6 +196,8 @@ namespace cve
                     }
                 }
             }
+
+            std:: cout << "done" << std::endl;
         }
     };
 }
