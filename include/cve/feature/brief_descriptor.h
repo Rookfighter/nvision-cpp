@@ -14,11 +14,15 @@ namespace cve
 {
     /** Class to compute BRIEF feature descriptors.
       *
-      * This descriptor compares pair-wise pixel in a patch around each keypoint.
-      * If the image value of the first pixel is greater than the second the
-      * algorithm sets the number in the respective bitmap to one.
+      * BRIEF is a binary descriptor which compares the instensity values of
+      * pixel pairs.
+      * The bit in the result bit mask is set if
       *
-      * The pairs in the patch are determined randomly.
+      * img[pixA] > img[pixB]
+      *
+      * The pixel pairs are sampled from a fixed size patch around each keypoint.
+      * The pattern of pixel pairs in a patch is determined randomly, but stays
+      * consistent across different keypoints.
       */
     template<typename Scalar>
     class BRIEFDescriptor
