@@ -165,6 +165,9 @@ namespace cve
             const Matrix &keypoints,
             Matrixu8 &descriptors) const
         {
+            if(img.dimension(2) > 1)
+                throw std::runtime_error("ORB can only compute single channel images");
+
             descriptors.resize(patterns_[0].cols() / 8, keypoints.cols());
 
             descriptors.setZero();
@@ -174,12 +177,9 @@ namespace cve
                 Index y = static_cast<Index>(keypoints(1, c));
 
                 // compute which pattern should be used here
-                std:: cout << "calc pattern" << std::endl;
                 Index idx = calcPatternIndex(y, x, img);
                 const Matrixi &pattern = patterns_[idx];
 
-                std:: cout << "foo" << std::endl;
-                std::cout << pattern.rows() << ',' << pattern.cols() << std::endl;
                 for(Index i = 0; i < pattern.cols(); ++i)
                 {
                     Index xA = x + pattern(0, i);
@@ -196,8 +196,6 @@ namespace cve
                     }
                 }
             }
-
-            std:: cout << "done" << std::endl;
         }
     };
 }

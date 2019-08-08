@@ -112,6 +112,9 @@ namespace cve
             const Matrix &keypoints,
             Matrixu8 &descriptors) const
         {
+            if(img.dimension(2) > 1)
+                throw std::runtime_error("BRIEF can only compute single channel images");
+
             descriptors.resize(pattern_.cols() / 8, keypoints.cols());
 
             descriptors.setZero();
