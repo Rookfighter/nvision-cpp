@@ -37,7 +37,7 @@ namespace cve
     public:
 
         BRIEFDescriptor()
-            : BRIEFDescriptor(128, 31, 1297)
+            : BRIEFDescriptor(256, 31, 1297)
         {
 
         }
