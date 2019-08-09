@@ -9,37 +9,41 @@
 
 #include "cve/filter/gauss_filter.h"
 #include "cve/filter/sobel_filter.h"
-#include "cve/solver/jacobi_solver.h"
 
 namespace cve
 {
     template<typename Scalar,
-        typename GradientFilter = SobelFilter<Scalar>,
-        typename SparseSolver = JacobiSolver<Scalar>>
+        typename SmoothFilter = GaussFilter<Scalar>,
+        typename GradientFilter = SobelFilter<Scalar>>
     class HornSchunckDetector
     {
     private:
         Scalar alpha_;
+        Index maxIt_;
+        SmoothFilter smoothFilter_;
         GradientFilter gradientFilter_;
-        SparseSolver solver_;
     public:
-        typedef Eigen::SparseMatrix<Scalar> SparseMatrix;
         typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;
         typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> Vector;
 
         HornSchunckDetector()
-            : HornSchunckDetector(200)
+            : HornSchunckDetector(1, 100)
         {
         }
 
-        HornSchunckDetector(const Scalar alpha)
-            : alpha_(alpha), gradientFilter_(), solver_()
+        HornSchunckDetector(const Scalar alpha, const Index maxIt)
+            : alpha_(alpha), maxIt_(maxIt), smoothFilter_(), gradientFilter_()
         {
         }
 
         void setRegularizationConstant(const Scalar alpha)
         {
             alpha = alpha_;
+        }
+
+        void setSmoothFilter(const SmoothFilter &filter)
+        {
+            smoothFilter_ = filter;
         }
 
         void setGradientFilter(const GradientFilter &filter)
@@ -58,87 +62,46 @@ namespace cve
 
             Index height = imgA.dimension(0);
             Index width = imgA.dimension(1);
-            Index pixelCnt = width * height;
-            Scalar alphaInv = 1 / alpha_;
 
             Eigen::Tensor<Scalar, 3> gradX;
             Eigen::Tensor<Scalar, 3> gradY;
             Eigen::Tensor<Scalar, 3> gradT;
+            Eigen::Tensor<Scalar, 3> gradXX;
+            Eigen::Tensor<Scalar, 3> gradYY;
 
-            gradientFilter_.applyX(imgA, gradX);
-            gradientFilter_.applyY(imgA, gradY);
-            gradT = (imgB - imgA).template cast<Scalar>();
+            gradientFilter_(imgA, gradX, gradY);
+            gradT = imgB.template cast<Scalar>() - imgA.template cast<Scalar>();
+            gradXX = gradX * gradX;
+            gradYY = gradY * gradY;
 
-            Vector b(2 * pixelCnt);
-            std::vector<Eigen::Triplet<Scalar>> triplets;
-            triplets.reserve(pixelCnt * 12);
+            Eigen::Tensor<Scalar, 3> flowU(height, width, 1);
+            Eigen::Tensor<Scalar, 3> flowV(height, width, 1);
+            Eigen::Tensor<Scalar, 3> flowUAvg(height, width, 1);
+            Eigen::Tensor<Scalar, 3> flowVAvg(height, width, 1);
+            Eigen::Tensor<Scalar, 3> tmp(height, width, 1);
 
-            // add main diagonal elements on first half
-            for(Index i = 0; i < pixelCnt; ++i)
+            flowU.setZero();
+            flowV.setZero();
+            Scalar lambda = 4 * alpha_ * alpha_;
+
+            for(Index i = 0; i < maxIt_; ++i)
             {
-                // calculate image cooridnates
-                Index x = i / width;
-                Index y = i % width;
-                // calculate smoothness factor by neighbour count
-                Scalar smooth = 0;
-                if(x > 0)
-                    smooth -= 1;
-                if(x < width-1)
-                    smooth -= 1;
-                if(y > 0)
-                    smooth -= 1;
-                if(y < height-1)
-                    smooth -= 1;
-
-                // add main diagonal first half
-                Scalar val = -alphaInv + gradX(y, x, 0) * gradX(y, x, 0) + smooth;
-                triplets.push_back({i, i, val});
-                // add main diagonal second half
-                val = -alphaInv + gradY(y, x, 0) * gradY(y, x, 0) + smooth;
-                triplets.push_back({pixelCnt + i, pixelCnt + i, val});
-
-                // near diagonals
-                if(i > 0 && i < width-1)
-                {
-                    triplets.push_back({i, i+1, 1});
-                    triplets.push_back({i+1, i, 1});
-                    triplets.push_back({pixelCnt + i, pixelCnt + i+1, 1});
-                    triplets.push_back({pixelCnt + i+1, pixelCnt + i, 1});
-                }
-
-                // far diagonals
-                if(i >= width && i < pixelCnt - width)
-                {
-                    triplets.push_back({i, i+width, 1});
-                    triplets.push_back({i+width, i, 1});
-                    triplets.push_back({pixelCnt + i, pixelCnt + i + width, 1});
-                    triplets.push_back({pixelCnt + i + width, pixelCnt + i, 1});
-                }
-
-                // set block diagonals
-                val = -alphaInv + gradX(y, x, 0) * gradY(y, x, 0);
-                triplets.push_back({i, pixelCnt + i, val});
-                triplets.push_back({pixelCnt + i, i, val});
-
-                b(i) = alphaInv * gradX(y, x, 0) * gradT(y, x, 0);
-                b(i+pixelCnt) = alphaInv * gradY(y, x, 0) * gradT(y, x, 0);
+                smoothFilter_(flowU, flowUAvg);
+                smoothFilter_(flowV, flowVAvg);
+                tmp = (gradX * flowUAvg + gradY * flowVAvg + gradT) /
+                    (gradXX.constant(lambda) + gradXX + gradYY);
+                flowU = flowUAvg - gradX * tmp;
+                flowV = flowVAvg - gradY * tmp;
             }
 
-            SparseMatrix A(2 * pixelCnt, 2 * pixelCnt);
-            A.setFromTriplets(triplets.begin(), triplets.end());
-
-            Vector flowVec;
-            solver_.solve(A, b, flowVec);
-
-            flowImg.resize(imgA.dimension(0), imgA.dimension(1), 2);
-            for(Index i = 0; i < pixelCnt; ++i)
+            flowImg.resize(height, width, 2);
+            for(Index c = 0; c < width; ++c)
             {
-                // calculate image cooridnates
-                Index x = i / width;
-                Index y = i % width;
-
-                flowImg(y, x, 0) = flowVec(2*i);
-                flowImg(y, x, 1) = flowVec(2*i+1);
+                for(Index r = 0; r < height; ++r)
+                {
+                    flowImg(r, c, 0) = flowU(r, c, 0);
+                    flowImg(r, c, 1) = flowV(r, c, 0);
+                }
             }
         }
     };
