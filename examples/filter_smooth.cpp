@@ -8,6 +8,7 @@
 #include <cve/filter/gauss_filter.h>
 #include <cve/filter/box_filter.h>
 #include <cve/filter/recursive_blur_filter.h>
+#include <cve/filter/diffusion_filter.h>
 #include <cve/imageio/imageio.h>
 
 using namespace cve;
@@ -38,12 +39,17 @@ int main(int argc, const char **argv)
 
     cve::imsave("gauss_smooth." + ext, oimg);
 
-
     std::cout << "Apply recursive filter" << std::endl;
     RecursiveBlurFilter<float> recFilter(3);
     recFilter(img, oimg);
 
     cve::imsave("recursive_smooth." + ext, oimg);
+
+    std::cout << "Apply diffusion filter" << std::endl;
+    DiffusionFilter<float> diffFilter;
+    diffFilter(img, oimg);
+
+    cve::imsave("diffusion_smooth." + ext, oimg);
 
     return 0;
 }
