@@ -12,16 +12,16 @@
 namespace cve
 {
     template<typename Scalar>
-    class GaussianDiffusivity
+    class GaussianPenalizer
     {
     private:
         Scalar lambda_;
     public:
-        GaussianDiffusivity()
-            : GaussianDiffusivity(30)
+        GaussianPenalizer()
+            : GaussianPenalizer(30)
         { }
 
-        GaussianDiffusivity(const Scalar lambda)
+        GaussianPenalizer(const Scalar lambda)
             : lambda_(lambda)
         { }
 
@@ -32,16 +32,16 @@ namespace cve
     };
 
     template<typename Scalar>
-    class TotalVariationDiffusivity
+    class TotalVariationPenalizer
     {
     private:
         Scalar eps_;
     public:
-        TotalVariationDiffusivity()
-            : TotalVariationDiffusivity(1e-6)
+        TotalVariationPenalizer()
+            : TotalVariationPenalizer(1e-6)
         { }
 
-        TotalVariationDiffusivity(const Scalar eps)
+        TotalVariationPenalizer(const Scalar eps)
             :eps_(eps)
         { }
 
@@ -52,10 +52,10 @@ namespace cve
     };
 
     template<typename Scalar>
-    class HomogeneousDiffusivity
+    class HomogeneousPenalizer
     {
     public:
-        HomogeneousDiffusivity()
+        HomogeneousPenalizer()
         { }
 
         Scalar operator()(const Scalar value) const
@@ -65,13 +65,13 @@ namespace cve
     };
 
     template<typename Scalar,
-        typename Diffusivity=GaussianDiffusivity<Scalar>,
+        typename Penalizer=GaussianPenalizer<Scalar>,
         typename GradientFilter=CentralDifferencesFilter<Scalar>>
     class DiffusionFilter
     {
     private:
         GradientFilter gradientFilter_;
-        Diffusivity diffusivity_;
+        Penalizer penalizer_;
 
         Index maxIt_;
         Scalar flowFac_;
@@ -81,7 +81,7 @@ namespace cve
         { }
 
         DiffusionFilter(const Index iterations, const Scalar flowFactor)
-            : gradientFilter_(), diffusivity_(), maxIt_(iterations),
+            : gradientFilter_(), penalizer_(), maxIt_(iterations),
             flowFac_(flowFactor)
         { }
 
@@ -100,9 +100,9 @@ namespace cve
             gradientFilter_ = filter;
         }
 
-        void setDiffusivity(const Diffusivity &diffusivity)
+        void setPenalizer(const Penalizer &penalizer)
         {
-            diffusivity_ = diffusivity;
+            penalizer_ = penalizer;
         }
 
         template<typename ScalarA>
@@ -131,7 +131,7 @@ namespace cve
             {
                 gradientFilter_(u, ux, uy);
 
-                g = (ux * ux + uy * uy).unaryExpr(diffusivity_);
+                g = (ux * ux + uy * uy).unaryExpr(penalizer_);
 
                 gux = g * ux;
                 guy = g * uy;
