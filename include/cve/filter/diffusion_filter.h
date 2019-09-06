@@ -7,10 +7,7 @@
 #ifndef CVE_DIFFUSION_FILTER_H_
 #define CVE_DIFFUSION_FILTER_H_
 
-#include "cve/filter/forward_differences_filter.h"
-#include "cve/filter/backward_differences_filter.h"
 #include "cve/filter/central_differences_filter.h"
-#include "cve/filter/sobel_filter.h"
 
 namespace cve
 {
@@ -28,32 +25,51 @@ namespace cve
             : lambda_(lambda)
         { }
 
-        template<typename ScalarA, typename ScalarB>
-        void operator()(const Eigen::Tensor<ScalarA, 3> &srcImg,
-            Eigen::Tensor<ScalarB, 3> &destImg) const
+        void operator()(const Eigen::Tensor<Scalar, 3> &mag,
+            Eigen::Tensor<Scalar, 3> &out) const
         {
-            destImg = (-srcImg / srcImg.constant(lambda_ * lambda_)).exp();
+            out = (-mag / mag.constant(lambda_ * lambda_)).exp();
         }
     };
 
     template<typename Scalar>
     class TotalVariationDiffusivity
     {
+    private:
+        Scalar eps_;
     public:
         TotalVariationDiffusivity()
+            : TotalVariationDiffusivity(1e-6)
         { }
 
-        template<typename ScalarA, typename ScalarB>
-        void operator()(const Eigen::Tensor<ScalarA, 3> &srcImg,
-            Eigen::Tensor<ScalarB, 3> &destImg) const
+        TotalVariationDiffusivity(const Scalar eps)
+            :eps_(eps)
+        { }
+
+        void operator()(const Eigen::Tensor<Scalar, 3> &mag,
+            Eigen::Tensor<Scalar, 3> &out) const
         {
-            destImg = srcImg.constant(1) / srcImg.sqrt();
+            out = mag.constant(1) / (mag.constant(2) * (mag + mag.constant(eps_)).sqrt());
+        }
+    };
+
+    template<typename Scalar>
+    class HomogeneousDiffusivity
+    {
+    public:
+        HomogeneousDiffusivity()
+        { }
+
+        void operator()(const Eigen::Tensor<Scalar, 3> &mag,
+            Eigen::Tensor<Scalar, 3> &out) const
+        {
+            out = mag.constant(1);
         }
     };
 
     template<typename Scalar,
         typename Diffusivity=GaussianDiffusivity<Scalar>,
-        typename GradientFilter=SobelFilter<Scalar>>
+        typename GradientFilter=CentralDifferencesFilter<Scalar>>
     class DiffusionFilter
     {
     private:
