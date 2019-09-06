@@ -35,16 +35,16 @@ int main(int argc, const char **argv)
     cve::pgm::load(argv[2], imgB);
     std::cout << "-- size " << imgB.dimension(1) << "x" << imgB.dimension(0) << std::endl;
 
-    GaussFilter<float> preSmooth(1);
+    GaussFilter<float> preSmooth(3);
     preSmooth(imgA);
     preSmooth(imgB);
 
     std::cout << "Apply Lucas Kanade detector" << std::endl;
 
     LucasKanadeDetector<float> lkDetector;
-    lkDetector.setSmoothFilter({1.4});
+    lkDetector.setSmoothFilter({3});
     lkDetector.apply(imgA, imgB, flowImg);
-    cmap.apply(flowImg, oimg);
+    cmap(flowImg, oimg);
 
     cve::ppm::save("lucas_kanade.ppm", oimg);
 
@@ -52,9 +52,13 @@ int main(int argc, const char **argv)
 
     HornSchunckDetector<float> hsDetector;
     hsDetector.apply(imgA, imgB, flowImg);
-    cmap.apply(flowImg, oimg);
+    cmap(flowImg, oimg);
 
     cve::ppm::save("horn_schunck.ppm", oimg);
+
+    optflow::ColorWheel<float> cwheel;
+    cwheel(50, oimg);
+    cve::ppm::save("color_wheel.ppm", oimg);
 
     return 0;
 }

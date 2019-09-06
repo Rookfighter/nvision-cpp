@@ -46,8 +46,8 @@ namespace cve
 
         template<typename Scalar>
         void normalize(Eigen::Tensor<Scalar, 3> &img,
-            const Scalar &minval,
-            const Scalar &maxval)
+            const Scalar minval,
+            const Scalar maxval)
         {
             Eigen::Tensor<Scalar, 1> oldMin = img.minimum(Eigen::array<int, 2>({0, 1}));
             Eigen::Tensor<Scalar, 1> oldMax = img.maximum(Eigen::array<int, 2>({0, 1}));
@@ -243,6 +243,28 @@ namespace cve
         }
 
         template<typename ScalarA, typename ScalarB>
+        void magnitudeSq(const Eigen::Tensor<ScalarA, 3> &x,
+            const Eigen::Tensor<ScalarA, 3> &y,
+            Eigen::Tensor<ScalarB, 3> &magnitude)
+        {
+            magnitude = x * x + y * y;
+        }
+
+        template<typename ScalarA, typename ScalarB>
+        void magnitude(const Eigen::Tensor<ScalarA, 3> &img,
+            Eigen::Tensor<ScalarB, 3> &magnitude)
+        {
+            magnitude = (img * img).sum(Eigen::array<int, 1>({2})).sqrt();
+        }
+
+        template<typename ScalarA, typename ScalarB>
+        void magnitudeSq(const Eigen::Tensor<ScalarA, 3> &img,
+            Eigen::Tensor<ScalarB, 3> &magnitude)
+        {
+            magnitude = (img * img).sum(Eigen::array<int, 2>({0, 1}));
+        }
+
+        template<typename ScalarA, typename ScalarB>
         void direction(const Eigen::Tensor<ScalarA, 3> &x,
             const Eigen::Tensor<ScalarA, 3> &y,
             Eigen::Tensor<ScalarB, 3> &direction)
@@ -252,6 +274,18 @@ namespace cve
                 for(Index c = 0; c < x.dimension(1); ++c)
                     for(Index r = 0; r < x.dimension(0); ++r)
                         direction(r, c, d) = std::atan2(y(r, c, d), x(r, c, d));
+        }
+
+        template<typename ScalarA, typename ScalarB>
+        void direction(const Eigen::Tensor<ScalarA, 3> &img,
+            Eigen::Tensor<ScalarB, 3> &direction)
+        {
+            assert(img.dimension(2) == 2);
+
+            direction.resize(img.dimension(0), img.dimension(1), 1);
+            for(Index c = 0; c < img.dimension(1); ++c)
+                for(Index r = 0; r < img.dimension(0); ++r)
+                        direction(r, c, 0) = std::atan2(img(r, c, 1), img(r, c, 0));
         }
     }
 }

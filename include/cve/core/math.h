@@ -10,7 +10,7 @@
 namespace cve
 {
     template<typename Scalar>
-    Scalar pi()
+    inline Scalar pi()
     {
         return static_cast<Scalar>(3.1415926535897932);
     }
@@ -18,7 +18,7 @@ namespace cve
     namespace angle
     {
         template<typename Scalar>
-        Scalar normalize(const Scalar angle)
+        inline Scalar normalize(const Scalar angle)
         {
             Scalar result = angle;
             while(result >= 2 * pi<Scalar>())
@@ -26,6 +26,18 @@ namespace cve
             while(result < 0)
                 result += 2 * pi<Scalar>();
             return result;
+        }
+
+        template<typename Scalar>
+        inline Scalar rad2deg(const Scalar angle)
+        {
+            return angle * 180 / pi<Scalar>();
+        }
+
+        template<typename Scalar>
+        inline Scalar deg2rad(const Scalar angle)
+        {
+            return angle * pi<Scalar>() / 180;
         }
     }
 }

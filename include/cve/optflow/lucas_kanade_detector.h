@@ -42,6 +42,7 @@ namespace cve
             const Eigen::Tensor<ScalarA, 3> &imgB,
             Eigen::Tensor<Scalar, 3> &flowImg) const
         {
+            assert(imgA.dimension(2) == 1);
             assert(imgA.dimension(0) == imgB.dimension(0));
             assert(imgA.dimension(1) == imgB.dimension(1));
             assert(imgA.dimension(2) == imgB.dimension(2));
@@ -83,7 +84,7 @@ namespace cve
                             gradXY(r, c, d), gradYY(r, c, d);
                         Eigen::Matrix<Scalar, 2, 1> b;
                         b << -gradXT(r, c, d), -gradYT(r, c, d);
-                        Eigen::Matrix<Scalar, 2, 1> flow = (A.inverse() * b).array();
+                        Eigen::Matrix<Scalar, 2, 1> flow = A.inverse() * b;
                         flowImg(r, c, 0) += flow(0);
                         flowImg(r, c, 1) += flow(1);
                     }
