@@ -7,6 +7,7 @@
 #include <iostream>
 #include <cve/optflow/lucas_kanade_detector.h>
 #include <cve/optflow/horn_schunck_detector.h>
+#include <cve/optflow/robust_flow_detector.h>
 #include <cve/optflow/color_map.h>
 #include <cve/imageio/pgm.h>
 #include <cve/imageio/ppm.h>
@@ -55,6 +56,14 @@ int main(int argc, const char **argv)
     cmap(flowImg, oimg);
 
     cve::ppm::save("horn_schunck.ppm", oimg);
+
+    std::cout << "Apply Robust Flow detector" << std::endl;
+
+    RobustFlowDetector<float> rfDetector;
+    rfDetector.apply(imgA, imgB, flowImg);
+    cmap(flowImg, oimg);
+
+    cve::ppm::save("robust_flow.ppm", oimg);
 
     optflow::ColorWheel<float> cwheel;
     cwheel(50, oimg);
