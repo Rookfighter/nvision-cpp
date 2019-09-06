@@ -8,62 +8,10 @@
 #define CVE_DIFFUSION_FILTER_H_
 
 #include "cve/filter/central_differences_filter.h"
+#include "cve/core/penalizer_functors.h"
 
 namespace cve
 {
-    template<typename Scalar>
-    class GaussianPenalizer
-    {
-    private:
-        Scalar lambda_;
-    public:
-        GaussianPenalizer()
-            : GaussianPenalizer(30)
-        { }
-
-        GaussianPenalizer(const Scalar lambda)
-            : lambda_(lambda)
-        { }
-
-        Scalar operator()(const Scalar value) const
-        {
-            return std::exp(-value / (lambda_ * lambda_));
-        }
-    };
-
-    template<typename Scalar>
-    class TotalVariationPenalizer
-    {
-    private:
-        Scalar eps_;
-    public:
-        TotalVariationPenalizer()
-            : TotalVariationPenalizer(1e-6)
-        { }
-
-        TotalVariationPenalizer(const Scalar eps)
-            :eps_(eps)
-        { }
-
-        Scalar operator()(const Scalar value) const
-        {
-            return 1 / (2 * std::sqrt(value + eps_));
-        }
-    };
-
-    template<typename Scalar>
-    class HomogeneousPenalizer
-    {
-    public:
-        HomogeneousPenalizer()
-        { }
-
-        Scalar operator()(const Scalar value) const
-        {
-            return 1;
-        }
-    };
-
     template<typename Scalar,
         typename Penalizer=GaussianPenalizer<Scalar>,
         typename GradientFilter=CentralDifferencesFilter<Scalar>>
