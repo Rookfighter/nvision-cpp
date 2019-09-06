@@ -25,10 +25,9 @@ namespace cve
             : lambda_(lambda)
         { }
 
-        void operator()(const Eigen::Tensor<Scalar, 3> &mag,
-            Eigen::Tensor<Scalar, 3> &out) const
+        Scalar operator()(const Scalar value) const
         {
-            out = (-mag / mag.constant(lambda_ * lambda_)).exp();
+            return std::exp(-value / (lambda_ * lambda_));
         }
     };
 
@@ -46,10 +45,9 @@ namespace cve
             :eps_(eps)
         { }
 
-        void operator()(const Eigen::Tensor<Scalar, 3> &mag,
-            Eigen::Tensor<Scalar, 3> &out) const
+        Scalar operator()(const Scalar value) const
         {
-            out = mag.constant(1) / (mag.constant(2) * (mag + mag.constant(eps_)).sqrt());
+            return 1 / (2 * std::sqrt(value + eps_));
         }
     };
 
@@ -60,10 +58,9 @@ namespace cve
         HomogeneousDiffusivity()
         { }
 
-        void operator()(const Eigen::Tensor<Scalar, 3> &mag,
-            Eigen::Tensor<Scalar, 3> &out) const
+        Scalar operator()(const Scalar value) const
         {
-            out = mag.constant(1);
+            return 1;
         }
     };
 
@@ -123,7 +120,6 @@ namespace cve
             Eigen::Tensor<Scalar, 3> u = srcImg.template cast<Scalar>();
             Eigen::Tensor<Scalar, 3> ux;
             Eigen::Tensor<Scalar, 3> uy;
-            Eigen::Tensor<Scalar, 3> uMag;
 
             Eigen::Tensor<Scalar, 3> g;
             Eigen::Tensor<Scalar, 3> gux;
@@ -135,8 +131,7 @@ namespace cve
             {
                 gradientFilter_(u, ux, uy);
 
-                image::magnitudeSq(ux, uy, uMag);
-                diffusivity_(uMag, g);
+                g = (ux * ux + uy * uy).unaryExpr(diffusivity_);
 
                 gux = g * ux;
                 guy = g * uy;
