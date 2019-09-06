@@ -8,37 +8,39 @@
 #define CVE_HORN_SCHUNCK_DETECTOR_H_
 
 #include "cve/filter/gauss_filter.h"
-#include "cve/filter/sobel_filter.h"
+#include "cve/filter/central_differences_filter.h"
 
 namespace cve
 {
     template<typename Scalar,
         typename SmoothFilter = GaussFilter<Scalar>,
-        typename GradientFilter = SobelFilter<Scalar>>
+        typename GradientFilter = CentralDifferencesFilter<Scalar>>
     class HornSchunckDetector
     {
     private:
-        Scalar alpha_;
         Index maxIt_;
+        Scalar alpha_;
         SmoothFilter smoothFilter_;
         GradientFilter gradientFilter_;
     public:
-        typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;
-        typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> Vector;
-
         HornSchunckDetector()
-            : HornSchunckDetector(1, 100)
+            : HornSchunckDetector(10, 2)
+        { }
+
+        HornSchunckDetector(const Index iterations, const Scalar alpha)
+            : maxIt_(iterations), alpha_(alpha),
+            smoothFilter_(), gradientFilter_()
         {
         }
 
-        HornSchunckDetector(const Scalar alpha, const Index maxIt)
-            : alpha_(alpha), maxIt_(maxIt), smoothFilter_(), gradientFilter_()
+        void setAlpha(const Scalar alpha)
         {
+            alpha_ = alpha;
         }
 
-        void setRegularizationConstant(const Scalar alpha)
+        void setMaxIterations(const Index iterations)
         {
-            alpha = alpha_;
+            maxIt_ = iterations;
         }
 
         void setSmoothFilter(const SmoothFilter &filter)
@@ -67,32 +69,28 @@ namespace cve
             Eigen::Tensor<Scalar, 3> gradX;
             Eigen::Tensor<Scalar, 3> gradY;
             Eigen::Tensor<Scalar, 3> gradT;
-            Eigen::Tensor<Scalar, 3> gradXX;
-            Eigen::Tensor<Scalar, 3> gradYY;
 
             gradientFilter_(imgA, gradX, gradY);
             gradT = imgB.template cast<Scalar>() - imgA.template cast<Scalar>();
-            gradXX = gradX * gradX;
-            gradYY = gradY * gradY;
 
             Eigen::Tensor<Scalar, 3> flowU(height, width, 1);
             Eigen::Tensor<Scalar, 3> flowV(height, width, 1);
-            Eigen::Tensor<Scalar, 3> flowUAvg(height, width, 1);
-            Eigen::Tensor<Scalar, 3> flowVAvg(height, width, 1);
-            Eigen::Tensor<Scalar, 3> tmp(height, width, 1);
+            Eigen::Tensor<Scalar, 3> step(height, width, 1);
 
             flowU.setZero();
             flowV.setZero();
+
             Scalar lambda = 4 * alpha_ * alpha_;
+
+            Eigen::Tensor<Scalar, 3> stepSizes = 1 / (gradX * gradX + gradY * gradY + lambda);
 
             for(Index i = 0; i < maxIt_; ++i)
             {
-                smoothFilter_(flowU, flowUAvg);
-                smoothFilter_(flowV, flowVAvg);
-                tmp = (gradX * flowUAvg + gradY * flowVAvg + gradT) /
-                    (gradXX.constant(lambda) + gradXX + gradYY);
-                flowU = flowUAvg - gradX * tmp;
-                flowV = flowVAvg - gradY * tmp;
+                step = gradX * flowU + gradY * flowV + gradT;
+                flowU -= stepSizes * gradX * step;
+                flowV -= stepSizes * gradY * step;
+                smoothFilter_(flowU);
+                smoothFilter_(flowV);
             }
 
             flowImg.resize(height, width, 2);
