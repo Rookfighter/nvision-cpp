@@ -9,6 +9,7 @@
 
 #include <unsupported/Eigen/CXX11/Tensor>
 #include "cve/core/matrix.h"
+#include "cve/core/math.h"
 
 namespace cve
 {
@@ -28,20 +29,10 @@ namespace cve
     {
         template<typename Scalar>
         void clamp(Eigen::Tensor<Scalar, 3> &img,
-            const Eigen::Tensor<Scalar, 1> &minval,
-            const Eigen::Tensor<Scalar, 1> &maxval)
+            const Scalar minval,
+            const Scalar maxval)
         {
-            for(Index d = 0; d < img.dimension(2); ++d)
-            {
-                for(Index c = 0; c < img.dimension(1); ++c)
-                {
-                    for(Index r = 0; r < img.dimension(0); ++r)
-                    {
-                        img(r, c, d) = std::min(maxval(d), std::max(minval(d),
-                            img(r, c, d)));
-                    }
-                }
-            }
+            img = img.unaryExpr(Clamp<Scalar>(minval, maxval));
         }
 
         template<typename Scalar>

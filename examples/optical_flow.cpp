@@ -52,6 +52,7 @@ int main(int argc, const char **argv)
     std::cout << "Apply Horn Schunck detector" << std::endl;
 
     HornSchunckDetector<float> hsDetector;
+    hsDetector.setSmoothFilter({5});
     hsDetector.apply(imgA, imgB, flowImg);
     cmap(flowImg, oimg);
 

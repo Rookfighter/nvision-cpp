@@ -138,9 +138,10 @@ namespace cve
                 Eigen::Tensor<Scalar, 3> flowDir;
                 image::magnitude(flowImg, flowMag);
                 image::direction(flowImg, flowDir);
-                image::normalize<Scalar>(flowMag, 0, 1);
+                // image::normalize<Scalar>(flowMag, 0, 1);
+                image::clamp<Scalar>(flowMag, 0, 1);
 
-                bright(flowMag, flowDir, img);
+                dark(flowMag, flowDir, img);
             }
         };
 
@@ -150,23 +151,24 @@ namespace cve
         public:
 
             template<typename ScalarA>
-            void operator()(const Index mag, Eigen::Tensor<ScalarA, 3> &img) const
+            void operator()(const Index radius, Eigen::Tensor<ScalarA, 3> &img) const
             {
-                Index cx = mag;
-                Index cy = mag;
+                Scalar cx = radius;
+                Scalar cy = radius;
+                Scalar radiusS = radius;
 
-                Eigen::Tensor<Scalar, 3>flow(mag * 2, mag * 2, 2);
+                Eigen::Tensor<Scalar, 3>flow(radius * 2, radius * 2, 2);
                 flow.setZero();
                 for(Index c  = 0; c < flow.dimension(1); ++c)
                 {
                     for(Index r  = 0; r < flow.dimension(0); ++r)
                     {
-                        Index dx = c - cx;
-                        Index dy = r - cy;
-                        if(dx * dx + dy * dy <= mag * mag)
+                        Scalar dx = static_cast<Scalar>(c) - cx;
+                        Scalar dy = static_cast<Scalar>(r) - cy;
+                        if(dx * dx + dy * dy <= radiusS * radiusS)
                         {
-                            flow(r, c, 0) = dx;
-                            flow(r, c, 1) = dy;
+                            flow(r, c, 0) = dx / radiusS;
+                            flow(r, c, 1) = dy / radiusS;
                         }
                     }
                 }
