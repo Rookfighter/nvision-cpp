@@ -84,8 +84,8 @@ namespace cve
                 gux = g * ux;
                 guy = g * uy;
 
-                gradientFilter_.applyX(gux, guxx);
-                gradientFilter_.applyY(guy, guyy);
+                gradientFilter_(gux, GradientMode::X(), guxx);
+                gradientFilter_(guy, GradientMode::Y(), guyy);
 
                 u += flowFac_ * (guxx + guyy);
             }

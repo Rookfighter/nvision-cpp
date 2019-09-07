@@ -8,6 +8,7 @@
 #define CVE_SCHARR_FILTER_H_
 
 #include "cve/core/kernel.h"
+#include "cve/filter/gradient_filter.h"
 
 namespace cve
 {
@@ -22,8 +23,7 @@ namespace cve
     public:
         ScharrFilter()
             : handling_(BorderHandling::Reflect)
-        {
-        }
+        { }
 
         void setBorderHandling(const BorderHandling handling)
         {
@@ -31,38 +31,36 @@ namespace cve
         }
 
         template<typename ScalarA, typename ScalarB>
-        void applyX(const Eigen::Tensor<ScalarA, 3> &srcImg,
+        void operator()(const Eigen::Tensor<ScalarA, 3> &srcImg,
+            const GradientMode::X,
             Eigen::Tensor<ScalarB, 3> &destImg) const
         {
             Eigen::Matrix<Scalar, 3, 3> kernel;
-
             kernel << -47, 0, 47,
                       -162, 0, 162,
                       -47, 0, 47;
-
-            kernel::apply(srcImg, destImg, kernel, handling_);
-        }
-
-        template<typename ScalarA, typename ScalarB>
-        void applyY(const Eigen::Tensor<ScalarA, 3> &srcImg,
-            Eigen::Tensor<ScalarB, 3> &destImg) const
-        {
-            Eigen::Matrix<Scalar, 3, 3> kernel;
-
-            kernel << -47, -162, -47,
-                      0, 0, 0,
-                      47, 162, 47;
-
             kernel::apply(srcImg, destImg, kernel, handling_);
         }
 
         template<typename ScalarA, typename ScalarB>
         void operator()(const Eigen::Tensor<ScalarA, 3> &srcImg,
-            Eigen::Tensor<ScalarB, 3> &destImgX,
-            Eigen::Tensor<ScalarB, 3> &destImgY) const
+            const GradientMode::Y,
+            Eigen::Tensor<ScalarB, 3> &destImg) const
         {
-            applyX(srcImg, destImgX);
-            applyY(srcImg, destImgY);
+            Eigen::Matrix<Scalar, 3, 3> kernel;
+            kernel << -47, -162, -47,
+                      0, 0, 0,
+                      47, 162, 47;
+            kernel::apply(srcImg, destImg, kernel, handling_);
+        }
+
+        template<typename ScalarA, typename ScalarB>
+        void operator()(const Eigen::Tensor<ScalarA, 3> &img,
+            Eigen::Tensor<ScalarB, 3> &gradX,
+            Eigen::Tensor<ScalarB, 3> &gradY) const
+        {
+            operator()(img, GradientMode::X(), gradX);
+            operator()(img, GradientMode::Y(), gradY);
         }
     };
 }

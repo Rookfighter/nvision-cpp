@@ -8,6 +8,7 @@
 #define CVE_BACKWARD_DIFFERENCES_FILTER_H_
 
 #include "cve/core/kernel.h"
+#include "cve/filter/gradient_filter.h"
 
 namespace cve
 {
@@ -21,8 +22,7 @@ namespace cve
     public:
         BackwardDifferencesFilter()
             : handling_(BorderHandling::Reflect)
-        {
-        }
+        { }
 
         void setBorderHandling(const BorderHandling handling)
         {
@@ -30,32 +30,32 @@ namespace cve
         }
 
         template<typename ScalarA, typename ScalarB>
-        void applyX(const Eigen::Tensor<ScalarA, 3> &srcImg,
-            Eigen::Tensor<ScalarB, 3> &destImg) const
+        void operator()(const Eigen::Tensor<ScalarA, 3> &img,
+            const GradientMode::X,
+            Eigen::Tensor<ScalarB, 3> &grad) const
         {
             Eigen::Matrix<Scalar, 1, 3> kernel;
             kernel << -1, 1, 0;
-
-            kernel::apply(srcImg, destImg, kernel, handling_);
+            kernel::apply(img, grad, kernel, handling_);
         }
 
         template<typename ScalarA, typename ScalarB>
-        void applyY(const Eigen::Tensor<ScalarA, 3> &srcImg,
-            Eigen::Tensor<ScalarB, 3> &destImg) const
+        void operator()(const Eigen::Tensor<ScalarA, 3> &img,
+            const GradientMode::Y,
+            Eigen::Tensor<ScalarB, 3> &grad) const
         {
             Eigen::Matrix<Scalar, 3, 1> kernel;
             kernel << -1, 1, 0;
-
-            kernel::apply(srcImg, destImg, kernel, handling_);
+            kernel::apply(img, grad, kernel, handling_);
         }
 
         template<typename ScalarA, typename ScalarB>
-        void operator()(const Eigen::Tensor<ScalarA, 3> &srcImg,
-            Eigen::Tensor<ScalarB, 3> &destImgX,
-            Eigen::Tensor<ScalarB, 3> &destImgY) const
+        void operator()(const Eigen::Tensor<ScalarA, 3> &img,
+            Eigen::Tensor<ScalarB, 3> &gradX,
+            Eigen::Tensor<ScalarB, 3> &gradY) const
         {
-            applyX(srcImg, destImgX);
-            applyY(srcImg, destImgY);
+            operator()(img, GradientMode::X(), gradX);
+            operator()(img, GradientMode::Y(), gradY);
         }
     };
 }

@@ -8,6 +8,7 @@
 #define CVE_SOBEL_FILTER_H_
 
 #include "cve/core/kernel.h"
+#include "cve/filter/gradient_filter.h"
 
 namespace cve
 {
@@ -22,8 +23,7 @@ namespace cve
     public:
         SobelFilter()
             : handling_(BorderHandling::Reflect)
-        {
-        }
+        { }
 
         void setBorderHandling(const BorderHandling handling)
         {
@@ -31,8 +31,9 @@ namespace cve
         }
 
         template<typename ScalarA, typename ScalarB>
-        void applyX(const Eigen::Tensor<ScalarA, 3> &srcImg,
-            Eigen::Tensor<ScalarB, 3> &destImg) const
+        void operator()(const Eigen::Tensor<ScalarA, 3> &img,
+            const GradientMode::X,
+            Eigen::Tensor<ScalarB, 3> &grad) const
         {
             Eigen::Matrix<Scalar, 1, 3> kernelX;
             Eigen::Matrix<Scalar, 3, 1> kernelY;
@@ -40,14 +41,15 @@ namespace cve
             kernelX << -1, 0, 1;
             kernelY << 1, 2, 1;
 
-            Eigen::Tensor<ScalarB, 3> tmpImg;
-            kernel::apply(srcImg, tmpImg, kernelX, handling_);
-            kernel::apply(tmpImg, destImg, kernelY, handling_);
+            Eigen::Tensor<ScalarB, 3> tmp;
+            kernel::apply(img, tmp, kernelX, handling_);
+            kernel::apply(tmp, grad, kernelY, handling_);
         }
 
         template<typename ScalarA, typename ScalarB>
-        void applyY(const Eigen::Tensor<ScalarA, 3> &srcImg,
-            Eigen::Tensor<ScalarB, 3> &destImg) const
+        void operator()(const Eigen::Tensor<ScalarA, 3> &img,
+            const GradientMode::Y,
+            Eigen::Tensor<ScalarB, 3> &grad) const
         {
             Eigen::Matrix<Scalar, 1, 3> kernelX;
             Eigen::Matrix<Scalar, 3, 1> kernelY;
@@ -55,18 +57,18 @@ namespace cve
             kernelX << 1, 2, 1;
             kernelY << -1, 0, 1;
 
-            Eigen::Tensor<ScalarB, 3> tmpImg;
-            kernel::apply(srcImg, tmpImg, kernelX, handling_);
-            kernel::apply(tmpImg, destImg, kernelY, handling_);
+            Eigen::Tensor<ScalarB, 3> tmp;
+            kernel::apply(img, tmp, kernelX, handling_);
+            kernel::apply(tmp, grad, kernelY, handling_);
         }
 
         template<typename ScalarA, typename ScalarB>
-        void operator()(const Eigen::Tensor<ScalarA, 3> &srcImg,
-            Eigen::Tensor<ScalarB, 3> &destImgX,
-            Eigen::Tensor<ScalarB, 3> &destImgY) const
+        void operator()(const Eigen::Tensor<ScalarA, 3> &img,
+            Eigen::Tensor<ScalarB, 3> &gradX,
+            Eigen::Tensor<ScalarB, 3> &gradY) const
         {
-            applyX(srcImg, destImgX);
-            applyY(srcImg, destImgY);
+            operator()(img, GradientMode::X(), gradX);
+            operator()(img, GradientMode::Y(), gradY);
         }
     };
 }
