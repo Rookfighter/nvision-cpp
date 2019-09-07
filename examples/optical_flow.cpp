@@ -24,6 +24,8 @@ int main(int argc, const char **argv)
 
     Image8 imgA;
     Image8 imgB;
+    Image8 imgASmooth;
+    Image8 imgBSmooth;
     Image8 oimg;
     Eigen::Tensor<float, 3> flowImg;
     optflow::ColorMap<float> cmap;
@@ -37,14 +39,14 @@ int main(int argc, const char **argv)
     std::cout << "-- size " << imgB.dimension(1) << "x" << imgB.dimension(0) << std::endl;
 
     GaussFilter<float> preSmooth(3);
-    preSmooth(imgA);
-    preSmooth(imgB);
+    preSmooth(imgA, imgASmooth);
+    preSmooth(imgB, imgBSmooth);
 
     std::cout << "Apply Lucas Kanade detector" << std::endl;
 
     LucasKanadeDetector<float> lkDetector;
     lkDetector.setSmoothFilter({3});
-    lkDetector.apply(imgA, imgB, flowImg);
+    lkDetector(imgASmooth, imgBSmooth, flowImg);
     cmap(flowImg, oimg);
 
     cve::ppm::save("lucas_kanade.ppm", oimg);
@@ -52,8 +54,7 @@ int main(int argc, const char **argv)
     std::cout << "Apply Horn Schunck detector" << std::endl;
 
     HornSchunckDetector<float> hsDetector;
-    hsDetector.setSmoothFilter({5});
-    hsDetector.apply(imgA, imgB, flowImg);
+    hsDetector(imgA, imgB, flowImg);
     cmap(flowImg, oimg);
 
     cve::ppm::save("horn_schunck.ppm", oimg);
