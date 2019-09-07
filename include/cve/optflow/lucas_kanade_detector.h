@@ -38,7 +38,7 @@ namespace cve
         }
 
         template<typename ScalarA>
-        void apply(const Eigen::Tensor<ScalarA, 3> &imgA,
+        void operator()(const Eigen::Tensor<ScalarA, 3> &imgA,
             const Eigen::Tensor<ScalarA, 3> &imgB,
             Eigen::Tensor<Scalar, 3> &flowImg) const
         {
