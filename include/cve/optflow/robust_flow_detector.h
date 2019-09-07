@@ -9,30 +9,30 @@
 
 #include "cve/filter/box_filter.h"
 #include "cve/filter/central_differences_filter.h"
+#include "cve/filter/forward_differences_filter.h"
+#include "cve/filter/sobel_filter.h"
 #include "cve/core/penalizer_functors.h"
 
 namespace cve
 {
     template<typename Scalar,
         typename Penalizer = TotalVariationPenalizer<Scalar>,
-        typename SmoothFilter = BoxFilter<Scalar>,
         typename GradientFilter = CentralDifferencesFilter<Scalar>>
     class RobustFlowDetector
     {
     private:
         Index maxIt_;
         Scalar alpha_;
-        SmoothFilter smoothFilter_;
         GradientFilter gradientFilter_;
         Penalizer penalizer_;
     public:
         RobustFlowDetector()
-            : RobustFlowDetector(100, 20)
+            : RobustFlowDetector(50, 20)
         { }
 
         RobustFlowDetector(const Index iterations, const Scalar alpha)
             : maxIt_(iterations), alpha_(alpha),
-            smoothFilter_(), gradientFilter_(), penalizer_()
+            gradientFilter_(), penalizer_()
         { }
 
         void setMaxIterations(const Index iterations)
@@ -43,11 +43,6 @@ namespace cve
         void setAlpha(const Scalar alpha)
         {
             alpha_ = alpha;
-        }
-
-        void setSmoothFilter(const SmoothFilter &filter)
-        {
-            smoothFilter_ = filter;
         }
 
         void setGradientFilter(const GradientFilter &filter)
@@ -87,6 +82,8 @@ namespace cve
 
             Eigen::Tensor<Scalar, 3> flowU(height, width, 1);
             Eigen::Tensor<Scalar, 3> flowV(height, width, 1);
+            Eigen::Tensor<Scalar, 3> flowUM(height, width, 1);
+            Eigen::Tensor<Scalar, 3> flowVM(height, width, 1);
 
             Eigen::Tensor<Scalar, 3> dataTerm;
             Eigen::Tensor<Scalar, 3> dataTermP;
@@ -106,24 +103,29 @@ namespace cve
             flowU.setZero();
             flowV.setZero();
 
-            Eigen::Tensor<Scalar, 3> stepSizes = 1 / (gradAX * gradAX + gradAY * gradAY + 4 * alpha_ * alpha_);
+            Eigen::Tensor<Scalar, 3> stepSizes = 1 / (gradAX * gradAX + gradAY * gradAY + alpha_ * alpha_);
 
+            Eigen::Matrix<Scalar, 3, 3> kernel;
+            kernel << 0, 1, 0,
+                      1, 0, 1,
+                      0, 1, 0;
+            kernel /= 4;
             for(Index i = 0; i < maxIt_; ++i)
             {
-                dataTerm = gradAX * flowU + gradAY * flowV + gradT;
+                kernel::apply(flowU, flowUM, kernel, BorderHandling::Reflect);
+                kernel::apply(flowV, flowVM, kernel, BorderHandling::Reflect);
+
+                dataTerm = gradAX * flowUM + gradAY * flowVM + gradT;
                 dataTermP = (dataTerm * dataTerm).unaryExpr(penalizer_);
 
-                gradTermU = gradAXX * flowU + gradAXY * flowV + gradXT;
-                gradTermV = gradAYX * flowU + gradAYY * flowV + gradYT;
+                gradTermU = gradAXX * flowUM + gradAXY * flowVM + gradXT;
+                gradTermV = gradAYX * flowUM + gradAYY * flowVM + gradYT;
                 gradTerm = (gradTermU * gradTermU + gradTermV * gradTermV).unaryExpr(penalizer_);
 
-                flowU -= stepSizes * (dataTermP * dataTerm * gradAX
+                flowU = flowUM - stepSizes * (dataTermP * dataTerm * gradAX
                     + gradTerm * (gradTermU * gradAXX + gradTermV * gradAXY));
-                flowV -= stepSizes * (dataTermP * dataTerm * gradAY
+                flowV = flowVM - stepSizes * (dataTermP * dataTerm * gradAY
                     + gradTerm * (gradTermU * gradAYX + gradTermV * gradAYY));
-
-                smoothFilter_(flowU);
-                smoothFilter_(flowV);
             }
 
             flowImg.resize(height, width, 2);
