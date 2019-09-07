@@ -7,7 +7,7 @@
 #ifndef CVE_ROBUST_FLOW_DETECTOR_H_
 #define CVE_ROBUST_FLOW_DETECTOR_H_
 
-#include "cve/filter/gauss_filter.h"
+#include "cve/filter/box_filter.h"
 #include "cve/filter/central_differences_filter.h"
 #include "cve/core/penalizer_functors.h"
 
@@ -15,7 +15,7 @@ namespace cve
 {
     template<typename Scalar,
         typename Penalizer = TotalVariationPenalizer<Scalar>,
-        typename SmoothFilter = GaussFilter<Scalar>,
+        typename SmoothFilter = BoxFilter<Scalar>,
         typename GradientFilter = CentralDifferencesFilter<Scalar>>
     class RobustFlowDetector
     {
@@ -27,7 +27,7 @@ namespace cve
         Penalizer penalizer_;
     public:
         RobustFlowDetector()
-            : RobustFlowDetector(20, 1)
+            : RobustFlowDetector(100, 20)
         { }
 
         RobustFlowDetector(const Index iterations, const Scalar alpha)
@@ -61,7 +61,7 @@ namespace cve
         }
 
         template<typename ScalarA>
-        void apply(const Eigen::Tensor<ScalarA, 3> &imgA,
+        void operator()(const Eigen::Tensor<ScalarA, 3> &imgA,
             const Eigen::Tensor<ScalarA, 3> &imgB,
             Eigen::Tensor<Scalar, 3> &flowImg) const
         {
@@ -106,8 +106,7 @@ namespace cve
             flowU.setZero();
             flowV.setZero();
 
-            Scalar lambda = 4 * alpha_ * alpha_;
-            Eigen::Tensor<Scalar, 3> stepSizes = 1 / (gradAX * gradAX + gradAY * gradAY + lambda);
+            Eigen::Tensor<Scalar, 3> stepSizes = 1 / (gradAX * gradAX + gradAY * gradAY + 4 * alpha_ * alpha_);
 
             for(Index i = 0; i < maxIt_; ++i)
             {

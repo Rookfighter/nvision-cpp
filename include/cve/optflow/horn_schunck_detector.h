@@ -8,7 +8,7 @@
 #define CVE_HORN_SCHUNCK_DETECTOR_H_
 
 #include "cve/filter/box_filter.h"
-#include "cve/filter/central_differences_filter.h"
+#include "cve/filter/sobel_filter.h"
 
 namespace cve
 {
@@ -23,23 +23,20 @@ namespace cve
       * Iy * (Ix * u + Iy * v + It) - alpha^2 lap(v) = 0
       */
     template<typename Scalar,
-        typename SmoothFilter = BoxFilter<Scalar>,
-        typename GradientFilter = CentralDifferencesFilter<Scalar>>
+        typename GradientFilter = SobelFilter<Scalar>>
     class HornSchunckDetector
     {
     private:
         Index iterations_;
         Scalar alpha_;
-        SmoothFilter smoothFilter_;
         GradientFilter gradientFilter_;
     public:
         HornSchunckDetector()
-            : HornSchunckDetector(100, 15)
+            : HornSchunckDetector(10, 1)
         { }
 
         HornSchunckDetector(const Index iterations, const Scalar alpha)
-            : iterations_(iterations), alpha_(alpha),
-            smoothFilter_(), gradientFilter_()
+            : iterations_(iterations), alpha_(alpha), gradientFilter_()
         { }
 
         /** Sets the regularization constant for the Horn-Schunck method.
@@ -55,11 +52,6 @@ namespace cve
         void setIterations(const Index iterations)
         {
             iterations_ = iterations;
-        }
-
-        void setSmoothFilter(const SmoothFilter &filter)
-        {
-            smoothFilter_ = filter;
         }
 
         void setGradientFilter(const GradientFilter &filter)
@@ -89,19 +81,27 @@ namespace cve
 
             Eigen::Tensor<Scalar, 3> flowU(height, width, 1);
             Eigen::Tensor<Scalar, 3> flowV(height, width, 1);
+            Eigen::Tensor<Scalar, 3> flowUM(height, width, 1);
+            Eigen::Tensor<Scalar, 3> flowVM(height, width, 1);
             Eigen::Tensor<Scalar, 3> dataTerm;
 
-            Eigen::Tensor<Scalar, 3> stepSizes = gradX.constant(1) / (gradX * gradX + gradY * gradY + 4 * alpha_ * alpha_);
+            Eigen::Tensor<Scalar, 3> stepSizes = 1 / (gradX * gradX + gradY * gradY + alpha_ * alpha_);
 
             flowU.setZero();
             flowV.setZero();
+
+            Eigen::Matrix<Scalar, 3, 3> kernel;
+            kernel << 0, 1, 0,
+                      1, 0, 1,
+                      0, 1, 0;
+            kernel /= 4;
             for(Index i = 0; i < iterations_; ++i)
             {
-                smoothFilter_(flowU);
-                smoothFilter_(flowV);
-                dataTerm = gradX * flowU + gradY * flowV + gradT;
-                flowU -= stepSizes * dataTerm * gradX;
-                flowV -= stepSizes * dataTerm * gradY;
+                kernel::apply(flowU, flowUM, kernel, BorderHandling::Reflect);
+                kernel::apply(flowV, flowVM, kernel, BorderHandling::Reflect);
+                dataTerm = gradX * flowUM + gradY * flowVM + gradT;
+                flowU = flowUM - stepSizes * dataTerm * gradX;
+                flowV = flowVM - stepSizes * dataTerm * gradY;
             }
 
             flowImg.resize(height, width, 2);

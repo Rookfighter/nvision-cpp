@@ -54,7 +54,7 @@ int main(int argc, const char **argv)
     std::cout << "Apply Horn Schunck detector" << std::endl;
 
     HornSchunckDetector<float> hsDetector;
-    hsDetector(imgA, imgB, flowImg);
+    hsDetector(imgASmooth, imgBSmooth, flowImg);
     cmap(flowImg, oimg);
 
     cve::ppm::save("horn_schunck.ppm", oimg);
@@ -62,7 +62,7 @@ int main(int argc, const char **argv)
     std::cout << "Apply Robust Flow detector" << std::endl;
 
     RobustFlowDetector<float> rfDetector;
-    rfDetector.apply(imgA, imgB, flowImg);
+    rfDetector(imgA, imgB, flowImg);
     cmap(flowImg, oimg);
 
     cve::ppm::save("robust_flow.ppm", oimg);
