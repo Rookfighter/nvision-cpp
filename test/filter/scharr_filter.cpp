@@ -38,7 +38,7 @@ TEST_CASE("scharr_filter")
     {
         Imagef gradAct;
 
-        filter.applyX(img, gradAct);
+        filter(img, GradientMode::X(), gradAct);
         REQUIRE_IMAGE_APPROX(gradExpX, gradAct, eps);
     }
 
@@ -46,7 +46,7 @@ TEST_CASE("scharr_filter")
     {
         Imagef gradAct;
 
-        filter.applyY(img, gradAct);
+        filter(img, GradientMode::Y(), gradAct);
         REQUIRE_IMAGE_APPROX(gradExpY, gradAct, eps);
     }
 
