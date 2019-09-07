@@ -47,7 +47,7 @@ int main(int argc, const char **argv)
 
     std::cout << "Apply laplace filter" << std::endl;
     LaplaceFilter<float> laplaceFilter;
-    laplaceFilter.apply(img, oimg);
+    laplaceFilter(img, oimg);
     image::normalize(oimg, 0.0f, 255.0f);
 
     cve::imsave("laplace_edges." + ext, oimg);

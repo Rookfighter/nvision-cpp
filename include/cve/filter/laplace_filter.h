@@ -32,7 +32,7 @@ namespace cve
         }
 
         template<typename ScalarA, typename ScalarB>
-        void apply(const Eigen::Tensor<ScalarA, 3> &srcImg,
+        void operator()(const Eigen::Tensor<ScalarA, 3> &srcImg,
             Eigen::Tensor<ScalarB, 3> &destImg) const
         {
             Eigen::Matrix<Scalar, 3, 3> kernel;
@@ -45,7 +45,7 @@ namespace cve
         }
 
         template<typename ScalarA>
-        void apply(Eigen::Tensor<ScalarA, 3> &img) const
+        void operator()(Eigen::Tensor<ScalarA, 3> &img) const
         {
             Eigen::Tensor<ScalarA, 3> tmp;
             apply(img, tmp);
