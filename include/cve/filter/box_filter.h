@@ -36,7 +36,7 @@ namespace cve
     public:
 
         BoxFilter()
-            : BoxFilter(1, 3)
+            : BoxFilter(3, 1)
         {
         }
 
