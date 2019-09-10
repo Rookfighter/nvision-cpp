@@ -61,7 +61,7 @@ int main(int argc, const char **argv)
 
     std::cout << "Apply Robust Flow detector" << std::endl;
 
-    RobustFlowDetector<float> rfDetector;
+    RobustFlowDetector<float> rfDetector(300, 20, 1);
     rfDetector(imgA, imgB, flowImg);
     cmap(flowImg, oimg);
 

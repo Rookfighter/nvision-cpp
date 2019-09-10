@@ -23,15 +23,16 @@ namespace cve
     private:
         Index maxIt_;
         Scalar alpha_;
+        Scalar gamma_;
         GradientFilter gradientFilter_;
         Penalizer penalizer_;
     public:
         RobustFlowDetector()
-            : RobustFlowDetector(50, 20)
+            : RobustFlowDetector(10, 1, 1)
         { }
 
-        RobustFlowDetector(const Index iterations, const Scalar alpha)
-            : maxIt_(iterations), alpha_(alpha),
+        RobustFlowDetector(const Index iterations, const Scalar alpha, const Scalar gamma)
+            : maxIt_(iterations), alpha_(alpha), gamma_(gamma),
             gradientFilter_(), penalizer_()
         { }
 
@@ -40,9 +41,14 @@ namespace cve
             maxIt_ = iterations;
         }
 
-        void setAlpha(const Scalar alpha)
+        void setSmoothingConstant(const Scalar alpha)
         {
             alpha_ = alpha;
+        }
+
+        void setGradientConstant(const Scalar gamma)
+        {
+            gamma_ = gamma;
         }
 
         void setGradientFilter(const GradientFilter &filter)
@@ -68,64 +74,84 @@ namespace cve
             Index height = imgA.dimension(0);
             Index width = imgA.dimension(1);
 
-            Eigen::Tensor<Scalar, 3> gradAX;
-            Eigen::Tensor<Scalar, 3> gradAY;
-            Eigen::Tensor<Scalar, 3> gradBX;
-            Eigen::Tensor<Scalar, 3> gradBY;
-            Eigen::Tensor<Scalar, 3> gradAXX;
-            Eigen::Tensor<Scalar, 3> gradAXY;
-            Eigen::Tensor<Scalar, 3> gradAYX;
-            Eigen::Tensor<Scalar, 3> gradAYY;
-            Eigen::Tensor<Scalar, 3> gradT;
-            Eigen::Tensor<Scalar, 3> gradXT;
-            Eigen::Tensor<Scalar, 3> gradYT;
+            Eigen::Tensor<Scalar, 3> Ix;
+            Eigen::Tensor<Scalar, 3> Iy;
+            Eigen::Tensor<Scalar, 3> IxB;
+            Eigen::Tensor<Scalar, 3> IyB;
+            Eigen::Tensor<Scalar, 3> Ixx;
+            Eigen::Tensor<Scalar, 3> Iyy;
+            Eigen::Tensor<Scalar, 3> Ixy;
+            Eigen::Tensor<Scalar, 3> It;
+            Eigen::Tensor<Scalar, 3> Ixt;
+            Eigen::Tensor<Scalar, 3> Iyt;
 
-            Eigen::Tensor<Scalar, 3> flowU(height, width, 1);
-            Eigen::Tensor<Scalar, 3> flowV(height, width, 1);
-            Eigen::Tensor<Scalar, 3> flowUM(height, width, 1);
-            Eigen::Tensor<Scalar, 3> flowVM(height, width, 1);
+            Eigen::Tensor<Scalar, 3> u(height, width, 1);
+            Eigen::Tensor<Scalar, 3> v(height, width, 1);
+            Eigen::Tensor<Scalar, 3> uavg;
+            Eigen::Tensor<Scalar, 3> vavg;
+            Eigen::Tensor<Scalar, 3> uprev;
+            Eigen::Tensor<Scalar, 3> vprev;
+
+            Eigen::Tensor<Scalar, 3> ux;
+            Eigen::Tensor<Scalar, 3> uy;
+            Eigen::Tensor<Scalar, 3> vx;
+            Eigen::Tensor<Scalar, 3> vy;
+
+            Eigen::Tensor<Scalar, 3> a;
+            Eigen::Tensor<Scalar, 3> b;
+            Eigen::Tensor<Scalar, 3> c;
 
             Eigen::Tensor<Scalar, 3> dataTerm;
-            Eigen::Tensor<Scalar, 3> dataTermP;
-            Eigen::Tensor<Scalar, 3> gradTermU;
-            Eigen::Tensor<Scalar, 3> gradTermV;
-            Eigen::Tensor<Scalar, 3> gradTerm;
+            Eigen::Tensor<Scalar, 3> gradTermX;
+            Eigen::Tensor<Scalar, 3> gradTermY;
 
-            gradientFilter_(imgA, gradAX, gradAY);
-            gradientFilter_(imgB, gradBX, gradBY);
-            gradientFilter_(gradAX, gradAXX, gradAXY);
-            gradientFilter_(gradAY, gradAYX, gradAYY);
+            gradientFilter_(imgA, Ix, Iy);
+            gradientFilter_(imgB, IxB, IyB);
+            gradientFilter_(Ix, Ixx, Ixy);
+            gradientFilter_(Iy, Ixy, Iyy);
 
-            gradT = imgB.template cast<Scalar>() - imgA.template cast<Scalar>();
-            gradXT = gradBX - gradAX;
-            gradYT = gradBY - gradAY;
+            It = imgB.template cast<Scalar>() - imgA.template cast<Scalar>();
+            Ixt = IxB - Ix;
+            Iyt = IyB - Iy;
 
-            flowU.setZero();
-            flowV.setZero();
-
-            Eigen::Tensor<Scalar, 3> stepSizes = 1 / (gradAX * gradAX + gradAY * gradAY + alpha_ * alpha_);
+            u.setZero();
+            v.setZero();
 
             Eigen::Matrix<Scalar, 3, 3> kernel;
             kernel << 0, 1, 0,
                       1, 0, 1,
                       0, 1, 0;
             kernel /= 4;
+
             for(Index i = 0; i < maxIt_; ++i)
             {
-                kernel::apply(flowU, flowUM, kernel, BorderHandling::Reflect);
-                kernel::apply(flowV, flowVM, kernel, BorderHandling::Reflect);
+                gradientFilter_(u, ux, uy);
+                gradientFilter_(v, vx, vy);
 
-                dataTerm = gradAX * flowUM + gradAY * flowVM + gradT;
-                dataTermP = (dataTerm * dataTerm).unaryExpr(penalizer_);
+                dataTerm = Ix * u + Iy * v + It;
+                a = (dataTerm * dataTerm).unaryExpr(penalizer_);
 
-                gradTermU = gradAXX * flowUM + gradAXY * flowVM + gradXT;
-                gradTermV = gradAYX * flowUM + gradAYY * flowVM + gradYT;
-                gradTerm = (gradTermU * gradTermU + gradTermV * gradTermV).unaryExpr(penalizer_);
+                b = (ux * ux + uy * uy + vx * vx + vy * vy).unaryExpr(penalizer_);
 
-                flowU = flowUM - stepSizes * (dataTermP * dataTerm * gradAX
-                    + gradTerm * (gradTermU * gradAXX + gradTermV * gradAXY));
-                flowV = flowVM - stepSizes * (dataTermP * dataTerm * gradAY
-                    + gradTerm * (gradTermU * gradAYX + gradTermV * gradAYY));
+                gradTermX = Ixx * u + Ixy * v + Ixt;
+                gradTermY = Ixy * u + Iyy * v + Iyt;
+                c = (gradTermX * gradTermX + gradTermY * gradTermY).unaryExpr(penalizer_);
+
+                kernel::apply(u, uavg, kernel, BorderHandling::Reflect);
+                kernel::apply(v, vavg, kernel, BorderHandling::Reflect);
+
+                uprev = u;
+                vprev = v;
+
+                u = (a * Ix * It + gamma_ * c * (Ixt * Ixx + Iyt * Ixy)
+                    + alpha_ * b * uavg
+                    - v * (a * Iy * Ix + gamma_ * c * Ixy * (Ixx + Iyy)))
+                    / (a * Ix * Ix + 4 * alpha_ * b + gamma_ * c * (Ixx * Ixx + Ixy * Ixy));
+
+                v = (a * Iy * It + gamma_ * c * (Ixt * Ixy + Iyt * Iyy)
+                    + alpha_ * b * vavg
+                    - u * (a * Ix * Iy + gamma_ * c * Ixy * (Ixx + Iyy)))
+                    / (a * Iy * Iy + 4 * alpha_ * b + gamma_ * c * (Iyy * Iyy + Ixy * Ixy));
             }
 
             flowImg.resize(height, width, 2);
@@ -133,8 +159,8 @@ namespace cve
             {
                 for(Index r = 0; r < height; ++r)
                 {
-                    flowImg(r, c, 0) = flowU(r, c, 0);
-                    flowImg(r, c, 1) = flowV(r, c, 0);
+                    flowImg(r, c, 0) = -u(r, c, 0);
+                    flowImg(r, c, 1) = -v(r, c, 0);
                 }
             }
         }
