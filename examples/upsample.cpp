@@ -1,4 +1,4 @@
-/* updown_sample.cpp
+/* upsample.cpp
  *
  * Author: Fabian Meyer
  * Created On: 29 Apr 2019
@@ -12,7 +12,7 @@ int main(int argc, const char **argv)
 {
     if(argc != 2)
     {
-        std::cerr << "usage: updown_sample <filename>" << std::endl;
+        std::cerr << "usage: upsample <filename>" << std::endl;
         return -1;
     }
 
@@ -22,11 +22,12 @@ int main(int argc, const char **argv)
 
     std::cout << img.dimension(0) << ',' << img.dimension(1) << ',' << img.dimension(2) << std::endl;
 
-    std::cout << "Downsample" << std::endl;;
+    double factor = 1.3;
+    std::cout << "Upsample " << factor << std::endl;;
     cve::Image8 oimg;
-    cve::image::downsample(0.3, img, oimg);
+    cve::image::upsample(factor, img, oimg);
 
-    cve::pgm::save("downsample.pgm", oimg);
+    cve::pgm::save("upsample.pgm", oimg);
 
     return 0;
 }

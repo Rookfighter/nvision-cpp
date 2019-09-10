@@ -7,6 +7,8 @@
 #ifndef CVE_MATH_H_
 #define CVE_MATH_H_
 
+#include <cmath>
+
 namespace cve
 {
     template<typename Scalar>
