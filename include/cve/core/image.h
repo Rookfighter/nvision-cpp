@@ -10,6 +10,7 @@
 #include "cve/core/bilinear_interpolation.h"
 #include "cve/core/downsample.h"
 #include "cve/core/upsample.h"
+#include "cve/core/clamp.h"
 
 namespace cve
 {
@@ -27,14 +28,6 @@ namespace cve
 
     namespace image
     {
-        template<typename Scalar>
-        void clamp(Eigen::Tensor<Scalar, 3> &img,
-            const Scalar minval,
-            const Scalar maxval)
-        {
-            img = img.unaryExpr(Clamp<Scalar>(minval, maxval));
-        }
-
         template<typename Scalar>
         void normalize(Eigen::Tensor<Scalar, 3> &img,
             const Scalar minval,

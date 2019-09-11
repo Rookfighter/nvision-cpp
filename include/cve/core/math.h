@@ -23,22 +23,6 @@ namespace cve
         return std::min(maxval, std::max(minval, value));
     }
 
-    template<typename Scalar>
-    struct Clamp
-    {
-        Scalar minval;
-        Scalar maxval;
-
-        Clamp(const Scalar minval, const Scalar maxval)
-            : minval(minval), maxval(maxval)
-        { }
-
-        Scalar operator()(const Scalar value) const
-        {
-            return clamp(value, minval, maxval);
-        }
-    };
-
     namespace angle
     {
         template<typename Scalar>
