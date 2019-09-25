@@ -20,6 +20,8 @@ set(TEST_SRC
     "filter/gauss_filter.cpp"
     "filter/scharr_filter.cpp"
     "filter/sobel_filter.cpp"
+
+    "projective/direct_linear_transformation.cpp"
 )
 
 add_executable(run_tests ${TEST_SRC})
