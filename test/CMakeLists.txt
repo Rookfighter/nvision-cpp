@@ -22,6 +22,7 @@ set(TEST_SRC
     "filter/sobel_filter.cpp"
 
     "projective/direct_linear_transformation.cpp"
+    "projective/homography_decomposition.cpp"
 )
 
 add_executable(run_tests ${TEST_SRC})
