@@ -21,6 +21,7 @@ set(TEST_SRC
     "filter/scharr_filter.cpp"
     "filter/sobel_filter.cpp"
 
+    "projective/camera_calibration.cpp"
     "projective/direct_linear_transformation.cpp"
     "projective/homography_decomposition.cpp"
 )
