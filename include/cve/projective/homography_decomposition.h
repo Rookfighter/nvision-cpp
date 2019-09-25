@@ -7,7 +7,8 @@
 #ifndef CVE_HOMOGRAPHY_DECOMPOSITION_H_
 #define CVE_HOMOGRAPHY_DECOMPOSITION_H_
 
-#include <Eigen/Geometry>
+#include <vector>
+#include "cve/core/matrix.h"
 
 namespace cve
 {

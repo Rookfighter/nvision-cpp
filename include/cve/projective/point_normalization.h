@@ -7,7 +7,7 @@
 #ifndef CVE_POINT_NORMALIZATION_H_
 #define CVE_POINT_NORMALIZATION_H_
 
-#include <Eigen/Geometry>
+#include "cve/core/matrix.h"
 
 namespace cve
 {
