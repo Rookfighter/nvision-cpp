@@ -7,8 +7,6 @@
 #include "assert/eigen_require.h"
 #include <cve/projective/direct_linear_transformation.h>
 
-#include <iostream>
-
 using namespace cve;
 
 typedef double Scalar;
@@ -55,7 +53,6 @@ TEST_CASE("direct_linear_transformation")
         Matrix dataAct = (H * model.colwise().homogeneous()).colwise().hnormalized();
 
         REQUIRE_MATRIX_APPROX(data1, dataAct, 5);
-
     }
 
     SECTION("data2 <-> model")
