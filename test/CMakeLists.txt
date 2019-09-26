@@ -25,6 +25,7 @@ set(TEST_SRC
     "projective/direct_linear_transformation.cpp"
     "projective/eight_point_algorithm.cpp"
     "projective/homography_decomposition.cpp"
+    "projective/point_normalization.cpp"
 )
 
 add_executable(run_tests ${TEST_SRC})
