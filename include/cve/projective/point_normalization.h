@@ -22,8 +22,6 @@ namespace cve
         Matrix3 operator()(const Eigen::MatrixBase<Derived> &points) const
         {
             CVE_ASSERT(points.rows() == 2);
-            CVE_ASSERT(dest.rows() == 2);
-            CVE_ASSERT(points.cols() == dest.cols());
 
             const Scalar sqrt2 = static_cast<Scalar>(1.414213562373095);
 
