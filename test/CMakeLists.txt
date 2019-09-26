@@ -23,6 +23,7 @@ set(TEST_SRC
 
     "projective/camera_calibration.cpp"
     "projective/direct_linear_transformation.cpp"
+    "projective/eight_point_algorithm.cpp"
     "projective/homography_decomposition.cpp"
 )
 
