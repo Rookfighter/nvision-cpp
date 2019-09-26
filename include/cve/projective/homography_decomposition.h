@@ -8,6 +8,7 @@
 #define CVE_HOMOGRAPHY_DECOMPOSITION_H_
 
 #include <vector>
+#include "cve/core/assert.h"
 #include "cve/core/matrix.h"
 
 namespace cve
@@ -40,6 +41,8 @@ namespace cve
 
         Matrix3 operator()(const std::vector<Matrix3> &homographies) const
         {
+            CVE_ASSERT(homographies.size() >= 3);
+
             Index cnt = homographies.size();
 
             Matrix A(2 * cnt, 6);

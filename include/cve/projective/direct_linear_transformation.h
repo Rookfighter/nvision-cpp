@@ -29,10 +29,10 @@ namespace cve
         Matrix3 operator()(const Eigen::MatrixBase<DerivedA> &pointsA,
             const Eigen::MatrixBase<DerivedB> &pointsB) const
         {
-            assert(pointsA.rows() == 2);
-            assert(pointsB.rows() == 2);
-            assert(pointsA.cols() > 4);
-            assert(pointsA.cols() == pointsB.cols());
+            CVE_ASSERT(pointsA.rows() == 2);
+            CVE_ASSERT(pointsB.rows() == 2);
+            CVE_ASSERT(pointsA.cols() >= 3);
+            CVE_ASSERT(pointsA.cols() == pointsB.cols());
 
             PointNormalization2D<Scalar> normalizer;
 

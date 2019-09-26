@@ -7,6 +7,7 @@
 #ifndef CVE_POINT_NORMALIZATION_H_
 #define CVE_POINT_NORMALIZATION_H_
 
+#include "cve/core/assert.h"
 #include "cve/core/matrix.h"
 
 namespace cve
@@ -20,9 +21,9 @@ namespace cve
         template<typename Derived>
         Matrix3 operator()(const Eigen::MatrixBase<Derived> &points) const
         {
-            assert(points.rows() == 2);
-            assert(dest.rows() == 2);
-            assert(points.cols() == dest.cols());
+            CVE_ASSERT(points.rows() == 2);
+            CVE_ASSERT(dest.rows() == 2);
+            CVE_ASSERT(points.cols() == dest.cols());
 
             const Scalar sqrt2 = static_cast<Scalar>(1.414213562373095);
 
