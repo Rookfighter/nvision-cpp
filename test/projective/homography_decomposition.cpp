@@ -41,16 +41,12 @@ TEST_CASE("homography_decomposition")
 
     HomographyDecomposition<Scalar> decomp;
 
-    SECTION("compute camera matrix")
-    {
-        Matrix3 K = decomp(homographies);
+    Matrix3 K = decomp(homographies);
 
-        Matrix3 Kexp;
-        Kexp <<
-            871.906, -0.383464, 293.669,
-            0, 871.727, 212.447,
-            0, 0, 1;
-        REQUIRE_MATRIX_APPROX(Kexp, K, eps);
-    }
-
+    Matrix3 Kexp;
+    Kexp <<
+        871.906, -0.383464, 293.669,
+        0, 871.727, 212.447,
+        0, 0, 1;
+    REQUIRE_MATRIX_APPROX(Kexp, K, eps);
 }

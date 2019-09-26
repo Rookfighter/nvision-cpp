@@ -4,7 +4,6 @@
  * Created On: 26 Sep 2019
  */
 
-#include <iostream>
 #include "assert/eigen_require.h"
 #include <cve/projective/eight_point_algorithm.h>
 
