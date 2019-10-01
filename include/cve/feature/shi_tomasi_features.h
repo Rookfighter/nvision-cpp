@@ -1,22 +1,22 @@
-/* shi_tomasi_detector.h
+/* shi_tomasi_features.h
  *
  * Author: Fabian Meyer
  * Created On: 18 Jun 2019
  */
 
-#ifndef CVE_SHI_TOMASI_DETECTOR_H_
-#define CVE_SHI_TOMASI_DETECTOR_H_
+#ifndef CVE_SHI_TOMASI_FEATURES_H_
+#define CVE_SHI_TOMASI_FEATURES_H_
 
 #include <Eigen/Eigenvalues>
-#include "cve/feature/harris_base_detector.h"
+#include "cve/feature/harris_features_base.h"
 
 namespace cve
 {
-    /** Class for Shi-Tomasi corner detection. */
+    /** Shi-Tomasi corner detection functor. */
     template<typename Scalar,
         typename SmoothFilter=GaussFilter<Scalar>,
         typename GradientFilter=SobelFilter<Scalar>>
-    class ShiTomasiDetector : public HarrisBaseDetector<Scalar, SmoothFilter, GradientFilter>
+    class ShiTomasiFeatures : public HarrisFeaturesBase<Scalar, SmoothFilter, GradientFilter>
     {
     public:
         typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;;
@@ -31,22 +31,22 @@ namespace cve
         }
 
     public:
-        ShiTomasiDetector()
-            : ShiTomasiDetector(0.01, 10, 0)
+        ShiTomasiFeatures()
+            : ShiTomasiFeatures(0.01, 10, 0)
         {
 
         }
 
-        ShiTomasiDetector(const Scalar qualityLevel,
+        ShiTomasiFeatures(const Scalar qualityLevel,
             const size_t minDistance,
             const size_t maxCorners)
-            : HarrisBaseDetector<Scalar, SmoothFilter, GradientFilter>(
+            : HarrisFeaturesBase<Scalar, SmoothFilter, GradientFilter>(
                 qualityLevel, minDistance, maxCorners)
         {
 
         }
 
-        ~ShiTomasiDetector()
+        ~ShiTomasiFeatures()
         {
 
         }

@@ -1,20 +1,20 @@
-/* fast_detector.h
+/* fast_features.h
  *
  * Author: Fabian Meyer
  * Created On: 19 Jun 2019
  */
 
-#ifndef CVE_FAST_DETECTOR_H_
-#define CVE_FAST_DETECTOR_H_
+#ifndef CVE_FAST_FEATURES_H_
+#define CVE_FAST_FEATURES_H_
 
 #include "cve/core/math.h"
 #include "cve/core/image.h"
 
 namespace cve
 {
-    /** Class for FAST corner detection. */
+    /** FAST corner detection functor. */
     template<typename Scalar>
-    class FASTDetector
+    class FASTFeatures
     {
     public:
         typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;
@@ -114,13 +114,13 @@ namespace cve
             return score;
         }
     public:
-        FASTDetector()
-            : FASTDetector(10, 7, 0)
+        FASTFeatures()
+            : FASTFeatures(10, 7, 0)
         {
 
         }
 
-        FASTDetector(const Scalar threshold,
+        FASTFeatures(const Scalar threshold,
             const Index minDist,
             const Index maxFeatures)
             : threshold_(threshold), circle_(2, 16), neighs_(12),
@@ -156,7 +156,7 @@ namespace cve
           * @param keypoints 2xN matrix with N keypoints
           */
         template<typename ScalarA>
-        void detect(const Eigen::Tensor<ScalarA, 3> &img,
+        void operator()(const Eigen::Tensor<ScalarA, 3> &img,
             Matrix &keypoints) const
         {
             if(img.dimension(2) > 1)

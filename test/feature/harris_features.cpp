@@ -1,22 +1,22 @@
-/* fast_detector.cpp
+/* harris_features.cpp
  *
  * Author: Fabian Meyer
  * Created On: 11 Jul 2019
  */
 
 #include "assert/eigen_require.h"
-#include <cve/feature/shi_tomasi_detector.h>
+#include <cve/feature/harris_features.h>
 
 using namespace cve;
 
-typedef cve::ShiTomasiDetector<float> Detector;
-typedef typename Detector::Matrix Matrix;
+typedef cve::HarrisFeatures<float> Features;
+typedef typename Features::Matrix Matrix;
 
-TEST_CASE("shi_tomasi_detector")
+TEST_CASE("harris_features")
 {
     float eps = 1e-6;
 
-    Detector detector;
+    Features features;
 
     SECTION("detect light corner")
     {
@@ -30,7 +30,7 @@ TEST_CASE("shi_tomasi_detector")
         kpExp << 2, 2;
         Matrix kpAct;
 
-        detector.detect(img, kpAct);
+        features(img, kpAct);
 
         REQUIRE_MATRIX_APPROX(kpExp, kpAct, eps);
     }
@@ -48,7 +48,7 @@ TEST_CASE("shi_tomasi_detector")
         kpExp << 2, 2;
         Matrix kpAct;
 
-        detector.detect(img, kpAct);
+        features(img, kpAct);
 
         REQUIRE_MATRIX_APPROX(kpExp, kpAct, eps);
     }
@@ -61,7 +61,7 @@ TEST_CASE("shi_tomasi_detector")
         Matrix kpExp(2, 0);
         Matrix kpAct;
 
-        detector.detect(img, kpAct);
+        features(img, kpAct);
 
         REQUIRE_MATRIX_APPROX(kpExp, kpAct, eps);
     }

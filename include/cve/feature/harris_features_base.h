@@ -1,11 +1,11 @@
-/* harris_base_detector.h
+/* harris_features_base.h
  *
  * Author: Fabian Meyer
  * Created On: 18 Jun 2019
  */
 
-#ifndef CVE_HARRIS_BASE_DETECTOR_H_
-#define CVE_HARRIS_BASE_DETECTOR_H_
+#ifndef CVE_HARRIS_FEATURES_BASE_H_
+#define CVE_HARRIS_FEATURES_BASE_H_
 
 #include "cve/core/math.h"
 #include "cve/core/image.h"
@@ -14,11 +14,11 @@
 
 namespace cve
 {
-    /** Class for harris corner detection. */
+    /** Base class of Harris corner detection algorithms. */
     template<typename Scalar,
         typename SmoothFilter=GaussFilter<Scalar>,
         typename GradientFilter=SobelFilter<Scalar>>
-    class HarrisBaseDetector
+    class HarrisFeaturesBase
     {
     public:
         typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;
@@ -73,13 +73,13 @@ namespace cve
         virtual Scalar computeScore(const Matrix2 &M) const = 0;
 
     public:
-        HarrisBaseDetector()
-            : HarrisBaseDetector(0.01, 10, 0)
+        HarrisFeaturesBase()
+            : HarrisFeaturesBase(0.01, 10, 0)
         {
 
         }
 
-        HarrisBaseDetector(const Scalar qualityLevel,
+        HarrisFeaturesBase(const Scalar qualityLevel,
             const size_t minDistance,
             const size_t maxCorners)
             : qualityLevel_(qualityLevel), minDistance_(minDistance),
@@ -88,7 +88,7 @@ namespace cve
 
         }
 
-        virtual ~HarrisBaseDetector()
+        virtual ~HarrisFeaturesBase()
         {
 
         }
@@ -140,7 +140,7 @@ namespace cve
           * @param keypoints 2xN matrix with N keypoints
           */
         template<typename ScalarA>
-        void detect(const Eigen::Tensor<ScalarA, 3> &img,
+        void operator()(const Eigen::Tensor<ScalarA, 3> &img,
             Matrix &keypoints) const
         {
             Eigen::Tensor<Scalar, 3> gradX(img.dimensions());

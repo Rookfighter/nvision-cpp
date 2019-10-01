@@ -5,7 +5,7 @@
  */
 
 #include <iostream>
-#include <cve/feature/fast_detector.h>
+#include <cve/feature/fast_features.h>
 #include <cve/feature/brief_descriptor.h>
 #include <cve/feature/orb_descriptor.h>
 #include <cve/feature/brute_force_knn.h>
@@ -48,9 +48,9 @@ int main(int argc, const char **argv)
     cve::image::rgb2gray(imgB, grayB);
 
     std::cout << "Apply FAST detector" << std::endl;
-    FASTDetector<float> fastDetector;
-    fastDetector.detect(grayA, keypointsA);
-    fastDetector.detect(grayB, keypointsB);
+    FASTFeatures<float> fast;
+    fast(grayA, keypointsA);
+    fast(grayB, keypointsB);
 
     std::cout << "kpA:" << keypointsA.cols() << " kpB:" << keypointsB.cols() << std::endl;
 

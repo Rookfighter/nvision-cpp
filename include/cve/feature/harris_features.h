@@ -1,21 +1,21 @@
-/* harris_detector.h
+/* harris_features.h
  *
  * Author: Fabian Meyer
  * Created On: 18 Jun 2019
  */
 
-#ifndef CVE_HARRIS_DETECTOR_H_
-#define CVE_HARRIS_DETECTOR_H_
+#ifndef CVE_HARRIS_FEATURES_H_
+#define CVE_HARRIS_FEATURES_H_
 
-#include "cve/feature/harris_base_detector.h"
+#include "cve/feature/harris_features_base.h"
 
 namespace cve
 {
-    /** Class for Harris corner detection. */
+    /** Harris corner detection functor. */
     template<typename Scalar,
         typename SmoothFilter=GaussFilter<Scalar>,
         typename GradientFilter=SobelFilter<Scalar>>
-    class HarrisDetector : public HarrisBaseDetector<Scalar, SmoothFilter, GradientFilter>
+    class HarrisFeatures : public HarrisFeaturesBase<Scalar, SmoothFilter, GradientFilter>
     {
     private:
         Scalar traceFactor_;
@@ -31,24 +31,24 @@ namespace cve
         }
 
     public:
-        HarrisDetector()
-            : HarrisDetector(0.04, 0.01, 10, 0)
+        HarrisFeatures()
+            : HarrisFeatures(0.04, 0.01, 10, 0)
         {
 
         }
 
-        HarrisDetector(const Scalar traceFactor,
+        HarrisFeatures(const Scalar traceFactor,
             const Scalar qualityLevel,
             const size_t minDistance,
             const size_t maxCorners)
-            : HarrisBaseDetector<Scalar, SmoothFilter, GradientFilter>(
+            : HarrisFeaturesBase<Scalar, SmoothFilter, GradientFilter>(
                 qualityLevel, minDistance, maxCorners),
                 traceFactor_(traceFactor)
         {
 
         }
 
-        ~HarrisDetector()
+        ~HarrisFeatures()
         {
 
         }

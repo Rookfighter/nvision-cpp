@@ -5,9 +5,9 @@
  */
 
 #include <iostream>
-#include <cve/feature/harris_detector.h>
-#include <cve/feature/shi_tomasi_detector.h>
-#include <cve/feature/fast_detector.h>
+#include <cve/feature/harris_features.h>
+#include <cve/feature/shi_tomasi_features.h>
+#include <cve/feature/fast_features.h>
 #include <cve/draw/shape_drawer.h>
 #include <cve/draw/colors.h>
 #include <cve/imageio/imageio.h>
@@ -35,8 +35,8 @@ int main(int argc, const char **argv)
     cve::image::rgb2gray(img, imgGray);
 
     std::cout << "Apply harris detector" << std::endl;
-    HarrisDetector<float> harrisDetector;
-    harrisDetector.detect(img, keypoints);
+    HarrisFeatures<float> harris;
+    harris(img, keypoints);
 
     oimg = img;
     ShapeDrawer<float> shapeDrawer;
@@ -45,8 +45,8 @@ int main(int argc, const char **argv)
     cve::imsave("harris_corners." + ext, oimg);
 
     std::cout << "Apply shi tomasi detector" << std::endl;
-    ShiTomasiDetector<float> shiDetector;
-    shiDetector.detect(img, keypoints);
+    ShiTomasiFeatures<float> shi;
+    shi(img, keypoints);
 
     oimg = img;
     shapeDrawer.drawCircle(keypoints, 10, Colorf::Red(), oimg);
@@ -54,8 +54,8 @@ int main(int argc, const char **argv)
     cve::imsave("shi_tomasi_corners." + ext, oimg);
 
     std::cout << "Apply FAST detector" << std::endl;
-    FASTDetector<float> fastDetector;
-    fastDetector.detect(imgGray, keypoints);
+    FASTFeatures<float> fast;
+    fast(imgGray, keypoints);
 
     oimg = img;
     shapeDrawer.drawCircle(keypoints, 10, Colorf::Red(), oimg);

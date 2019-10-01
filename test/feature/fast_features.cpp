@@ -1,22 +1,22 @@
-/* fast_detector.cpp
+/* fast_features.cpp
  *
  * Author: Fabian Meyer
  * Created On: 11 Jul 2019
  */
 
 #include "assert/eigen_require.h"
-#include <cve/feature/fast_detector.h>
+#include <cve/feature/fast_features.h>
 
 using namespace cve;
 
-typedef cve::FASTDetector<float> Detector;
-typedef typename Detector::Matrix Matrix;
+typedef cve::FASTFeatures<float> Features;
+typedef typename Features::Matrix Matrix;
 
-TEST_CASE("fast_detector")
+TEST_CASE("fast_features")
 {
     float eps = 1e-6;
 
-    Detector detector;
+    Features features;
 
     SECTION("detect lighter corner")
     {
@@ -31,7 +31,7 @@ TEST_CASE("fast_detector")
         kpExp << 3, 3;
         Matrix kpAct;
 
-        detector.detect(img, kpAct);
+        features(img, kpAct);
 
         REQUIRE_MATRIX_APPROX(kpExp, kpAct, eps);
     }
@@ -50,7 +50,7 @@ TEST_CASE("fast_detector")
         kpExp << 3, 3;
         Matrix kpAct;
 
-        detector.detect(img, kpAct);
+        features(img, kpAct);
 
         REQUIRE_MATRIX_APPROX(kpExp, kpAct, eps);
     }
@@ -67,7 +67,7 @@ TEST_CASE("fast_detector")
         Matrix kpExp(2, 0);
         Matrix kpAct;
 
-        detector.detect(img, kpAct);
+        features(img, kpAct);
 
         REQUIRE_MATRIX_APPROX(kpExp, kpAct, eps);
     }
@@ -86,7 +86,7 @@ TEST_CASE("fast_detector")
         kpExp << 3, 3;
         Matrix kpAct;
 
-        detector.detect(img, kpAct);
+        features(img, kpAct);
 
         REQUIRE_MATRIX_APPROX(kpExp, kpAct, eps);
     }
@@ -97,6 +97,6 @@ TEST_CASE("fast_detector")
         img.setZero();
         Matrix kpAct;
 
-        REQUIRE_THROWS(detector.detect(img, kpAct));
+        REQUIRE_THROWS(features(img, kpAct));
     }
 }
