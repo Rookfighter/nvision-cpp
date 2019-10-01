@@ -12,7 +12,7 @@
 
 namespace cve
 {
-    /** Class to compute ORB feature descriptors.
+    /** ORB feature descriptor functor.
       *
       * ORB is a binary descriptor, which compares the instensity values of
       * pixel pairs, similar to BRIEF. ORB also adds a rotation compensation
@@ -157,11 +157,14 @@ namespace cve
             return seed_;
         }
 
-        /**
-          *
+        /** Computes the descriptors for the given keypoints.
+          * @param img input image
+          * @param keypoints matrix of keypoints, each column represents a point
+          * @param descriptors output matrix of descriptors, each column is a
+          *        descriptor for the respective keypoint
           */
         template<typename ScalarA>
-        void compute(const Eigen::Tensor<ScalarA, 3> &img,
+        void operator()(const Eigen::Tensor<ScalarA, 3> &img,
             const Matrix &keypoints,
             Matrixu8 &descriptors) const
         {

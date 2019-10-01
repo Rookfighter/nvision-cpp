@@ -55,9 +55,9 @@ int main(int argc, const char **argv)
     std::cout << "kpA:" << keypointsA.cols() << " kpB:" << keypointsB.cols() << std::endl;
 
     std::cout << "Compute BRIEF descriptors" << std::endl;
-    BRIEFDescriptor<float> briefDescriptor;
-    briefDescriptor.compute(grayA, keypointsA, descriptorsA);
-    briefDescriptor.compute(grayB, keypointsB, descriptorsB);
+    BRIEFDescriptor<float> brief;
+    brief(grayA, keypointsA, descriptorsA);
+    brief(grayB, keypointsB, descriptorsB);
 
     knn.setData(descriptorsB);
     knn.setMaxDistance(20);
@@ -72,9 +72,9 @@ int main(int argc, const char **argv)
     cve::imsave("brief_matches." + ext, oimg);
 
     std::cout << "Compute ORB descriptors" << std::endl;
-    ORBDescriptor<float> orbDescriptor;
-    orbDescriptor.compute(grayA, keypointsA, descriptorsA);
-    orbDescriptor.compute(grayB, keypointsB, descriptorsB);
+    ORBDescriptor<float> orb;
+    orb(grayA, keypointsA, descriptorsA);
+    orb(grayB, keypointsB, descriptorsB);
 
     knn.setData(descriptorsB);
     knn.setMaxDistance(30);

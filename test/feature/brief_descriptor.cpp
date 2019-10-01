@@ -44,7 +44,7 @@ TEST_CASE("brief_descriptor")
        brief.setPattern(pattern);
        REQUIRE_MATRIX(pattern, brief.pattern());
 
-       brief.compute(img, keypoints, descriptorsAct);
+       brief(img, keypoints, descriptorsAct);
 
        REQUIRE_MATRIX(descriptorsExp, descriptorsAct);
     }
@@ -68,7 +68,7 @@ TEST_CASE("brief_descriptor")
        brief.setPattern(pattern);
        REQUIRE_MATRIX(pattern, brief.pattern());
 
-       brief.compute(img, keypoints, descriptorsAct);
+       brief(img, keypoints, descriptorsAct);
 
        REQUIRE_MATRIX(descriptorsExp, descriptorsAct);
     }
@@ -94,7 +94,7 @@ TEST_CASE("brief_descriptor")
        brief.setPattern(pattern);
        REQUIRE_MATRIX(pattern, brief.pattern());
 
-       brief.compute(img, keypoints, descriptorsAct);
+       brief(img, keypoints, descriptorsAct);
 
        REQUIRE_MATRIX(descriptorsExp, descriptorsAct);
     }

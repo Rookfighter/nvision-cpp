@@ -12,7 +12,7 @@
 
 namespace cve
 {
-    /** Class to compute BRIEF feature descriptors.
+    /** BRIEF feature descriptor functor.
       *
       * BRIEF is a binary descriptor which compares the instensity values of
       * pixel pairs.
@@ -108,7 +108,7 @@ namespace cve
           *        descriptor for the respective keypoint
           */
         template<typename ScalarA>
-        void compute(const Eigen::Tensor<ScalarA, 3> &img,
+        void operator()(const Eigen::Tensor<ScalarA, 3> &img,
             const Matrix &keypoints,
             Matrixu8 &descriptors) const
         {
