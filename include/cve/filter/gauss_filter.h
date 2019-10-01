@@ -11,11 +11,10 @@
 
 namespace cve
 {
-    /** Filter class to apply Gaussian blur.
+    /** Filter functor, which applies Gaussian blur to an image.
      *  A kernel size which is greater than ceil(6 * sigma) brings no advantage
-     *  in precision.
-     *  @tparam Scalar value type of the underlying kernel */
-    template<typename Scalar>
+     *  in precision. */
+    template<typename Scalar, typename BorderHandling=BorderReflect>
     class GaussFilter
     {
     public:
@@ -54,13 +53,13 @@ namespace cve
         }
 
         GaussFilter(const Scalar sigma)
-            : sigma_(0), handling_(BorderHandling::Reflect), kernel_()
+            : sigma_(0), handling_(), kernel_()
         {
             setSigma(sigma);
         }
 
         GaussFilter(const Scalar sigma, const Index ksize)
-            : sigma_(0), handling_(BorderHandling::Reflect), kernel_()
+            : sigma_(0), handling_(), kernel_()
         {
             setSigma(sigma, ksize);
         }
@@ -79,7 +78,7 @@ namespace cve
             computeKernel();
         }
 
-        void setBorderHandling(const BorderHandling handling)
+        void setBorderHandling(const BorderHandling &handling)
         {
             handling_ = handling;
         }

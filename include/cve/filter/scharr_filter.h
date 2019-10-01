@@ -12,20 +12,19 @@
 
 namespace cve
 {
-    /** Filter class to compute Scharr gradients.
-     *  The Scharr operator computes the first derivative of the image.
-     *  @tparam Scalar value type of the underlying kernel */
-    template<typename Scalar>
+    /** Filter functor, which computes Scharr gradients of an image.
+     *  The Scharr operator computes the first derivative of the image. */
+    template<typename Scalar, typename BorderHandling=BorderReflect>
     class ScharrFilter
     {
     private:
         BorderHandling handling_;
     public:
         ScharrFilter()
-            : handling_(BorderHandling::Reflect)
+            : handling_()
         { }
 
-        void setBorderHandling(const BorderHandling handling)
+        void setBorderHandling(const BorderHandling &handling)
         {
             handling_ = handling;
         }

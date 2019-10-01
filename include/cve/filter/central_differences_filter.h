@@ -12,19 +12,18 @@
 
 namespace cve
 {
-    /** Filter class to compute central differences gradients.
-     *  @tparam Scalar value type of the underlying kernel*/
-    template<typename Scalar>
+    /** Filter functor, which computes central differences gradients. */
+    template<typename Scalar, typename BorderHandling=BorderReflect>
     class CentralDifferencesFilter
     {
     private:
         BorderHandling handling_;
     public:
         CentralDifferencesFilter()
-            : handling_(BorderHandling::Reflect)
+            : handling_()
         { }
 
-        void setBorderHandling(const BorderHandling handling)
+        void setBorderHandling(const BorderHandling &handling)
         {
             handling_ = handling;
         }

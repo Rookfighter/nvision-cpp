@@ -12,19 +12,18 @@
 
 namespace cve
 {
-    /** Filter class to compute forward differences gradients.
-     *  @tparam Scalar value type of the underlying kernel*/
-    template<typename Scalar>
+    /** Filter functor, which computes forward differences gradients. */
+    template<typename Scalar, typename BorderHandling=BorderReflect>
     class ForwardDifferencesFilter
     {
     private:
         BorderHandling handling_;
     public:
         ForwardDifferencesFilter()
-            : handling_(BorderHandling::Reflect)
+            : handling_()
         { }
 
-        void setBorderHandling(const BorderHandling handling)
+        void setBorderHandling(const BorderHandling &handling)
         {
             handling_ = handling;
         }

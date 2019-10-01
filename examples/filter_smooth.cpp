@@ -10,6 +10,7 @@
 #include <cve/filter/recursive_blur_filter.h>
 #include <cve/filter/diffusion_filter.h>
 #include <cve/imageio/imageio.h>
+#include <cve/core/image.h>
 
 using namespace cve;
 

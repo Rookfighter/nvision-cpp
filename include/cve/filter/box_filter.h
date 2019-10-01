@@ -11,7 +11,7 @@
 
 namespace cve
 {
-    /** Filter class to apply an iterated box blur.
+    /** Filter functor, which applies an iterated box blur to an image.
      *
      *  It applies a 2D average operation on each pixel with kernel:
      *        | 1 1 1 |
@@ -19,10 +19,8 @@ namespace cve
      *        | 1 1 1 |
      *
      *  The iterated box filter becomes a Gaussian filter in the limit
-     *  (iterations -> inf).
-     *  @tparam Scalar value type of the underlying kernel
-     *  @tparam Dim size of the underlying kernel */
-    template<typename Scalar>
+     *  (iterations -> inf). */
+    template<typename Scalar, typename BorderHandling=BorderReflect>
     class BoxFilter
     {
     public:
@@ -41,13 +39,13 @@ namespace cve
         }
 
         BoxFilter(const Index ksize, const Index iterations)
-            : iterations_(iterations), handling_(BorderHandling::Reflect),
+            : iterations_(iterations), handling_(),
             kernel_(ksize)
         {
             setKernelSize(ksize);
         }
 
-        void setBorderHandling(const BorderHandling handling)
+        void setBorderHandling(const BorderHandling &handling)
         {
             handling_ = handling;
         }

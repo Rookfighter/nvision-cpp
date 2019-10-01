@@ -7,10 +7,11 @@
 #ifndef CVE_CLAMP_H_
 #define CVE_CLAMP_H_
 
-#include "cve/core/math.h"
+#include <cmath>
 
 namespace cve
 {
+    /** Functor which clamps a value to a defined interval. */
     template<typename Scalar>
     class Clamp
     {
@@ -24,12 +25,21 @@ namespace cve
 
         Scalar operator()(const Scalar value) const
         {
-            return cve::clamp(value, minval_, maxval_);
+            return std::min(maxval_, std::max(minval_, value));
         }
     };
 
     namespace image
     {
+        template<typename Scalar>
+        inline Scalar clamp(const Scalar value,
+            const Scalar minval,
+            const Scalar maxval)
+        {
+            Clamp<Scalar> tmp(minval, maxval);
+            return tmp(value);
+        }
+
         template<typename Scalar>
         inline void clamp(Eigen::Tensor<Scalar, 3> &img,
             const Scalar minval,

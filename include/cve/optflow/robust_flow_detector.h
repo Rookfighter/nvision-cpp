@@ -16,8 +16,9 @@
 namespace cve
 {
     template<typename Scalar,
-        typename Penalizer = TotalVariationPenalizer<Scalar>,
-        typename GradientFilter = CentralDifferencesFilter<Scalar>>
+        typename Penalizer=TotalVariationPenalizer<Scalar>,
+        typename GradientFilter=CentralDifferencesFilter<Scalar>,
+        typename BorderHandling=BorderReflect>
     class RobustFlowDetector
     {
     private:
@@ -26,6 +27,7 @@ namespace cve
         Scalar gamma_;
         GradientFilter gradientFilter_;
         Penalizer penalizer_;
+        BorderHandling handling_;
     public:
         RobustFlowDetector()
             : RobustFlowDetector(10, 1, 1)
@@ -33,7 +35,7 @@ namespace cve
 
         RobustFlowDetector(const Index iterations, const Scalar alpha, const Scalar gamma)
             : maxIt_(iterations), alpha_(alpha), gamma_(gamma),
-            gradientFilter_(), penalizer_()
+            gradientFilter_(), penalizer_(), handling_()
         { }
 
         void setMaxIterations(const Index iterations)
@@ -137,8 +139,8 @@ namespace cve
                 gradTermY = Ixy * u + Iyy * v + Iyt;
                 c = (gradTermX * gradTermX + gradTermY * gradTermY).unaryExpr(penalizer_);
 
-                kernel::apply(u, uavg, kernel, BorderHandling::Reflect);
-                kernel::apply(v, vavg, kernel, BorderHandling::Reflect);
+                kernel::apply(u, uavg, kernel, handling_);
+                kernel::apply(v, vavg, kernel, handling_);
 
                 uprev = u;
                 vprev = v;

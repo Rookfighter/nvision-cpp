@@ -8,8 +8,7 @@
 #define CVE_IMAGE_H_
 
 #include "cve/core/bilinear_interpolation.h"
-#include "cve/core/downsample.h"
-#include "cve/core/upsample.h"
+#include "cve/core/resize_image.h"
 #include "cve/core/clamp.h"
 
 namespace cve

@@ -10,6 +10,7 @@
 #include <cve/filter/laplace_filter.h>
 #include <cve/feature/canny_detector.h>
 #include <cve/imageio/imageio.h>
+#include <cve/core/image.h>
 
 using namespace cve;
 

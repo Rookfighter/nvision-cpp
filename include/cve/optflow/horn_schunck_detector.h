@@ -12,7 +12,7 @@
 
 namespace cve
 {
-    /** Optical flow detector which uses the Horn-Schunk method.
+    /** Optical flow detector, which uses the Horn-Schunk method.
       * It basically solves the global energy functional
       *
       * Integral( (Ix * u + Iy * v + It)^2 + alpha^2 (ux^2 + uy^2 + vx^2 + vy^2) )
@@ -23,20 +23,23 @@ namespace cve
       * Iy * (Ix * u + Iy * v + It) - alpha^2 lap(v) = 0
       */
     template<typename Scalar,
-        typename GradientFilter = SobelFilter<Scalar>>
+        typename GradientFilter=SobelFilter<Scalar>,
+        typename BorderHandling=BorderReflect>
     class HornSchunckDetector
     {
     private:
         Index iterations_;
         Scalar alpha_;
         GradientFilter gradientFilter_;
+        BorderHandling handling_;
     public:
         HornSchunckDetector()
             : HornSchunckDetector(10, 1)
         { }
 
         HornSchunckDetector(const Index iterations, const Scalar alpha)
-            : iterations_(iterations), alpha_(alpha), gradientFilter_()
+            : iterations_(iterations), alpha_(alpha), gradientFilter_(),
+            handling_()
         { }
 
         /** Sets the regularization constant for the Horn-Schunck method.
@@ -97,8 +100,8 @@ namespace cve
             kernel /= 4;
             for(Index i = 0; i < iterations_; ++i)
             {
-                kernel::apply(flowU, flowUM, kernel, BorderHandling::Reflect);
-                kernel::apply(flowV, flowVM, kernel, BorderHandling::Reflect);
+                kernel::apply(flowU, flowUM, kernel, handling_);
+                kernel::apply(flowV, flowVM, kernel, handling_);
                 dataTerm = gradX * flowUM + gradY * flowVM + gradT;
                 flowU = flowUM - stepSizes * dataTerm * gradX;
                 flowV = flowVM - stepSizes * dataTerm * gradY;

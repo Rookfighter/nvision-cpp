@@ -11,8 +11,7 @@
 
 namespace cve
 {
-    /** Filter class to apply a recursive blur.
-     *  @tparam Scalar value type for internal computation */
+    /** Filter functor, which applies a recursive blur. */
     template<typename Scalar>
     class RecursiveBlurFilter
     {

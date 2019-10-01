@@ -11,10 +11,10 @@
 
 namespace cve
 {
-    /** Filter class to compute Laplacian gradients.
-     *  The Laplace operator computes the second derivative of the image.
-     *  @tparam Scalar value type of the underlying kernel */
-    template<typename Scalar>
+    /** Filter functor, which computes Laplacian gradients of an image.
+      * It computes the sum of the second derivatives of the image.
+      * Inew = Ixx + Iyy */
+    template<typename Scalar, typename BorderHandling=BorderReflect>
     class LaplaceFilter
     {
     private:
@@ -22,11 +22,10 @@ namespace cve
 
     public:
         LaplaceFilter()
-            : handling_(BorderHandling::Reflect)
-        {
-        }
+            : handling_()
+        { }
 
-        void setBorderHandling(const BorderHandling handling)
+        void setBorderHandling(const BorderHandling &handling)
         {
             handling_ = handling;
         }

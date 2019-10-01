@@ -9,6 +9,7 @@
 
 #include <string>
 #include <fstream>
+#include <unsupported/Eigen/CXX11/Tensor>
 
 namespace cve
 {
