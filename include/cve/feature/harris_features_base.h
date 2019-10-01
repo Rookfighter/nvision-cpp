@@ -9,6 +9,7 @@
 
 #include "cve/core/math.h"
 #include "cve/core/image.h"
+#include "cve/core/matrix.h"
 #include "cve/filter/gauss_filter.h"
 #include "cve/filter/sobel_filter.h"
 

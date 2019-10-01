@@ -8,6 +8,7 @@
 #define CVE_FAST_FEATURES_H_
 
 #include "cve/core/math.h"
+#include "cve/core/matrix.h"
 #include "cve/core/image.h"
 
 namespace cve

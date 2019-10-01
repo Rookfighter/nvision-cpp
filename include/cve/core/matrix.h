@@ -44,6 +44,9 @@ namespace cve
     typedef Eigen::Matrix<uint16_t, Eigen::Dynamic, Eigen::Dynamic> Matrixu16;
     typedef Eigen::Matrix<uint32_t, Eigen::Dynamic, Eigen::Dynamic> Matrixu32;
     typedef Eigen::Matrix<uint64_t, Eigen::Dynamic, Eigen::Dynamic> Matrixu64;
+
+    typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> Matrixf;
+    typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> Matrixd;
 }
 
 #endif
