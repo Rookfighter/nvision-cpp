@@ -4,6 +4,3 @@
 [submodule "dep/eigen"]
 	path = dep/eigen
 	url = https://github.com/eigenteam/eigen-git-mirror.git
-[submodule "dep/CImg"]
-	path = dep/CImg
-	url = https://framagit.org/dtschump/CImg.git
