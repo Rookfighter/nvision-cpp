@@ -8,6 +8,7 @@
 #define CVE_IMAGEIO_PPM_H_
 
 #include <string>
+#include <cctype>
 #include <fstream>
 #include <unsupported/Eigen/CXX11/Tensor>
 

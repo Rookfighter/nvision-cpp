@@ -7,6 +7,7 @@
 #define CVE_IMAGEIO_PGM_H_
 
 #include <string>
+#include <cctype>
 #include <fstream>
 #include <unsupported/Eigen/CXX11/Tensor>
 
