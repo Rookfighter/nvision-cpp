@@ -11,7 +11,7 @@
 
 namespace cve
 {
-    /** Functor which clamps a value to a defined interval. */
+    /** Functor, which clamps a value to a defined interval. */
     template<typename Scalar>
     class Clamp
     {

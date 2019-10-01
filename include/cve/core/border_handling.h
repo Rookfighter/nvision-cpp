@@ -49,7 +49,7 @@ namespace cve
     };
 
     /** Border handling functor, which reflects the image values when indices
-      * are out of bounds
+      * are out of bounds.
       * A row of a 3x3 image would be treated by this functor as follows:
       *
       * 2 1 |3 1 2| 1 3 */
@@ -83,7 +83,7 @@ namespace cve
     };
 
     /** Border handling functor, which repeats the image values when indices
-      * are out of bounds
+      * are out of bounds.
       * A row of a 3x3 image would be treated by this functor as follows:
       *
       * 3 3 |3 1 2| 2 2 */

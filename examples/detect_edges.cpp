@@ -56,7 +56,7 @@ int main(int argc, const char **argv)
     std::cout << "Apply canny detector" << std::endl;
     CannyDetector<float> cannyDetector;
     cannyDetector.setSmoothFilter({1.4});
-    cannyDetector.apply(img, oimg);
+    cannyDetector(img, oimg);
 
     cve::imsave("canny_edges." + ext, oimg);
 

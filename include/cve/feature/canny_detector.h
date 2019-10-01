@@ -14,7 +14,7 @@
 
 namespace cve
 {
-    /** Class for Canny edge detection. */
+    /** Canny edge detection functor. */
     template<typename Scalar,
         typename SmoothFilter=GaussFilter<Scalar>,
         typename GradientFilter=SobelFilter<Scalar>,
@@ -66,7 +66,7 @@ namespace cve
         }
 
         template<typename ScalarA, typename ScalarB>
-        void apply(const Eigen::Tensor<ScalarA, 3> &srcImg,
+        void operator()(const Eigen::Tensor<ScalarA, 3> &srcImg,
             Eigen::Tensor<ScalarB, 3> &destImg) const
         {
             Eigen::Tensor<Scalar, 3> gradX;
