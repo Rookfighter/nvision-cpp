@@ -2,8 +2,8 @@
 
 ![Cpp11](https://img.shields.io/badge/C%2B%2B-11-blue.svg)
 ![License](https://img.shields.io/packagist/l/doctrine/orm.svg)
-![Travis Status](https://travis-ci.org/Rookfighter/kdtree-eigen.svg?branch=master)
-![Appveyer Status](https://ci.appveyor.com/api/projects/status/r52757j9k4uybfu6?svg=true)
+![Travis Status](https://travis-ci.org/Rookfighter/cv-eigen.svg?branch=master)
+![Appveyer Status](https://ci.appveyor.com/api/projects/status/oskru1t4q55s4uxa?svg=true)
 
 ```cv-eigen``` is a header-only C++ library for computer vision applications
 using the ```Eigen3``` library.
