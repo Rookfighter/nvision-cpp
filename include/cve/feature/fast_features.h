@@ -226,21 +226,28 @@ namespace cve
         Scalar computeScore(const Eigen::Tensor<ScalarA, 3> &img,
             const Index row, const Index col) const
         {
-            Scalar score = 0;
+            // determine lower intensity boundary
+            Scalar low = img(row, col, 0) - threshold_;
+            // determine upper intensity boundary
+            Scalar high = img(row, col, 0) + threshold_;
+
+            Scalar scoreLow = 0;
+            Scalar scoreHigh = 0;
             Scalar val = static_cast<Scalar>(img(row, col, 0));
             for(Index i = 0; i < mode_.circle().cols(); ++i)
             {
                 Index r2 = row + mode_.circle()(1, i);
                 Index c2 = col + mode_.circle()(0, i);
 
-                if(image::isInside(r2, c2, img))
-                {
-                    Scalar val2 = static_cast<Scalar>(img(r2, c2, 0));
-                    score += std::abs(val - val2);
-                }
+                IntensityClass curr = determineClass(img, r2, c2, low, high);
+
+                if(curr == IntensityClass::Lower)
+                    scoreLow += std::abs(val - static_cast<Scalar>(img(r2, c2, 0)));
+                else if(curr == IntensityClass::Higher)
+                    scoreHigh += std::abs(val - static_cast<Scalar>(img(r2, c2, 0)));
             }
 
-            return score;
+            return std::max(scoreLow, scoreHigh);
         }
 
         template<typename ScalarA>
@@ -254,10 +261,6 @@ namespace cve
                 {
                     if(fastCornerTest(img, r, c) && fullCornerTest(img, r, c))
                         corners.push_back({c, r});
-                    {
-
-
-                    }
                 }
             }
         }
