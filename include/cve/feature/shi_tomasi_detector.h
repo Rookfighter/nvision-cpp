@@ -1,14 +1,14 @@
-/* shi_tomasi_features.h
+/* shi_tomasi_detector.h
  *
  * Author: Fabian Meyer
  * Created On: 18 Jun 2019
  */
 
-#ifndef CVE_SHI_TOMASI_FEATURES_H_
-#define CVE_SHI_TOMASI_FEATURES_H_
+#ifndef CVE_SHI_TOMASI_DETECTOR_H_
+#define CVE_SHI_TOMASI_DETECTOR_H_
 
 #include <Eigen/Eigenvalues>
-#include "cve/feature/harris_features_base.h"
+#include "cve/feature/harris_detector_base.h"
 
 namespace cve
 {
@@ -16,7 +16,7 @@ namespace cve
     template<typename Scalar,
         typename SmoothFilter=GaussFilter<Scalar>,
         typename GradientFilter=SobelFilter<Scalar>>
-    class ShiTomasiFeatures : public HarrisFeaturesBase<Scalar, SmoothFilter, GradientFilter>
+    class ShiTomasiDetector : public HarrisDetectorBase<Scalar, SmoothFilter, GradientFilter>
     {
     public:
         typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;;
@@ -31,22 +31,22 @@ namespace cve
         }
 
     public:
-        ShiTomasiFeatures()
-            : ShiTomasiFeatures(0.01, 10, 0)
+        ShiTomasiDetector()
+            : ShiTomasiDetector(0.01, 10, 0)
         {
 
         }
 
-        ShiTomasiFeatures(const Scalar qualityLevel,
+        ShiTomasiDetector(const Scalar qualityLevel,
             const size_t minDistance,
             const size_t maxCorners)
-            : HarrisFeaturesBase<Scalar, SmoothFilter, GradientFilter>(
+            : HarrisDetectorBase<Scalar, SmoothFilter, GradientFilter>(
                 qualityLevel, minDistance, maxCorners)
         {
 
         }
 
-        ~ShiTomasiFeatures()
+        ~ShiTomasiDetector()
         {
 
         }

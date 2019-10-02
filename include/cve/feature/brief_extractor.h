@@ -1,11 +1,11 @@
-/* brief_descriptor.h
+/* brief_extractor.h
  *
  * Author: Fabian Meyer
  * Created On: 20 Jun 2019
  */
 
-#ifndef CVE_BRIEF_DESCRIPTOR_H_
-#define CVE_BRIEF_DESCRIPTOR_H_
+#ifndef CVE_BRIEF_EXTRACTOR_H_
+#define CVE_BRIEF_EXTRACTOR_H_
 
 #include <random>
 #include "cve/core/image.h"
@@ -25,7 +25,7 @@ namespace cve
       * consistent across different keypoints.
       */
     template<typename Scalar>
-    class BRIEFDescriptor
+    class BRIEFExtractor
     {
     public:
         typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;
@@ -36,13 +36,13 @@ namespace cve
 
     public:
 
-        BRIEFDescriptor()
-            : BRIEFDescriptor(256, 31, 1297)
+        BRIEFExtractor()
+            : BRIEFExtractor(256, 31, 1297)
         {
 
         }
 
-        BRIEFDescriptor(const Index length,
+        BRIEFExtractor(const Index length,
             const Scalar patchSize,
             const Index seed = 1297)
             : seed_(), patchSize_(), pattern_()
@@ -60,9 +60,9 @@ namespace cve
             const Index seed)
         {
             if(length % 8 != 0)
-                throw std::runtime_error("BRIEFDescriptor bit length must be multiple of 8");
+                throw std::runtime_error("BRIEFExtractor bit length must be multiple of 8");
             if(patchSize <= 1)
-                throw std::runtime_error("BRIEFDescriptor patch size must be greater than one");
+                throw std::runtime_error("BRIEFExtractor patch size must be greater than one");
 
             seed_ = seed;
             patchSize_ = patchSize;
@@ -79,9 +79,9 @@ namespace cve
         void setPattern(const Matrixi &pattern)
         {
             if(pattern.rows() != 4)
-                throw std::runtime_error("BRIEFDescriptor pattern must have 4 rows");
+                throw std::runtime_error("BRIEFExtractor pattern must have 4 rows");
             if(pattern.cols() % 8 != 0)
-                throw std::runtime_error("BRIEFDescriptor pattern columns must be multiple of 8");
+                throw std::runtime_error("BRIEFExtractor pattern columns must be multiple of 8");
 
             pattern_ = pattern;
         }

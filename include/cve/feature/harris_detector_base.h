@@ -1,11 +1,11 @@
-/* harris_features_base.h
+/* harris_detector_base.h
  *
  * Author: Fabian Meyer
  * Created On: 18 Jun 2019
  */
 
-#ifndef CVE_HARRIS_FEATURES_BASE_H_
-#define CVE_HARRIS_FEATURES_BASE_H_
+#ifndef CVE_HARRIS_DETECTOR_BASE_H_
+#define CVE_HARRIS_DETECTOR_BASE_H_
 
 #include "cve/core/math.h"
 #include "cve/core/image.h"
@@ -19,7 +19,7 @@ namespace cve
     template<typename Scalar,
         typename SmoothFilter=GaussFilter<Scalar>,
         typename GradientFilter=SobelFilter<Scalar>>
-    class HarrisFeaturesBase
+    class HarrisDetectorBase
     {
     public:
         typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;
@@ -74,13 +74,13 @@ namespace cve
         virtual Scalar computeScore(const Matrix2 &M) const = 0;
 
     public:
-        HarrisFeaturesBase()
-            : HarrisFeaturesBase(0.01, 10, 0)
+        HarrisDetectorBase()
+            : HarrisDetectorBase(0.01, 10, 0)
         {
 
         }
 
-        HarrisFeaturesBase(const Scalar qualityLevel,
+        HarrisDetectorBase(const Scalar qualityLevel,
             const size_t minDistance,
             const size_t maxCorners)
             : qualityLevel_(qualityLevel), minDistance_(minDistance),
@@ -89,7 +89,7 @@ namespace cve
 
         }
 
-        virtual ~HarrisFeaturesBase()
+        virtual ~HarrisDetectorBase()
         {
 
         }

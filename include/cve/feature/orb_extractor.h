@@ -1,11 +1,11 @@
-/* orb_descriptor.h
+/* orb_extractor.h
  *
  * Author: Fabian Meyer
  * Created On: 20 Jun 2019
  */
 
-#ifndef CVE_ORB_DESCRIPTOR_H_
-#define CVE_ORB_DESCRIPTOR_H_
+#ifndef CVE_ORB_EXTRACTOR_H_
+#define CVE_ORB_EXTRACTOR_H_
 
 #include <random>
 #include "cve/core/image.h"
@@ -22,7 +22,7 @@ namespace cve
       * The pattern of pixel pairs in a patch is determined randomly, but stays
       * consistent across different keypoints. */
     template<typename Scalar>
-    class ORBDescriptor
+    class ORBExtractor
     {
     public:
         typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;
@@ -96,13 +96,13 @@ namespace cve
         }
     public:
 
-        ORBDescriptor()
-            : ORBDescriptor(256, 31, 1297)
+        ORBExtractor()
+            : ORBExtractor(256, 31, 1297)
         {
 
         }
 
-        ORBDescriptor(const Index length,
+        ORBExtractor(const Index length,
             const Scalar patchSize,
             const Index seed = 1297)
             : seed_(), patchSize_(), patterns_(), partitions_(12)
@@ -120,9 +120,9 @@ namespace cve
             const Index seed = 1297)
         {
             if(length % 8 != 0)
-                throw std::runtime_error("ORBDescriptor bit length must be multiple of 8");
+                throw std::runtime_error("ORBExtractor bit length must be multiple of 8");
             if(patchSize <= 1)
-                throw std::runtime_error("ORBDescriptor patch size must be greater than one");
+                throw std::runtime_error("ORBExtractor patch size must be greater than one");
 
             seed_ = seed;
             patchSize_ = patchSize;
@@ -135,9 +135,9 @@ namespace cve
         void setPattern(const Matrix &pattern)
         {
             if(pattern.rows() != 4)
-                throw std::runtime_error("ORBDescriptor pattern must have 4 rows");
+                throw std::runtime_error("ORBExtractor pattern must have 4 rows");
             if(pattern.cols() % 8 != 0)
-                throw std::runtime_error("ORBDescriptor pattern columns must be multiple of 8");
+                throw std::runtime_error("ORBExtractor pattern columns must be multiple of 8");
 
             computeRotatedPatterns(pattern);
         }

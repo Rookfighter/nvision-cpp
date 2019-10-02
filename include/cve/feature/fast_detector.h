@@ -1,11 +1,11 @@
-/* fast_features.h
+/* fast_detector.h
  *
  * Author: Fabian Meyer
  * Created On: 19 Jun 2019
  */
 
-#ifndef CVE_FAST_FEATURES_H_
-#define CVE_FAST_FEATURES_H_
+#ifndef CVE_FAST_DETECTOR_H_
+#define CVE_FAST_DETECTOR_H_
 
 #include "cve/core/math.h"
 #include "cve/core/matrix.h"
@@ -93,7 +93,7 @@ namespace cve
 
     /** FAST corner detection functor. */
     template<typename Scalar, typename Mode=FASTMode7>
-    class FASTFeatures
+    class FASTDetector
     {
     public:
         typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;
@@ -317,13 +317,13 @@ namespace cve
         }
 
     public:
-        FASTFeatures()
-            : FASTFeatures(10, 7, 0, true)
+        FASTDetector()
+            : FASTDetector(10, 7, 0, true)
         {
 
         }
 
-        FASTFeatures(const Scalar threshold,
+        FASTDetector(const Scalar threshold,
             const Index minDist,
             const Index maxFeatures,
             const bool useSuppresion)
@@ -367,9 +367,14 @@ namespace cve
             std::vector<Vector2i> corners;
             detectCorners(img, corners);
 
-            // compute ther cornerness score for each detected corner
+            // computer score only if non-maxima suppression is used or we have
+            // found more corners than allowed
             Matrix score;
-            computeScoreMatrix(img, corners, score);
+            if(useSuppression_ || (maxFeatures_ > 0 && static_cast<Index>(corners.size()) > maxFeatures_))
+            {
+                // compute the cornerness score for each detected corner
+                computeScoreMatrix(img, corners, score);
+            }
 
             if(useSuppression_)
             {

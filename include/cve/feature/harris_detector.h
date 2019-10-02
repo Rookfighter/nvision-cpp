@@ -1,13 +1,13 @@
-/* harris_features.h
+/* harris_detector.h
  *
  * Author: Fabian Meyer
  * Created On: 18 Jun 2019
  */
 
-#ifndef CVE_HARRIS_FEATURES_H_
-#define CVE_HARRIS_FEATURES_H_
+#ifndef CVE_HARRIS_DETECTOR_H_
+#define CVE_HARRIS_DETECTOR_H_
 
-#include "cve/feature/harris_features_base.h"
+#include "cve/feature/harris_detector_base.h"
 
 namespace cve
 {
@@ -15,7 +15,7 @@ namespace cve
     template<typename Scalar,
         typename SmoothFilter=GaussFilter<Scalar>,
         typename GradientFilter=SobelFilter<Scalar>>
-    class HarrisFeatures : public HarrisFeaturesBase<Scalar, SmoothFilter, GradientFilter>
+    class HarrisDetector : public HarrisDetectorBase<Scalar, SmoothFilter, GradientFilter>
     {
     private:
         Scalar traceFactor_;
@@ -31,24 +31,24 @@ namespace cve
         }
 
     public:
-        HarrisFeatures()
-            : HarrisFeatures(0.04, 0.01, 10, 0)
+        HarrisDetector()
+            : HarrisDetector(0.04, 0.01, 10, 0)
         {
 
         }
 
-        HarrisFeatures(const Scalar traceFactor,
+        HarrisDetector(const Scalar traceFactor,
             const Scalar qualityLevel,
             const size_t minDistance,
             const size_t maxCorners)
-            : HarrisFeaturesBase<Scalar, SmoothFilter, GradientFilter>(
+            : HarrisDetectorBase<Scalar, SmoothFilter, GradientFilter>(
                 qualityLevel, minDistance, maxCorners),
                 traceFactor_(traceFactor)
         {
 
         }
 
-        ~HarrisFeatures()
+        ~HarrisDetector()
         {
 
         }
