@@ -13,6 +13,8 @@
 
 namespace cve
 {
+    /** Class to let FAST operate on a circle with diameter of 5 pixels.
+      * The sequence length has be to be 9 to accept a pixel as corner. */
     class FASTMode5
     {
     private:
@@ -37,6 +39,8 @@ namespace cve
         }
     };
 
+    /** Class to let FAST operate on a circle with diameter of 7 pixels.
+      * The sequence length has be to be 12 to accept a pixel as corner. */
     class FASTMode7
     {
     private:
@@ -61,6 +65,8 @@ namespace cve
         }
     };
 
+    /** Class to let FAST operate on a circle with diameter of 9 pixels.
+      * The sequence length has be to be 15 to accept a pixel as corner. */
     class FASTMode9
     {
     private:
