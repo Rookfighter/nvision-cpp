@@ -13,14 +13,91 @@
 
 namespace cve
 {
+    class FASTMode5
+    {
+    private:
+        Matrixi circle_;
+        Index sequence_;
+    public:
+        FASTMode5()
+            : circle_(2, 12), sequence_(9)
+        {
+            circle_ <<  0,  1,  2,  2, 2, 2, 1, 0, -1, -2, -2, -2,
+                       -2, -2, -2, -1, 0, 1, 2, 2,  2,  1,  0, -1;
+        }
+
+        Index sequence() const
+        {
+            return sequence_;
+        }
+
+        const Matrixi &circle() const
+        {
+            return circle_;
+        }
+    };
+
+    class FASTMode7
+    {
+    private:
+        Matrixi circle_;
+        Index sequence_;
+    public:
+        FASTMode7()
+            : circle_(2, 16), sequence_(12)
+        {
+            circle_ <<  0,  1,  2,  3, 3, 3, 2, 1, 0, -1, -2, -3, -3, -3, -2, -1,
+                       -3, -3, -2, -1, 0, 1, 2, 3, 3,  3,  2,  1,  0, -1, -2, -3;
+        }
+
+        Index sequence() const
+        {
+            return sequence_;
+        }
+
+        const Matrixi &circle() const
+        {
+            return circle_;
+        }
+    };
+
+    class FASTMode9
+    {
+    private:
+        Matrixi circle_;
+        Index sequence_;
+    public:
+        FASTMode9()
+            : circle_(2, 20), sequence_(15)
+        {
+            circle_ <<  0,  1,  2,  3,  4, 4, 4, 3, 2, 1, 0, -1, -2, -3, -4, -4, -4, -3, -2, -1
+                       -4, -4, -3, -2, -1, 0, 1, 2, 3, 4, 4,  4,  3,  2,  1,  0, -1, -2, -3, -4;
+        }
+
+        Index sequence() const
+        {
+            return sequence_;
+        }
+
+        const Matrixi &circle() const
+        {
+            return circle_;
+        }
+    };
+
     /** FAST corner detection functor. */
-    template<typename Scalar>
+    template<typename Scalar, typename Mode=FASTMode7>
     class FASTFeatures
     {
     public:
         typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;
         typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> Vector;
     private:
+        Mode mode_;
+        Scalar threshold_;;
+        Index minDist_;
+        Index maxFeatures_;
+
         enum class IntensityClass
         {
             None = 0,
@@ -28,66 +105,111 @@ namespace cve
             Higher
         };
 
-        Scalar threshold_;
-        Matrixi circle_;
-        Index neighs_;
-        Index minDist_;
-        Index maxFeatures_;
-
-        IntensityClass determineClass(const Scalar value,
+        template<typename ScalarA>
+        IntensityClass determineClass(const Eigen::Tensor<ScalarA, 3> &img,
+            const Index row,
+            const Index col,
             const Scalar low,
             const Scalar high) const
         {
+            if(!image::isInside(row, col, img))
+                return IntensityClass::None;
+
+            Scalar value = static_cast<Scalar>(img(row, col, 0));
             if(value < low)
                 return IntensityClass::Lower;
-            if(value > high)
+            else if(value > high)
                 return IntensityClass::Higher;
-            return IntensityClass::None;
+            else
+                return IntensityClass::None;
         }
 
         template<typename ScalarA>
-        bool isCorner(const Index row, const Index col,
-            const Eigen::Tensor<ScalarA, 3> &img) const
+        bool fastCornerTest(const Eigen::Tensor<ScalarA, 3> &img,
+            const Index row, const Index col) const
         {
-            std::vector<IntensityClass> classes(16);
-
+            // determine lower intensity boundary
             Scalar low = img(row, col, 0) - threshold_;
+            // determine upper intensity boundary
             Scalar high = img(row, col, 0) + threshold_;
 
-            Index cnt = 0;
-            IntensityClass last = IntensityClass::None;
-            for(size_t i = 0; i < classes.size(); ++i)
-            {
-                Index r2 = row + circle_(1, i);
-                Index c2 = col + circle_(0, i);
-                if(!image::isInside(r2, c2, img))
-                    classes[i] = IntensityClass::None;
-                else
-                    classes[i] = determineClass(img(r2, c2, 0), low, high);
+            Index quart = mode_.circle().cols() / 4;
 
-                if(classes[i] == IntensityClass::None)
+            IntensityClass north = determineClass(img, row + mode_.circle()(1, 0),       col + mode_.circle()(0, 0), low, high);
+            IntensityClass east  = determineClass(img, row + mode_.circle()(1, quart),   col + mode_.circle()(0, quart), low, high);
+            IntensityClass south = determineClass(img, row + mode_.circle()(1, 2*quart), col + mode_.circle()(0, 2*quart), low, high);
+            IntensityClass west  = determineClass(img, row + mode_.circle()(1, 3*quart), col + mode_.circle()(0, 3*quart), low, high);
+
+            bool testA = north == east && east == south;
+            bool testB = east == south && south == west;
+            bool testC = south == west && west == north;
+
+            return testA || testB || testC;
+        }
+
+        template<typename ScalarA>
+        bool fullCornerTest(const Eigen::Tensor<ScalarA, 3> &img,
+            const Index row, const Index col) const
+        {
+            // determine lower intensity boundary
+            Scalar low = img(row, col, 0) - threshold_;
+            // determine upper intensity boundary
+            Scalar high = img(row, col, 0) + threshold_;
+
+            // count the length of sequence of pixels which have same intensity
+            // class
+            Index cnt = 0;
+            // always keep track of the previous intesity class
+            IntensityClass prev = IntensityClass::None;
+            for(Index i = 0; i < mode_.circle().cols(); ++i)
+            {
+                // compute pixel coordinates based on given circle
+                Index r2 = row + mode_.circle()(1, i);
+                Index c2 = col + mode_.circle()(0, i);
+                // determine the intensity class of this pixel
+                IntensityClass curr = determineClass(img, r2, c2, low, high);
+
+                // if it has no intensity class, start over with counting
+                // (e.g. out of bounds or between low and high)
+                if(curr == IntensityClass::None)
                     cnt = 0;
-                else if(classes[i] != last)
+                // if the current is not the same class as the previous one
+                // start a new sequence
+                else if(curr != prev)
                     cnt = 1;
+                // if last and current have the same class then increment
+                // sequence length
                 else
                     ++cnt;
-                last = classes[i];
+                prev = curr;
 
-                if(cnt >= neighs_)
+                // if the current sequence is long enough simply return true at
+                // this point
+                if(cnt >= mode_.sequence())
                     return true;
             }
 
+            // if sequence length is zero there was no corner found
             if(cnt == 0)
                 return false;
 
-            for(Index i = 0; i < neighs_; ++i)
+            for(Index i = 0; i <  mode_.sequence(); ++i)
             {
-                if(classes[i] == IntensityClass::None || classes[i] != last)
+                // compute pixel coordinates based on given circle
+                Index r2 = row + mode_.circle()(1, i);
+                Index c2 = col + mode_.circle()(0, i);
+                // determine the intensity class of this pixel
+                IntensityClass curr = determineClass(img, r2, c2, low, high);
+
+                // if current pixel has no intensity class or it stops the
+                // sequence, the return false, no corner detected
+                if(curr == IntensityClass::None || curr != prev)
                     return false;
                 else
                     ++cnt;
-                last = classes[i];
-                if(cnt >= neighs_)
+                prev = curr;
+
+                if(cnt >= mode_.sequence())
                     return true;
             }
 
@@ -95,15 +217,15 @@ namespace cve
         }
 
         template<typename ScalarA>
-        Scalar computeScore(const Index row, const Index col,
-            const Eigen::Tensor<ScalarA, 3> &img) const
+        Scalar computeScore(const Eigen::Tensor<ScalarA, 3> &img,
+            const Index row, const Index col) const
         {
             Scalar score = 0;
             Scalar val = static_cast<Scalar>(img(row, col, 0));
-            for(Index i = 0; i < circle_.cols(); ++i)
+            for(Index i = 0; i < mode_.circle().cols(); ++i)
             {
-                Index r2 = row + circle_(1, i);
-                Index c2 = col + circle_(0, i);
+                Index r2 = row + mode_.circle()(1, i);
+                Index c2 = col + mode_.circle()(0, i);
 
                 if(image::isInside(r2, c2, img))
                 {
@@ -114,6 +236,76 @@ namespace cve
 
             return score;
         }
+
+        template<typename ScalarA>
+        void detectCorners(const Eigen::Tensor<ScalarA, 3> &img,
+            std::vector<Vector2i> &corners) const
+        {
+            corners.reserve(5000);
+            for(Index c = 0; c < img.dimension(1); ++c)
+            {
+                for(Index r = 0; r < img.dimension(0); ++r)
+                {
+                    if(fastCornerTest(img, r, c) && fullCornerTest(img, r, c))
+                        corners.push_back({c, r});
+                    {
+
+
+                    }
+                }
+            }
+        }
+
+        template<typename ScalarA>
+        void computeScoreMatrix(const Eigen::Tensor<ScalarA, 3> &img,
+            const std::vector<Vector2i> &corners,
+            Matrix &score) const
+        {
+            score.resize(img.dimension(0), img.dimension(1));
+            score.setZero();
+
+            for(size_t i = 0; i < corners.size(); ++i)
+            {
+                Index r = corners[i](1);
+                Index c = corners[i](0);
+                score(r, c) = computeScore(img, r, c);
+            }
+        }
+
+        void nonMaximaSuppression(const std::vector<Vector2i> &corners,
+            const Matrix &score,
+            std::vector<Vector2i> &outCorners) const
+        {
+            outCorners.reserve(corners.size());
+            for(size_t i = 0; i < corners.size(); ++i)
+            {
+                Index c = corners[i](0);
+                Index r = corners[i](1);
+                Scalar val = score(r, c);
+
+                bool best = true;
+                for(Index x =  c - minDist_; x < c + minDist_; ++x)
+                {
+                    for(Index y =  r - minDist_; y < r + minDist_; ++y)
+                    {
+                        if(y >= 0 && y < score.rows()
+                            && x >= 0 && x < score.cols()
+                            && val < score(y, x))
+                        {
+                            best = false;
+                            break;
+                        }
+                    }
+
+                    if(!best)
+                        break;
+                }
+
+                if(best)
+                    outCorners.push_back({c, r});
+            }
+        }
+
     public:
         FASTFeatures()
             : FASTFeatures(10, 7, 0)
@@ -124,11 +316,10 @@ namespace cve
         FASTFeatures(const Scalar threshold,
             const Index minDist,
             const Index maxFeatures)
-            : threshold_(threshold), circle_(2, 16), neighs_(12),
-            minDist_(minDist), maxFeatures_(maxFeatures)
+            : mode_(), threshold_(threshold), minDist_(minDist),
+            maxFeatures_(maxFeatures)
         {
-            circle_ <<  0,  1,  2,  3, 3, 3, 2, 1, 0, -1, -2, -3, -3, -3, -2, -1,
-                       -3, -3, -2, -1, 0, 1, 2, 3, 3,  3,  2,  1,  0, -1, -2, -3;
+
         }
 
         void setThreshold(const Scalar threshold)
@@ -163,66 +354,36 @@ namespace cve
             if(img.dimension(2) > 1)
                 throw std::runtime_error("FAST can only compute single channel images");
 
-            Matrix score(img.dimension(0), img.dimension(1));
-            score.setZero();
+            // detect all corners according to the current mode of operation
+            std::vector<Vector2i> corners;
+            detectCorners(img, corners);
 
-            std::vector<Vector2i> points1;
-            points1.reserve(5000);
-            for(Index c = 0; c < img.dimension(1); ++c)
-            {
-                for(Index r = 0; r < img.dimension(0); ++r)
-                {
-                    if(isCorner(r, c, img))
-                    {
-                        points1.push_back({c, r});
-                        score(r, c) = computeScore(r, c, img);
-                    }
-                }
-            }
+            // compute ther cornerness score for each detected corner
+            Matrix score;
+            computeScoreMatrix(img, corners, score);
 
-            // perform non-maxima suppression
-            std::vector<Vector2i> points2;
-            points2.reserve(points1.size());
-            for(size_t i = 0; i < points1.size(); ++i)
-            {
-                Index c = points1[i](0);
-                Index r = points1[i](1);
-                Scalar val = score(r, c);
-                bool best = true;
-                for(Index x =  c - minDist_; x < c + minDist_; ++x)
-                {
-                    for(Index y =  r - minDist_; y < r + minDist_; ++y)
-                    {
-                        if(image::isInside(y, x, img) && val < score(y, x))
-                        {
-                            best = false;
-                            break;
-                        }
-                    }
+            // perform non-maxima suppression to make features sparser
+            // basically maintain a minimum distance between feature points
+            std::vector<Vector2i> corners2;
+            nonMaximaSuppression(corners, score, corners2);
 
-                    if(!best)
-                        break;
-                }
 
-                if(best)
-                    points2.push_back({c, r});
-            }
+            Index featureCnt = static_cast<Index>(corners2.size());
+            if(maxFeatures_ > 0)
+                featureCnt = std::min(maxFeatures_, featureCnt);
 
             // check if maximum features has been reached
-            if(maxFeatures_ > 0 &&
-                static_cast<Index>(points2.size()) > maxFeatures_)
+            if(featureCnt != static_cast<Index>(corners2.size()))
             {
-                std::sort(points2.begin(), points2.end(),
+                std::sort(corners2.begin(), corners2.end(),
                     [&score](const Vector2i &lhs, const Vector2i &rhs)
                     { return score(lhs(1), lhs(0)) < score(rhs(1), rhs(0)); });
             }
 
-            Index featureCnt = points2.size();
-            if(maxFeatures_ > 0)
-                featureCnt = std::min(maxFeatures_, featureCnt);
+            // copy detected points into output matrix
             keypoints.resize(2, featureCnt);
             for(Index i = 0; i < keypoints.cols(); ++i)
-                keypoints.col(i) << points2[i](0), points2[i](1);
+                keypoints.col(i) = corners2[i].template cast<Scalar>();
         }
     };
 }
