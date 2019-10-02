@@ -7,11 +7,11 @@ include_directories(
 set(TEST_SRC
     "main.cpp"
 
-    "feature/brief_descriptor.cpp"
+    "feature/brief_extractor.cpp"
     "feature/brute_force_knn.cpp"
-    "feature/fast_features.cpp"
-    "feature/harris_features.cpp"
-    "feature/shi_tomasi_features.cpp"
+    "feature/fast_detector.cpp"
+    "feature/harris_detector.cpp"
+    "feature/shi_tomasi_detector.cpp"
 
     "filter/backward_differences_filter.cpp"
     "filter/box_filter.cpp"

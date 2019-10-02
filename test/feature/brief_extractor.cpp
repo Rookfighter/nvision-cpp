@@ -1,4 +1,4 @@
-/* brief_descriptor.cpp
+/* brief_extractor.cpp
  *
  * Author: Fabian Meyer
  * Created On: 06 Aug 2019
@@ -6,16 +6,16 @@
 
 #include <iostream>
 #include "assert/eigen_require.h"
-#include <cve/feature/brief_descriptor.h>
+#include <cve/feature/brief_extractor.h>
 
 using namespace cve;
 
 typedef float Scalar;
 typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;
 
-TEST_CASE("brief_descriptor")
+TEST_CASE("brief_extractor")
 {
-    BRIEFDescriptor<Scalar> brief;
+    BRIEFExtractor<Scalar> brief;
 
     Image8 img(5, 5, 1);
     img.setZero();

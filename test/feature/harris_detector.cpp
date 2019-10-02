@@ -1,22 +1,22 @@
-/* harris_features.cpp
+/* harris_detector.cpp
  *
  * Author: Fabian Meyer
  * Created On: 11 Jul 2019
  */
 
 #include "assert/eigen_require.h"
-#include <cve/feature/harris_features.h>
+#include <cve/feature/harris_detector.h>
 
 using namespace cve;
 
-typedef cve::HarrisFeatures<float> Features;
-typedef typename Features::Matrix Matrix;
+typedef float Scalar;
+typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;
 
-TEST_CASE("harris_features")
+TEST_CASE("harris_detector")
 {
-    float eps = 1e-6;
+    Scalar eps = 1e-6;
 
-    Features features;
+    HarrisDetector<Scalar> harris;
 
     SECTION("detect light corner")
     {
@@ -30,7 +30,7 @@ TEST_CASE("harris_features")
         kpExp << 2, 2;
         Matrix kpAct;
 
-        features(img, kpAct);
+        harris(img, kpAct);
 
         REQUIRE_MATRIX_APPROX(kpExp, kpAct, eps);
     }
@@ -48,7 +48,7 @@ TEST_CASE("harris_features")
         kpExp << 2, 2;
         Matrix kpAct;
 
-        features(img, kpAct);
+        harris(img, kpAct);
 
         REQUIRE_MATRIX_APPROX(kpExp, kpAct, eps);
     }
@@ -61,7 +61,7 @@ TEST_CASE("harris_features")
         Matrix kpExp(2, 0);
         Matrix kpAct;
 
-        features(img, kpAct);
+        harris(img, kpAct);
 
         REQUIRE_MATRIX_APPROX(kpExp, kpAct, eps);
     }
