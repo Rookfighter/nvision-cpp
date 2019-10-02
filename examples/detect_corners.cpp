@@ -5,9 +5,9 @@
  */
 
 #include <iostream>
-#include <cve/feature/harris_features.h>
-#include <cve/feature/shi_tomasi_features.h>
-#include <cve/feature/fast_features.h>
+#include <cve/feature/harris_detector.h>
+#include <cve/feature/shi_tomasi_detector.h>
+#include <cve/feature/fast_detector.h>
 #include <cve/draw/shape_drawer.h>
 #include <cve/draw/colors.h>
 #include <cve/imageio/imageio.h>
@@ -35,7 +35,7 @@ int main(int argc, const char **argv)
     cve::image::rgb2gray(img, imgGray);
 
     std::cout << "Apply harris detector" << std::endl;
-    HarrisFeatures<float> harris;
+    HarrisDetector<float> harris;
     harris(img, keypoints);
 
     oimg = img;
@@ -45,7 +45,7 @@ int main(int argc, const char **argv)
     cve::imsave("harris_corners." + ext, oimg);
 
     std::cout << "Apply shi tomasi detector" << std::endl;
-    ShiTomasiFeatures<float> shi;
+    ShiTomasiDetector<float> shi;
     shi(img, keypoints);
 
     oimg = img;
@@ -54,7 +54,7 @@ int main(int argc, const char **argv)
     cve::imsave("shi_tomasi_corners." + ext, oimg);
 
     std::cout << "Apply FAST detector" << std::endl;
-    FASTFeatures<float> fast;
+    FASTDetector<float> fast;
     fast(imgGray, keypoints);
 
     oimg = img;

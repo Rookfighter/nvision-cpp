@@ -5,9 +5,9 @@
  */
 
 #include <iostream>
-#include <cve/feature/fast_features.h>
-#include <cve/feature/brief_descriptor.h>
-#include <cve/feature/orb_descriptor.h>
+#include <cve/feature/fast_detector.h>
+#include <cve/feature/brief_extractor.h>
+#include <cve/feature/orb_extractor.h>
 #include <cve/feature/brute_force_knn.h>
 #include <cve/draw/match_drawer.h>
 #include <cve/draw/colors.h>
@@ -48,14 +48,14 @@ int main(int argc, const char **argv)
     cve::image::rgb2gray(imgB, grayB);
 
     std::cout << "Apply FAST detector" << std::endl;
-    FASTFeatures<float> fast;
+    FASTDetector<float> fast;
     fast(grayA, keypointsA);
     fast(grayB, keypointsB);
 
     std::cout << "kpA:" << keypointsA.cols() << " kpB:" << keypointsB.cols() << std::endl;
 
     std::cout << "Compute BRIEF descriptors" << std::endl;
-    BRIEFDescriptor<float> brief;
+    BRIEFExtractor<float> brief;
     brief(grayA, keypointsA, descriptorsA);
     brief(grayB, keypointsB, descriptorsB);
 
@@ -72,7 +72,7 @@ int main(int argc, const char **argv)
     cve::imsave("brief_matches." + ext, oimg);
 
     std::cout << "Compute ORB descriptors" << std::endl;
-    ORBDescriptor<float> orb;
+    ORBExtractor<float> orb;
     orb(grayA, keypointsA, descriptorsA);
     orb(grayB, keypointsB, descriptorsB);
 

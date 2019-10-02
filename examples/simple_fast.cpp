@@ -1,5 +1,5 @@
 #include <iostream>
-#include <cve/feature/fast_features.h>
+#include <cve/feature/fast_detector.h>
 #include <cve/draw/shape_drawer.h>
 #include <cve/draw/colors.h>
 #include <cve/imageio/imageio.h>
@@ -30,7 +30,7 @@ int main(int argc, const char **argv)
     // internal Scalar type, which is used for computations.
     // This constructor expects the standard deviation of the gaussian function
     // and calculates the kernel size automatically.
-    cve::FASTFeatures<float> fast;
+    cve::FASTDetector<float> fast;
 
     // Apply the FAST detector to the source image and stores its keypoints.
     fast(src, keypoints);
