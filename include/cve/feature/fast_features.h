@@ -103,6 +103,7 @@ namespace cve
         Scalar threshold_;;
         Index minDist_;
         Index maxFeatures_;
+        bool useSuppression_;
 
         enum class IntensityClass
         {
@@ -317,16 +318,17 @@ namespace cve
 
     public:
         FASTFeatures()
-            : FASTFeatures(10, 7, 0)
+            : FASTFeatures(10, 7, 0, true)
         {
 
         }
 
         FASTFeatures(const Scalar threshold,
             const Index minDist,
-            const Index maxFeatures)
+            const Index maxFeatures,
+            const bool useSuppresion)
             : mode_(), threshold_(threshold), minDist_(minDist),
-            maxFeatures_(maxFeatures)
+            maxFeatures_(maxFeatures), useSuppression_(useSuppresion)
         {
 
         }
@@ -369,20 +371,23 @@ namespace cve
             Matrix score;
             computeScoreMatrix(img, corners, score);
 
-            // perform non-maxima suppression to make features sparser
-            // basically maintain a minimum distance between feature points
-            std::vector<Vector2i> corners2;
-            nonMaximaSuppression(corners, score, corners2);
+            if(useSuppression_)
+            {
+                // perform non-maxima suppression to make features sparser
+                // basically maintain a minimum distance between feature points
+                std::vector<Vector2i> tmp;
+                nonMaximaSuppression(corners, score, tmp);
+                corners = std::move(tmp);
+            }
 
-
-            Index featureCnt = static_cast<Index>(corners2.size());
+            Index featureCnt = static_cast<Index>(corners.size());
             if(maxFeatures_ > 0)
                 featureCnt = std::min(maxFeatures_, featureCnt);
 
             // check if maximum features has been reached
-            if(featureCnt != static_cast<Index>(corners2.size()))
+            if(featureCnt != static_cast<Index>(corners.size()))
             {
-                std::sort(corners2.begin(), corners2.end(),
+                std::sort(corners.begin(), corners.end(),
                     [&score](const Vector2i &lhs, const Vector2i &rhs)
                     { return score(lhs(1), lhs(0)) < score(rhs(1), rhs(0)); });
             }
@@ -390,7 +395,7 @@ namespace cve
             // copy detected points into output matrix
             keypoints.resize(2, featureCnt);
             for(Index i = 0; i < keypoints.cols(); ++i)
-                keypoints.col(i) = corners2[i].template cast<Scalar>();
+                keypoints.col(i) = corners[i].template cast<Scalar>();
         }
     };
 }
