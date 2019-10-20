@@ -348,6 +348,11 @@ namespace cve
             maxFeatures_ = maxFeatures;
         }
 
+        void setNonMaximaSuppression(const bool useSuppression)
+        {
+            useSuppression_ = useSuppression;
+        }
+
         /** Compute FAST corner features in the given image.
           * Note that FAST requires a grayscale image as input!
           * The keypoints are returned in a matrix, where each column
