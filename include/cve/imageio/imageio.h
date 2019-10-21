@@ -49,6 +49,8 @@ namespace cve
             pgm::save(filename, img);
         else if(ext == "ppm")
             ppm::save(filename, img);
+        else if(ext == "png")
+            png::save(filename, img);
         else
             throw std::runtime_error("imsave: unknown file extension \"" + ext + "\"");
     }
