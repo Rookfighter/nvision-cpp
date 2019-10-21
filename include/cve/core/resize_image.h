@@ -49,6 +49,15 @@ namespace cve
                 }
             }
         }
+
+        template<typename ScalarA>
+        void operator()(const Scalar factor,
+            Eigen::Tensor<ScalarA, 3> &img) const
+        {
+            Eigen::Tensor<ScalarA, 3> tmp;
+            operator()(factor, img, tmp);
+            img = tmp;
+        }
     };
 
     namespace image
@@ -64,7 +73,19 @@ namespace cve
             Eigen::Tensor<ScalarB, 3> &dest)
         {
             ResizeImage<Scalar> resizeimg;
-            return resizeimg(factor, src, dest);
+            resizeimg(factor, src, dest);
+        }
+
+        /** Resizes an image by a given factor and performs up- or downsampling.
+          * @see ResizeImage
+          * @param factor resize factor, if < 1 the downsample, else upsample
+          * @param img source and destination image */
+        template<typename Scalar, typename ScalarA>
+        inline void resize(const Scalar factor,
+            Eigen::Tensor<ScalarA, 3> &img)
+        {
+            ResizeImage<Scalar> resizeimg;
+            resizeimg(factor, img);
         }
     }
 }
