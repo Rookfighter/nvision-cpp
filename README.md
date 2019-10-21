@@ -11,7 +11,7 @@ using the ```Eigen3``` library and its ```Tensor``` module.
 ```cv-eigen``` provides:
 
 * image filters like ```gauss```, ```box```, ```laplace```, ```sobel``` and ```scharr```
-* feature detectors like ```Harris```, ```ShiTomasi``` and ```FAST```
+* feature detectors like ```Harris```, ```ShiTomasi```, ```FAST``` and ```ORB```
 * feature descriptors like ```BRIEF``` and ```ORB```
 * optical flow estimation using ```LucasKanade``` and ```HornSchunck```
 * projective routines for ```triangulation``` and ```camera calibration```
