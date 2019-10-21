@@ -27,7 +27,6 @@ add_subdirectory(dep)
 include_directories(
     include
     ${EIGEN3_INCLUDE_DIR}
-    ${CIMG_INCLUDE_DIR}
 )
 
 install(DIRECTORY "include/cve"
