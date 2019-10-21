@@ -8,6 +8,7 @@
 #include <cve/feature/harris_detector.h>
 #include <cve/feature/shi_tomasi_detector.h>
 #include <cve/feature/fast_detector.h>
+#include <cve/feature/orb_detector.h>
 #include <cve/draw/shape_drawer.h>
 #include <cve/draw/colors.h>
 #include <cve/imageio/imageio.h>
@@ -61,6 +62,15 @@ int main(int argc, const char **argv)
     shapeDrawer.drawCircle(keypoints, 10, Colorf::Red(), oimg);
 
     cve::imsave("fast_corners." + ext, oimg);
+
+    std::cout << "Apply ORB detector" << std::endl;
+    ORBDetector<float> orb;
+    orb(imgGray, keypoints);
+
+    oimg = img;
+    shapeDrawer.drawCircle(keypoints, 10, Colorf::Red(), oimg);
+
+    cve::imsave("orb_corners." + ext, oimg);
 
     return 0;
 }
