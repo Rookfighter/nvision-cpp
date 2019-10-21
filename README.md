@@ -6,11 +6,21 @@
 ![Appveyer Status](https://ci.appveyor.com/api/projects/status/oskru1t4q55s4uxa?svg=true)
 
 ```cv-eigen``` is a header-only C++ library for computer vision applications
-using the ```Eigen3``` library.
+using the ```Eigen3``` library and its ```Tensor``` module.
+
+```cv-eigen``` provides:
+
+* image filters like ```gauss```, ```box```, ```laplace```, ```sobel``` and ```scharr```
+* feature detectors like ```Harris```, ```ShiTomasi``` and ```FAST```
+* feature descriptors like ```BRIEF``` and ```ORB```
+* optical flow estimation using ```LucasKanade``` and ```HornSchunck```
+* projective routines for ```triangulation``` and ```camera calibration```
+* handling files in  ```pgm```, ```ppm```, ```png``` and ```jpg```format
+
 
 ## Install
 
-Simply copy the header file into your project or install it using
+Simply copy the header files into your project or install them using
 the CMake build system by typing
 
 ```bash
@@ -22,15 +32,19 @@ make install
 ```
 
 The library requires ```Eigen3``` to be installed on your system.
-In Debian based systems you can simply type
+
+Moreover You have to link your application against ```libpng``` and
+```libjpg``` for handling ```png``` and ```jpg``` files.
+
+In Debian based systems you can simply install these dependencies using ```apt-get```.
 
 ```bash
-apt-get install libeigen3-dev
+apt-get install libeigen3-dev libpng-dev libjpg-dev
 ```
 
 Make sure ```Eigen3``` can be found by your build system.
 
-You can use the CMake Find module in ```cmake/``` to find the installed header.
+You can use the CMake Find module in ```cmake/``` to find the installed headers.
 
 ## Usage
 
@@ -64,7 +78,7 @@ int main(int argc, const char **argv)
 
     // Load the image from a file. The file type is determined by the extension
     // of the file.
-    // Currently PPM and PGM are supported.
+    // Currently PPM PGM, PNG and JPG are supported.
     cve::imload(argv[1], src);
 
     // Create a Gauss filter object. The template parameter determines the
@@ -79,7 +93,7 @@ int main(int argc, const char **argv)
 
     // Save the image to a file. The file type is determined by the extension
     // of the file.
-    // Currently PPM and PGM are supported.
+    // Currently PPM PGM, PNG and JPG are supported.
     cve::imsave(argv[2], dest);
 }
 ```
@@ -112,7 +126,7 @@ int main(int argc, const char **argv)
 
     // Load the image from a file. The file type is determined by the extension
     // of the file.
-    // Currently PPM and PGM are supported.
+    // Currently PPM PGM, PNG and JPG are supported.
     cve::imload(argv[1], src);
 
     // Create a fast feature object. The template parameter determines the
@@ -133,7 +147,7 @@ int main(int argc, const char **argv)
 
     // Save the image to a file. The file type is determined by the extension
     // of the file.
-    // Currently PPM and PGM are supported.
+    // Currently PPM PGM, PNG and JPG are supported.
     cve::imsave(argv[2], dest);
 }
 ```
