@@ -224,8 +224,6 @@ namespace cve
                 throw std::runtime_error("too many image channels for PNG");
             }
 
-            std::cout << "channels=" << channels << std::endl;
-
             // set basic information
             png_set_IHDR(pngPtr, infoPtr, width, height, bitdepth, colorType,
                 PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
