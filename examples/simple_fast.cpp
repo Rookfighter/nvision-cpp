@@ -23,7 +23,7 @@ int main(int argc, const char **argv)
 
     // Load the image from a file. The file type is determined by the extension
     // of the file.
-    // Currently PPM and PGM are supported.
+    // Currently PPM PGM, PNG and JPG are supported.
     cve::imload(argv[1], src);
 
     // Create a fast feature object. The template parameter determines the
@@ -44,6 +44,6 @@ int main(int argc, const char **argv)
 
     // Save the image to a file. The file type is determined by the extension
     // of the file.
-    // Currently PPM and PGM are supported.
+    // Currently PPM PGM, PNG and JPG are supported.
     cve::imsave(argv[2], dest);
 }
