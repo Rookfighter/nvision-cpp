@@ -130,6 +130,9 @@ namespace cve
             gradientFilter_ = filter;
         }
 
+        void setThreshold(const Scalar)
+        { }
+
         template<typename ScalarA>
         void operator()(const Eigen::Tensor<ScalarA, 3> &img,
             const std::vector<Vector2i> &corners,
@@ -213,8 +216,13 @@ namespace cve
         }
     public:
         FASTScore()
-            : mode_()
+            : mode_(), threshold_()
         { }
+
+        void setThreshold(const Scalar threshold)
+        {
+            threshold_ = threshold;
+        }
 
         template<typename ScalarA>
         void operator()(const Eigen::Tensor<ScalarA, 3> &img,
@@ -234,7 +242,7 @@ namespace cve
     };
 
     /** Base for FAST corner detection functors. */
-    template<typename Scalar, typename Mode>
+    template<typename Scalar, typename Mode, typename Score>
     class FASTDetectorBase
     {
     public:
@@ -242,6 +250,7 @@ namespace cve
         typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> Vector;
     protected:
         Mode mode_;
+        Score score_;
         Scalar threshold_;;
         Index minDist_;
         Index maxFeatures_;
@@ -379,50 +388,6 @@ namespace cve
             }
         }
 
-        template<typename ScalarA>
-        Scalar computeScore(const Eigen::Tensor<ScalarA, 3> &img,
-            const Index row, const Index col) const
-        {
-            // determine lower intensity boundary
-            Scalar low = img(row, col, 0) - threshold_;
-            // determine upper intensity boundary
-            Scalar high = img(row, col, 0) + threshold_;
-
-            Scalar scoreLow = 0;
-            Scalar scoreHigh = 0;
-            Scalar val = static_cast<Scalar>(img(row, col, 0));
-            for(Index i = 0; i < mode_.circle().cols(); ++i)
-            {
-                Index r2 = row + mode_.circle()(1, i);
-                Index c2 = col + mode_.circle()(0, i);
-
-                IntensityClass curr = determineClass(img, r2, c2, low, high);
-
-                if(curr == IntensityClass::Lower)
-                    scoreLow += std::abs(val - static_cast<Scalar>(img(r2, c2, 0)));
-                else if(curr == IntensityClass::Higher)
-                    scoreHigh += std::abs(val - static_cast<Scalar>(img(r2, c2, 0)));
-            }
-
-            return std::max(scoreLow, scoreHigh);
-        }
-
-        template<typename ScalarA>
-        void computeScoreMatrix(const Eigen::Tensor<ScalarA, 3> &img,
-            const std::vector<Vector2i> &corners,
-            Matrix &score) const
-        {
-            score.resize(img.dimension(0), img.dimension(1));
-            score.setZero();
-
-            for(size_t i = 0; i < corners.size(); ++i)
-            {
-                Index r = corners[i](1);
-                Index c = corners[i](0);
-                score(r, c) = computeScore(img, r, c);
-            }
-        }
-
         void nonMaximaSuppression(const Matrix &score,
             std::vector<Vector2i> &corners) const
         {
@@ -486,6 +451,7 @@ namespace cve
         void setThreshold(const Scalar threshold)
         {
             threshold_ = threshold;
+            score_.setThreshold(threshold_);
         }
 
         /** Set the minimum distance between two keypoints for non-maxima
@@ -510,6 +476,17 @@ namespace cve
         void setNonMaximaSuppression(const bool useSuppression)
         {
             useSuppression_ = useSuppression;
+        }
+
+        void setMode(const Mode &mode)
+        {
+            mode_ = mode;
+        }
+
+        void setScore(const Score &score)
+        {
+            score_ = score;
+            score_.setThreshold(threshold_);
         }
     };
 }

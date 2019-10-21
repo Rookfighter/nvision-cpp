@@ -17,18 +17,17 @@ namespace cve
       * image pyramid.
       * After each feature detection step it scales the image by a given factor
       * and performs another FAST detection. */
-    template<typename Scalar, typename Mode=FASTMode9>
-    class ORBDetector : public FASTDetectorBase<Scalar, Mode>
+    template<typename Scalar, typename Mode=FASTMode9, typename Score=FASTHarrisScore<Scalar>>
+    class ORBDetector : public FASTDetectorBase<Scalar, Mode, Score>
     {
     public:
         typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;
     private:
         Scalar pyramidFactor_;
         Index pyramidLevels_;
-
     public:
         ORBDetector()
-            : ORBDetector(10, 7, 0, true, 0.8, 8)
+            : ORBDetector(20, 16, 0, true, 0.8, 8)
         { }
 
         /** Construct an ORB detector with custom parameters.
@@ -44,7 +43,7 @@ namespace cve
             const bool useSuppression,
             const Scalar pyramidFactor,
             const Index pyramidLevels)
-            : FASTDetectorBase<Scalar, Mode>(threshold, minDist, maxFeatures,
+            : FASTDetectorBase<Scalar, Mode, Score>(threshold, minDist, maxFeatures,
                 useSuppression),
             pyramidFactor_(pyramidFactor), pyramidLevels_(pyramidLevels)
         { }
@@ -109,7 +108,7 @@ namespace cve
             if(this->useSuppression_ || (this->maxFeatures_ > 0 && static_cast<Index>(corners.size()) > this->maxFeatures_))
             {
                 // compute the cornerness score for each detected corner
-                this->computeScoreMatrix(img, corners, scoreMat);
+                this->score_(img, corners, scoreMat);
             }
 
             if(this->useSuppression_)
