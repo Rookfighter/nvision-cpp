@@ -32,6 +32,9 @@ namespace cve
             is->read(reinterpret_cast<char*>(data), length);
         }
 
+        /** Load an image from a stream in PNG file format.
+          * @param is input stream
+          * @param img output image */
         template<typename Scalar>
         inline void load(std::istream &is,
             Eigen::Tensor<Scalar, 3> &img)
@@ -82,7 +85,7 @@ namespace cve
                 png_set_packing(pngPtr);
             // libpng stores 16 bit values in big endian order
             // if this system is little endian then swap the bytes
-            if (bitdepth == 16 && __isLittleEndian())
+            if (bitdepth == 16 && png::__isLittleEndian())
                 png_set_swap(pngPtr);
 
             // update png info with settings from above
@@ -104,6 +107,7 @@ namespace cve
 
             // read the png image into the buffer
             png_read_image(pngPtr, rowPtrs);
+            png_read_end(pngPtr, NULL);
 
             img.resize(static_cast<Index>(height), static_cast<Index>(width), static_cast<Index>(channels));
             for(Index r = 0; r < img.dimension(0); ++r)
@@ -126,6 +130,9 @@ namespace cve
             png_destroy_read_struct(&pngPtr, &infoPtr, NULL);
         }
 
+        /** Load an image from a file in PNG file format.
+          * @param is input stream
+          * @param img output image */
         template<typename Scalar>
         inline void load(const std::string &filename,
             Eigen::Tensor<Scalar, 3> &img)
