@@ -5,10 +5,10 @@
  */
 
 #include <iostream>
+#include <knn/brute_force.h>
 #include <cve/feature/fast_detector.h>
 #include <cve/feature/brief_extractor.h>
 #include <cve/feature/orb_extractor.h>
-#include <cve/feature/brute_force_knn.h>
 #include <cve/draw/match_drawer.h>
 #include <cve/draw/colors.h>
 #include <cve/imageio/imageio.h>
@@ -34,11 +34,11 @@ int main(int argc, const char **argv)
     Matrix keypointsA;
     Matrix keypointsB;
     Matrixi indices;
-    Matrix distances;
-    Matrixu8 descriptorsA;
-    Matrixu8 descriptorsB;
+    Matrixi32 distances;
+    Matrixi32 descriptorsA;
+    Matrixi32 descriptorsB;
     std::string ext = cve::extension(argv[1]);
-    BruteForceKNN<float, HammingDistance<uint8_t>, uint8_t> knn;
+    knn::BruteForce<int32_t, knn::HammingDistance<int32_t>> bf;
     MatchDrawer<float> matchDrawer;
 
     cve::imload(argv[1], imgA);
@@ -59,9 +59,9 @@ int main(int argc, const char **argv)
     brief(grayA, keypointsA, descriptorsA);
     brief(grayB, keypointsB, descriptorsB);
 
-    knn.setData(descriptorsB);
-    knn.setMaxDistance(20);
-    knn.query(descriptorsA, 1, indices, distances);
+    bf.setData(descriptorsB);
+    bf.setMaxDistance(40);
+    bf.query(descriptorsA, 1, indices, distances);
 
     matchDrawer.draw(imgA, imgB,
         keypointsA,
@@ -76,9 +76,9 @@ int main(int argc, const char **argv)
     orb(grayA, keypointsA, descriptorsA);
     orb(grayB, keypointsB, descriptorsB);
 
-    knn.setData(descriptorsB);
-    knn.setMaxDistance(30);
-    knn.query(descriptorsA, 1, indices, distances);
+    bf.setData(descriptorsB);
+    bf.setMaxDistance(30);
+    bf.query(descriptorsA, 1, indices, distances);
 
     matchDrawer.draw(imgA, imgB,
         keypointsA,

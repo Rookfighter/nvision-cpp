@@ -7,8 +7,8 @@ find_package(PNG REQUIRED)
 
 include_directories(
     ${PNG_INCLUDE_DIRS}
+    ${KNNCPP_INCLUDE_DIR}
 )
-
 
 add_executable(detect_corners "detect_corners.cpp")
 add_executable(detect_edges "detect_edges.cpp")
