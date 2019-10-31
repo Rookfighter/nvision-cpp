@@ -112,15 +112,15 @@ namespace cve
 
         /** Computes a random pattern for the given patch size with the given
           * number of neighbors.
-          * @param length number of neighbors to be computed (must be multiple of 8!)
+          * @param length number of neighbors to be computed (must be multiple of 32!)
           * @param patchSize size of the observed area around each keypoint
           * @param seed seed for the random number generator */
         void computePattern(const Index length,
             const Scalar patchSize,
             const Index seed = 1297)
         {
-            if(length % 8 != 0)
-                throw std::runtime_error("ORBExtractor bit length must be multiple of 8");
+            if(length % 32 != 0)
+                throw std::runtime_error("ORBExtractor bit length must be multiple of 32");
             if(patchSize <= 1)
                 throw std::runtime_error("ORBExtractor patch size must be greater than one");
 
@@ -136,8 +136,8 @@ namespace cve
         {
             if(pattern.rows() != 4)
                 throw std::runtime_error("ORBExtractor pattern must have 4 rows");
-            if(pattern.cols() % 8 != 0)
-                throw std::runtime_error("ORBExtractor pattern columns must be multiple of 8");
+            if(pattern.cols() % 32 != 0)
+                throw std::runtime_error("ORBExtractor pattern columns must be multiple of 32");
 
             computeRotatedPatterns(pattern);
         }
@@ -166,12 +166,12 @@ namespace cve
         template<typename ScalarA>
         void operator()(const Eigen::Tensor<ScalarA, 3> &img,
             const Matrix &keypoints,
-            Matrixu8 &descriptors) const
+            Matrixi32 &descriptors) const
         {
             if(img.dimension(2) > 1)
                 throw std::runtime_error("ORB can only compute single channel images");
 
-            descriptors.resize(patterns_[0].cols() / 8, keypoints.cols());
+            descriptors.resize(patterns_[0].cols() / 32, keypoints.cols());
 
             descriptors.setZero();
             for(Index c = 0; c < descriptors.cols(); ++c)
@@ -194,8 +194,8 @@ namespace cve
                         image::isInside(yB, xB, img) &&
                         img(yA, xA, 0) > img(yB, xB, 0))
                     {
-                        Index r = i / 8;
-                        descriptors(r, c) |= 0x01 << (7 - (i % 8));
+                        Index r = i / 32;
+                        descriptors(r, c) |= 0x01 << (31 - (i % 32));
                     }
                 }
             }
