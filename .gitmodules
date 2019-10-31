@@ -4,3 +4,6 @@
 [submodule "dep/eigen"]
 	path = dep/eigen
 	url = https://github.com/eigenteam/eigen-git-mirror.git
+[submodule "dep/knn-cpp"]
+	path = dep/knn-cpp
+	url = https://github.com/Rookfighter/knn-cpp.git
