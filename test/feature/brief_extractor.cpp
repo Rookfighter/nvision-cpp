@@ -36,10 +36,10 @@ TEST_CASE("brief_extractor")
        Matrix keypoints(2, 1);
        keypoints << 0, 0;
 
-       Matrixu8 descriptorsExp(1, 1);
+       Matrixi32 descriptorsExp(1, 1);
        descriptorsExp(0, 0) = 0x5A;
 
-       Matrixu8 descriptorsAct;
+       Matrixi32 descriptorsAct;
 
        brief.setPattern(pattern);
        REQUIRE_MATRIX(pattern, brief.pattern());
@@ -60,10 +60,10 @@ TEST_CASE("brief_extractor")
        Matrix keypoints(2, 1);
        keypoints << 0, 0;
 
-       Matrixu8 descriptorsExp(2, 1);
+       Matrixi32 descriptorsExp(2, 1);
        descriptorsExp << 0x5A, 0x3A;
 
-       Matrixu8 descriptorsAct;
+       Matrixi32 descriptorsAct;
 
        brief.setPattern(pattern);
        REQUIRE_MATRIX(pattern, brief.pattern());
@@ -85,11 +85,11 @@ TEST_CASE("brief_extractor")
        keypoints << 0, 2,
                     0, 0;
 
-       Matrixu8 descriptorsExp(2, 2);
+       Matrixi32 descriptorsExp(2, 2);
        descriptorsExp << 0x5A, 0x24,
                          0x3A, 0x44;
 
-       Matrixu8 descriptorsAct;
+       Matrixi32 descriptorsAct;
 
        brief.setPattern(pattern);
        REQUIRE_MATRIX(pattern, brief.pattern());
