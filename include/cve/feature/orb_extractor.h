@@ -9,6 +9,7 @@
 
 #include <random>
 #include "cve/core/image.h"
+#include "cve/core/math.h"
 
 namespace cve
 {
