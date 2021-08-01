@@ -88,20 +88,20 @@ namespace cve
             Eigen::Tensor<Scalar, 3> flowVM(height, width, 1);
             Eigen::Tensor<Scalar, 3> dataTerm;
 
-            Eigen::Tensor<Scalar, 3> stepSizes = 1 / (gradX * gradX + gradY * gradY + alpha_ * alpha_);
+            Eigen::Tensor<Scalar, 3> stepSizes = static_cast<Scalar>(1) / (gradX * gradX + gradY * gradY + alpha_ * alpha_);
 
             flowU.setZero();
             flowV.setZero();
 
-            Eigen::Matrix<Scalar, 3, 3> kernel;
-            kernel << 0, 1, 0,
-                      1, 0, 1,
-                      0, 1, 0;
-            kernel /= 4;
+            Eigen::Matrix<Scalar, 3, 3> kernelmat;
+            kernelmat << 0, 1, 0,
+                         1, 0, 1,
+                         0, 1, 0;
+            kernelmat /= static_cast<Scalar>(4);
             for(Index i = 0; i < iterations_; ++i)
             {
-                kernel::apply(flowU, flowUM, kernel, handling_);
-                kernel::apply(flowV, flowVM, kernel, handling_);
+                kernel::apply(flowU, flowUM, kernelmat, handling_);
+                kernel::apply(flowV, flowVM, kernelmat, handling_);
                 dataTerm = gradX * flowUM + gradY * flowVM + gradT;
                 flowU = flowUM - stepSizes * dataTerm * gradX;
                 flowV = flowVM - stepSizes * dataTerm * gradY;

@@ -119,11 +119,11 @@ namespace cve
             u.setZero();
             v.setZero();
 
-            Eigen::Matrix<Scalar, 3, 3> kernel;
-            kernel << 0, 1, 0,
+            Eigen::Matrix<Scalar, 3, 3> kernelmat;
+            kernelmat << 0, 1, 0,
                       1, 0, 1,
                       0, 1, 0;
-            kernel /= 4;
+            kernelmat /= 4;
 
             for(Index i = 0; i < maxIt_; ++i)
             {
@@ -139,8 +139,8 @@ namespace cve
                 gradTermY = Ixy * u + Iyy * v + Iyt;
                 c = (gradTermX * gradTermX + gradTermY * gradTermY).unaryExpr(penalizer_);
 
-                kernel::apply(u, uavg, kernel, handling_);
-                kernel::apply(v, vavg, kernel, handling_);
+                kernel::apply(u, uavg, kernelmat, handling_);
+                kernel::apply(v, vavg, kernelmat, handling_);
 
                 uprev = u;
                 vprev = v;
