@@ -7,7 +7,7 @@
 #ifndef CVE_EIGEN_REQUIRE_H_
 #define CVE_EIGEN_REQUIRE_H_
 
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 #include <cve/core/image.h>
 
 #define REQUIRE_MATRIX_APPROX(a, b, eps) do {                                 \
