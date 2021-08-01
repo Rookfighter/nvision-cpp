@@ -52,7 +52,7 @@ namespace cve
 
         /** Computes a random pattern for the given patch size with the given
           * number of neighbors.
-          * @param length number of neighbors to be computed (must be multiple of 32!)
+          * @param length number of neighbors to be computed (must be multiple of 8!)
           * @param patchSize size of the observed area around each keypoint
           * @param seed seed for the random number generator */
         void computePattern(const Index length,
