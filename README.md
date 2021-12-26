@@ -1,6 +1,6 @@
 # cv-eigen
 
-![Cpp11](https://img.shields.io/badge/C%2B%2B-11-blue.svg)
+![Cpp17](https://img.shields.io/badge/C%2B%2B-17-blue.svg)
 ![License](https://img.shields.io/packagist/l/doctrine/orm.svg)
 
 ```cv-eigen``` is a header-only C++ library for computer vision applications
