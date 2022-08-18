@@ -5,11 +5,11 @@
  */
 
 #include <iostream>
-#include <cve/draw/shape_drawer.h>
-#include <cve/draw/colors.h>
-#include <cve/imageio/ppm.h>
+#include <nvision/draw/shape_drawer.h>
+#include <nvision/draw/colors.h>
+#include <nvision/imageio/ppm.h>
 
-using namespace cve;
+using namespace nvision;
 
 typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> Matrix;
 
@@ -24,7 +24,7 @@ int main()
 
     shapeDrawer.drawRect(Eigen::Vector2f{200, 30}, {10, 15}, Color8::Green(), img);
 
-    cve::ppm::save("shapes.ppm", img);
+    nvision::ppm::save("shapes.ppm", img);
 
     return 0;
 }

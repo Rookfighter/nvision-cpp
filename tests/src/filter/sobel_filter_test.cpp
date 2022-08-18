@@ -6,9 +6,9 @@
  */
 
 #include "eigen_require.h"
-#include <cve/src/filter/sobel_filter.h>
+#include <nvision/src/filter/sobel_filter.h>
 
-using namespace cve;
+using namespace nvision;
 
 TEMPLATE_TEST_CASE("sobel filter", "[filter]", Grayf, RGBf, BGRf, RGBAf, BGRAf)
 {

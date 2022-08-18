@@ -6,14 +6,14 @@
 
 #include <iostream>
 #include <knn/brute_force.h>
-#include <cve/feature/fast_detector.h>
-#include <cve/feature/brief_extractor.h>
-#include <cve/feature/orb_extractor.h>
-#include <cve/draw/match_drawer.h>
-#include <cve/draw/colors.h>
-#include <cve/imageio/imageio.h>
+#include <nvision/feature/fast_detector.h>
+#include <nvision/feature/brief_extractor.h>
+#include <nvision/feature/orb_extractor.h>
+#include <nvision/draw/match_drawer.h>
+#include <nvision/draw/colors.h>
+#include <nvision/imageio/imageio.h>
 
-using namespace cve;
+using namespace nvision;
 
 typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> Matrix;
 
@@ -37,15 +37,15 @@ int main(int argc, const char **argv)
     Matrixi32 distances;
     Matrixi32 descriptorsA;
     Matrixi32 descriptorsB;
-    std::string ext = cve::extension(argv[1]);
+    std::string ext = nvision::extension(argv[1]);
     knn::BruteForce<int32_t, knn::HammingDistance<int32_t>> bf;
     MatchDrawer<float> matchDrawer;
 
-    cve::imload(argv[1], imgA);
-    cve::imload(argv[2], imgB);
+    nvision::imload(argv[1], imgA);
+    nvision::imload(argv[2], imgB);
 
-    cve::image::rgb2gray(imgA, grayA);
-    cve::image::rgb2gray(imgB, grayB);
+    nvision::image::rgb2gray(imgA, grayA);
+    nvision::image::rgb2gray(imgB, grayB);
 
     std::cout << "Apply FAST detector" << std::endl;
     FASTDetector<float> fast;
@@ -69,7 +69,7 @@ int main(int argc, const char **argv)
         indices,
         oimg);
 
-    cve::imsave("brief_matches." + ext, oimg);
+    nvision::imsave("brief_matches." + ext, oimg);
 
     std::cout << "Compute ORB descriptors" << std::endl;
     ORBExtractor<float> orb;
@@ -86,7 +86,7 @@ int main(int argc, const char **argv)
         indices,
         oimg);
 
-    cve::imsave("orb_matches." + ext, oimg);
+    nvision::imsave("orb_matches." + ext, oimg);
 
     return 0;
 }

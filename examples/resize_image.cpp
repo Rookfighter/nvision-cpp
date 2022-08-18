@@ -5,8 +5,8 @@
  */
 
 #include <iostream>
-#include <cve/core/image.h>
-#include <cve/imageio/pgm.h>
+#include <nvision/core/image.h>
+#include <nvision/imageio/pgm.h>
 
 int main(int argc, const char **argv)
 {
@@ -17,17 +17,17 @@ int main(int argc, const char **argv)
     }
 
     std::cout << "Load \"" << argv[1] << "\"" << std::endl;
-    cve::Image8 img;
-    cve::pgm::load(argv[1], img);
+    nvision::Image8 img;
+    nvision::pgm::load(argv[1], img);
 
     std::cout << img.dimension(0) << ',' << img.dimension(1) << ',' << img.dimension(2) << std::endl;
 
     double factor = 0.3;
     std::cout << "Resize " << factor << std::endl;;
-    cve::Image8 oimg;
-    cve::image::resize(factor, img, oimg);
+    nvision::Image8 oimg;
+    nvision::image::resize(factor, img, oimg);
 
-    cve::pgm::save("resized_image.pgm", oimg);
+    nvision::pgm::save("resized_image.pgm", oimg);
 
     return 0;
 }

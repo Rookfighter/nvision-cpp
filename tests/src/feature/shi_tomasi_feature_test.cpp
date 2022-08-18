@@ -6,11 +6,11 @@
 
 #include "eigen_require.h"
 #include "corner_generator.h"
-#include <cve/src/feature/shi_tomasi_feature.h>
+#include <nvision/src/feature/shi_tomasi_feature.h>
 
-using namespace cve;
+using namespace nvision;
 
-TEMPLATE_TEST_CASE("shi tomasi feature", "[feature]", cve::float32, cve::float64)
+TEMPLATE_TEST_CASE("shi tomasi feature", "[feature]", nvision::float32, nvision::float64)
 {
     using Scalar = TestType;
     using Vector2 = Eigen::Matrix<Scalar, 2, 1>;

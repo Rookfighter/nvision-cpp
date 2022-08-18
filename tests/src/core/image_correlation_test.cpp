@@ -5,9 +5,9 @@
  */
 
 #include <eigen_require.h>
-#include "cve/src/core/image_correlation.h"
+#include "nvision/src/core/image_correlation.h"
 
-using namespace cve;
+using namespace nvision;
 
 TEMPLATE_TEST_CASE("image correlation", "[core]",
     Gray,

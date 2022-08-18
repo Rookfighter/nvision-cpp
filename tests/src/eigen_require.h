@@ -4,8 +4,8 @@
  *      Author: Fabian Meyer
  */
 
-#ifndef CVE_EIGEN_REQUIRE_H_
-#define CVE_EIGEN_REQUIRE_H_
+#ifndef NVISION_EIGEN_REQUIRE_H_
+#define NVISION_EIGEN_REQUIRE_H_
 
 #include <catch2/catch.hpp>
 #include <Eigen/Core>

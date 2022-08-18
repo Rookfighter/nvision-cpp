@@ -5,10 +5,10 @@
  */
 
 #include <iostream>
-#include <cve/optflow.h>
-#include <cve/imageio.h>
+#include <nvision/optflow.h>
+#include <nvision/imageio.h>
 
-using namespace cve;
+using namespace nvision;
 
 int main(int argc, const char **argv)
 {
@@ -18,17 +18,17 @@ int main(int argc, const char **argv)
         return -1;
     }
 
-    constexpr auto dim = cve::Index{400};
-    constexpr auto radius = 0.5f * static_cast<cve::float32>(dim);
-    cve::FlowField<cve::float32> flow;
+    constexpr auto dim = nvision::Index{400};
+    constexpr auto radius = 0.5f * static_cast<nvision::float32>(dim);
+    nvision::FlowField<nvision::float32> flow;
     flow.resize(dim, dim);
     for(Index c = 0; c < flow.cols(); ++c)
     {
         for(Index r = 0; r < flow.rows(); ++r)
         {
-            const auto dx = static_cast<cve::float32>(c) - radius;
-            const auto dy = static_cast<cve::float32>(r) - radius;
-            const auto inside = static_cast<cve::float32>(dx * dx + dy * dy) <= radius * radius;
+            const auto dx = static_cast<nvision::float32>(c) - radius;
+            const auto dy = static_cast<nvision::float32>(r) - radius;
+            const auto inside = static_cast<nvision::float32>(dx * dx + dy * dy) <= radius * radius;
             if(inside)
                 flow(r, c) << dx, dy;
             else
@@ -37,10 +37,10 @@ int main(int argc, const char **argv)
     }
 
     std::cout << "Create colored flow" << std::endl;
-    Image<RGBf> flowImg = cve::imflow<RGBf>(flow);
+    Image<RGBf> flowImg = nvision::imflow<RGBf>(flow);
 
     std::cout << "Save " << argv[1] << std::endl;
-    cve::imsave(argv[1], flowImg);
+    nvision::imsave(argv[1], flowImg);
 
     return 0;
 }

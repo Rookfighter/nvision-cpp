@@ -1,12 +1,12 @@
 
 
-#ifndef CVE_TEST_CORNER_GENERATOR_H_
-#define CVE_TEST_CORNER_GENERATOR_H_
+#ifndef NVISION_TEST_CORNER_GENERATOR_H_
+#define NVISION_TEST_CORNER_GENERATOR_H_
 
-#include <cve/core.h>
-#include <cve/draw.h>
+#include <nvision/core.h>
+#include <nvision/draw.h>
 
-namespace cve::test
+namespace nvision::test
 {
     template<typename Scalar>
     struct CornerDefinition
@@ -24,7 +24,7 @@ namespace cve::test
     public:
         using FeatureMatrix = Eigen::Matrix<Scalar, 2, Eigen::Dynamic>;
         using Vector2 = Eigen::Matrix<Scalar, 2, 1>;
-        using CornerVector2 = Eigen::Matrix<cve::float32, 2, 1>;
+        using CornerVector2 = Eigen::Matrix<nvision::float32, 2, 1>;
         using Matrix2 = Eigen::Matrix<Scalar, 2, 2>;
 
         CornerGenerator(const std::vector<CornerDefinition<Scalar>> &definitions)
@@ -62,9 +62,9 @@ namespace cve::test
 
 
                 auto poly = Polygon{};
-                poly.points.push_back(cornerA.template cast<cve::float32>());
-                poly.points.push_back(cornerB.template cast<cve::float32>());
-                poly.points.push_back(cornerC.template cast<cve::float32>());
+                poly.points.push_back(cornerA.template cast<nvision::float32>());
+                poly.points.push_back(cornerB.template cast<nvision::float32>());
+                poly.points.push_back(cornerC.template cast<nvision::float32>());
                 poly.fillMode = FillMode::Fill;
 
                 image::draw(img, poly, color);

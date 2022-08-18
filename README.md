@@ -1,12 +1,12 @@
-# cv-eigen
+# nvision
 
 ![Cpp17](https://img.shields.io/badge/C%2B%2B-17-blue.svg)
 ![License](https://img.shields.io/packagist/l/doctrine/orm.svg)
 
-```cv-eigen``` is a header-only C++ library for computer vision applications
-using the ```Eigen3``` library and its ```Tensor``` module.
+`nvision` is a header-only C++ library for computer vision applications
+using the ```Eigen3``` library.
 
-```cv-eigen``` provides:
+```nvision``` provides:
 
 * image filters like ```gauss```, ```box```, ```laplace```, ```sobel``` and ```scharr```
 * feature detectors like ```Harris```, ```ShiTomasi```, ```FAST``` and ```ORB```
@@ -46,7 +46,7 @@ You can use the CMake Find module in ```cmake/``` to find the installed headers.
 
 ## Usage
 
-```cv-eigen``` has many different modules and classes for filtering, feature or
+```nvision``` has many different modules and classes for filtering, feature or
 edge detection, optical flow and projective geometry.
 
 Please see the docs, examples and the source files for detailed information.
@@ -55,9 +55,9 @@ A simple getting started example with a gauss filter:
 
 ```cpp
 #include <iostream>
-#include <cve/filter/gauss_filter.h>
-#include <cve/imageio/imageio.h>
-#include <cve/core/image.h>
+#include <nvision/filter/gauss_filter.h>
+#include <nvision/imageio/imageio.h>
+#include <nvision/core/image.h>
 
 int main(int argc, const char **argv)
 {
@@ -71,20 +71,20 @@ int main(int argc, const char **argv)
     // a 8-Bit integer.
     // There are also Image16, Image32, Imagef or Imaged available for
     // 16-bit, 32-bit, float and double types respectively-
-    cve::Image8 src;
-    cve::Image8 dest;
+    nvision::Image8 src;
+    nvision::Image8 dest;
 
     // Load the image from a file. The file type is determined by the extension
     // of the file.
     // Currently PPM PGM, PNG and JPG are supported.
-    cve::imload(argv[1], src);
+    nvision::imload(argv[1], src);
 
     // Create a Gauss filter object. The template parameter determines the
     // internal Scalar type, which is used for computations (e.g. Kernel and
     // Kernel application).
     // This constructor expects the standard deviation of the gaussian function
     // and calculates the kernel size automatically.
-    cve::GaussFilter<float> gaussFilter(3);
+    nvision::GaussFilter<float> gaussFilter(3);
 
     // Apply the Gauss filter to the source image and store it in dest.
     gaussFilter(src, dest);
@@ -92,7 +92,7 @@ int main(int argc, const char **argv)
     // Save the image to a file. The file type is determined by the extension
     // of the file.
     // Currently PPM PGM, PNG and JPG are supported.
-    cve::imsave(argv[2], dest);
+    nvision::imsave(argv[2], dest);
 }
 ```
 
@@ -100,10 +100,10 @@ A simple getting started example with FAST feature detection:
 
 ```cpp
 #include <iostream>
-#include <cve/feature/fast_detector.h>
-#include <cve/draw/shape_drawer.h>
-#include <cve/draw/colors.h>
-#include <cve/imageio/imageio.h>
+#include <nvision/feature/fast_detector.h>
+#include <nvision/draw/shape_drawer.h>
+#include <nvision/draw/colors.h>
+#include <nvision/imageio/imageio.h>
 
 int main(int argc, const char **argv)
 {
@@ -117,21 +117,21 @@ int main(int argc, const char **argv)
     // a float.
     // There are also Image8, Image16, Image32 or Imaged available for
     // 8-bit, 16-bit, 32-bit and double types respectively-
-    cve::Imagef src;
-    cve::Imagef dest;
+    nvision::Imagef src;
+    nvision::Imagef dest;
 
-    cve::Matrixf keypoints;
+    nvision::Matrixf keypoints;
 
     // Load the image from a file. The file type is determined by the extension
     // of the file.
     // Currently PPM PGM, PNG and JPG are supported.
-    cve::imload(argv[1], src);
+    nvision::imload(argv[1], src);
 
     // Create a fast feature object. The template parameter determines the
     // internal Scalar type, which is used for computations.
     // This constructor expects the standard deviation of the gaussian function
     // and calculates the kernel size automatically.
-    cve::FASTDetector<float> fast;
+    nvision::FASTDetector<float> fast;
 
     // Apply the FAST detector to the source image and stores its keypoints.
     fast(src, keypoints);
@@ -140,12 +140,12 @@ int main(int argc, const char **argv)
     // Copy input image to output image.
     dest = src;
     // Draw circles of radius of 10 around the keypoints
-    cve::ShapeDrawer<float> drawer;
-    drawer.drawCircle(keypoints, 10, cve::Colorf::Red(), dest);
+    nvision::ShapeDrawer<float> drawer;
+    drawer.drawCircle(keypoints, 10, nvision::Colorf::Red(), dest);
 
     // Save the image to a file. The file type is determined by the extension
     // of the file.
     // Currently PPM PGM, PNG and JPG are supported.
-    cve::imsave(argv[2], dest);
+    nvision::imsave(argv[2], dest);
 }
 ```

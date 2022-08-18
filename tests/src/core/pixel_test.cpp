@@ -3,9 +3,9 @@
  */
 
 #include <catch2/catch.hpp>
-#include "cve/src/core/pixel.h"
+#include "nvision/src/core/pixel.h"
 
-using namespace cve;
+using namespace nvision;
 
 TEMPLATE_TEST_CASE("pixel one-dim", "[core]", Gray, Grayf)
 {

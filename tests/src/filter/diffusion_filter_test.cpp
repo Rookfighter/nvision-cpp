@@ -5,9 +5,9 @@
  */
 
 #include "eigen_require.h"
-#include <cve/src/filter/diffusion_filter.h>
+#include <nvision/src/filter/diffusion_filter.h>
 
-using namespace cve;
+using namespace nvision;
 
 TEMPLATE_TEST_CASE("diffusion filter", "[filter]", Grayf, RGBf, BGRf, RGBAf, BGRAf)
 {

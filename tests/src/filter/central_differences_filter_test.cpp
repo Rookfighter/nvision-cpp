@@ -5,9 +5,9 @@
  */
 
 #include "eigen_require.h"
-#include <cve/src/filter/central_differences_filter.h>
+#include <nvision/src/filter/central_differences_filter.h>
 
-using namespace cve;
+using namespace nvision;
 
 TEMPLATE_TEST_CASE("central differences filter", "[filter]", Grayf, RGBf, BGRf, RGBAf, BGRAf)
 {

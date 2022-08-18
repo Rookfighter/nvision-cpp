@@ -5,11 +5,11 @@
  */
 
 #include "eigen_require.h"
-#include <cve/src/feature/fast_feature.h>
+#include <nvision/src/feature/fast_feature.h>
 
-using namespace cve;
+using namespace nvision;
 
-TEMPLATE_TEST_CASE("FAST feature", "[feature]", cve::float32, cve::float64)
+TEMPLATE_TEST_CASE("FAST feature", "[feature]", nvision::float32, nvision::float64)
 {
     using FeatureMatrix = typename FASTFeature<TestType>::FeatureMatrix;
 
@@ -65,7 +65,7 @@ TEMPLATE_TEST_CASE("FAST feature", "[feature]", cve::float32, cve::float64)
         expected << 2, 2;
 
         FeatureMatrix actual;
-        FASTFeature<TestType, cve::FASTMode5> feature;
+        FASTFeature<TestType, nvision::FASTMode5> feature;
         feature(img, actual);
 
         REQUIRE_MATRIX_APPROX(expected, actual, eps);
@@ -84,7 +84,7 @@ TEMPLATE_TEST_CASE("FAST feature", "[feature]", cve::float32, cve::float64)
         expected << 3, 3;
 
         FeatureMatrix actual;
-        FASTFeature<TestType, cve::FASTMode7> feature;
+        FASTFeature<TestType, nvision::FASTMode7> feature;
         feature(img, actual);
 
         REQUIRE_MATRIX_APPROX(expected, actual, eps);
@@ -106,7 +106,7 @@ TEMPLATE_TEST_CASE("FAST feature", "[feature]", cve::float32, cve::float64)
         expected << 4, 4;
 
         FeatureMatrix actual;
-        FASTFeature<TestType, cve::FASTMode9> feature;
+        FASTFeature<TestType, nvision::FASTMode9> feature;
         feature(img, actual);
 
         REQUIRE_MATRIX_APPROX(expected, actual, eps);

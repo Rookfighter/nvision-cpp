@@ -6,9 +6,9 @@
  */
 
 #include "eigen_require.h"
-#include <cve/src/filter/laplace_filter.h>
+#include <nvision/src/filter/laplace_filter.h>
 
-using namespace cve;
+using namespace nvision;
 
 TEMPLATE_TEST_CASE("laplace filter", "[filter]", Grayf, RGBf, BGRf, RGBAf, BGRAf)
 {

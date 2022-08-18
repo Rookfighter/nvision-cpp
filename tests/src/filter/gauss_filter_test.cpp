@@ -5,9 +5,9 @@
  */
 
 #include "eigen_require.h"
-#include <cve/src/filter/gauss_filter.h>
+#include <nvision/src/filter/gauss_filter.h>
 
-using namespace cve;
+using namespace nvision;
 
 TEMPLATE_TEST_CASE("gauss filter", "[filter]", Gray, RGB, BGR, RGBA, BGRA, Grayf, RGBf, BGRf, RGBAf, BGRAf)
 {

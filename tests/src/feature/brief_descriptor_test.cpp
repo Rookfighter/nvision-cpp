@@ -5,11 +5,11 @@
  */
 
 #include "eigen_require.h"
-#include <cve/src/feature/brief_descriptor.h>
+#include <nvision/src/feature/brief_descriptor.h>
 
-using namespace cve;
+using namespace nvision;
 
-TEMPLATE_TEST_CASE("BRIEF descriptor", "[feature]", cve::float32, cve::float64)
+TEMPLATE_TEST_CASE("BRIEF descriptor", "[feature]", nvision::float32, nvision::float64)
 {
     using Scalar = TestType;
     using PatternMatrix = typename BRIEFDescriptor<Scalar>::PatternMatrix;

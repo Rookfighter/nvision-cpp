@@ -6,9 +6,9 @@
  */
 
 #include "eigen_require.h"
-#include <cve/src/filter/canny_edge_filter.h>
+#include <nvision/src/filter/canny_edge_filter.h>
 
-using namespace cve;
+using namespace nvision;
 
 TEMPLATE_TEST_CASE("canny filter", "[filter]", Grayf, RGBf, BGRf, RGBAf, BGRAf)
 {

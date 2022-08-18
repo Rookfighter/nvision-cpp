@@ -5,10 +5,10 @@
  */
 
 #include <iostream>
-#include <cve/draw.h>
-#include <cve/imageio.h>
+#include <nvision/draw.h>
+#include <nvision/imageio.h>
 
-using namespace cve;
+using namespace nvision;
 
 int main(int argc, const char **argv)
 {
@@ -18,11 +18,11 @@ int main(int argc, const char **argv)
         return -1;
     }
 
-    constexpr auto width = cve::Index{400};
-    constexpr auto height = cve::Index{600};
+    constexpr auto width = nvision::Index{400};
+    constexpr auto height = nvision::Index{600};
 
-    cve::Polygon polygon;
-    polygon.fillMode = cve::FillMode::Fill;
+    nvision::Polygon polygon;
+    polygon.fillMode = nvision::FillMode::Fill;
 
     polygon.points.push_back({10, 300});
     polygon.points.push_back({150, 50});
@@ -33,10 +33,10 @@ int main(int argc, const char **argv)
 
     Image<RGBf> img(height, width);
     img.setOnes();
-    cve::image::draw(img, polygon, cve::color::black<cve::RGBf>());
+    nvision::image::draw(img, polygon, nvision::color::black<nvision::RGBf>());
 
     std::cout << "Save " << argv[1] << std::endl;
-    cve::imsave(argv[1], img);
+    nvision::imsave(argv[1], img);
 
     return 0;
 }

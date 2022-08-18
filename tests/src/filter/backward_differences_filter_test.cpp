@@ -5,9 +5,9 @@
  */
 
 #include "eigen_require.h"
-#include <cve/src/filter/backward_differences_filter.h>
+#include <nvision/src/filter/backward_differences_filter.h>
 
-using namespace cve;
+using namespace nvision;
 
 TEMPLATE_TEST_CASE("backward differences filter", "[filter]", Grayf, RGBf, BGRf, RGBAf, BGRAf)
 {

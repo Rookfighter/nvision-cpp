@@ -5,11 +5,11 @@
  */
 
 #include "eigen_require.h"
-#include <cve/src/feature/orb_feature.h>
+#include <nvision/src/feature/orb_feature.h>
 
-using namespace cve;
+using namespace nvision;
 
-TEMPLATE_TEST_CASE("ORB feature", "[feature]", cve::float32, cve::float64)
+TEMPLATE_TEST_CASE("ORB feature", "[feature]", nvision::float32, nvision::float64)
 {
     using FeatureMatrix = typename ORBFeature<TestType>::FeatureMatrix;
 

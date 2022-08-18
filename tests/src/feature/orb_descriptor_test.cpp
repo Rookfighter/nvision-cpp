@@ -5,11 +5,11 @@
  */
 
 #include "eigen_require.h"
-#include <cve/src/feature/orb_descriptor.h>
+#include <nvision/src/feature/orb_descriptor.h>
 
-using namespace cve;
+using namespace nvision;
 
-TEMPLATE_TEST_CASE("ORB descriptor", "[feature]", cve::float32, cve::float64)
+TEMPLATE_TEST_CASE("ORB descriptor", "[feature]", nvision::float32, nvision::float64)
 {
     using Scalar = TestType;
     using BasePatternMatrix = typename ORBDescriptor<Scalar>::BasePatternMatrix;

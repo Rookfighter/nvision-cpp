@@ -5,14 +5,14 @@
  */
 
 #include <iostream>
-#include <cve/optflow/lucas_kanade_detector.h>
-#include <cve/optflow/horn_schunck_detector.h>
-#include <cve/optflow/robust_flow_detector.h>
-#include <cve/optflow/color_map.h>
-#include <cve/imageio/pgm.h>
-#include <cve/imageio/ppm.h>
+#include <nvision/optflow/lucas_kanade_detector.h>
+#include <nvision/optflow/horn_schunck_detector.h>
+#include <nvision/optflow/robust_flow_detector.h>
+#include <nvision/optflow/color_map.h>
+#include <nvision/imageio/pgm.h>
+#include <nvision/imageio/ppm.h>
 
-using namespace cve;
+using namespace nvision;
 
 int main(int argc, const char **argv)
 {
@@ -31,11 +31,11 @@ int main(int argc, const char **argv)
     optflow::ColorMap<float> cmap;
 
     std::cout << "Load \"" << argv[1] << "\"" << std::endl;
-    cve::pgm::load(argv[1], imgA);
+    nvision::pgm::load(argv[1], imgA);
     std::cout << "-- size " << imgA.dimension(1) << "x" << imgA.dimension(0) << std::endl;
 
     std::cout << "Load \"" << argv[2] << "\"" << std::endl;
-    cve::pgm::load(argv[2], imgB);
+    nvision::pgm::load(argv[2], imgB);
     std::cout << "-- size " << imgB.dimension(1) << "x" << imgB.dimension(0) << std::endl;
 
     GaussFilter<float> preSmooth(3);
@@ -49,7 +49,7 @@ int main(int argc, const char **argv)
     lkDetector(imgASmooth, imgBSmooth, flowImg);
     cmap(flowImg, oimg);
 
-    cve::ppm::save("lucas_kanade.ppm", oimg);
+    nvision::ppm::save("lucas_kanade.ppm", oimg);
 
     std::cout << "Apply Horn Schunck detector" << std::endl;
 
@@ -57,7 +57,7 @@ int main(int argc, const char **argv)
     hsDetector(imgASmooth, imgBSmooth, flowImg);
     cmap(flowImg, oimg);
 
-    cve::ppm::save("horn_schunck.ppm", oimg);
+    nvision::ppm::save("horn_schunck.ppm", oimg);
 
     std::cout << "Apply Robust Flow detector" << std::endl;
 
@@ -65,11 +65,11 @@ int main(int argc, const char **argv)
     rfDetector(imgA, imgB, flowImg);
     cmap(flowImg, oimg);
 
-    cve::ppm::save("robust_flow.ppm", oimg);
+    nvision::ppm::save("robust_flow.ppm", oimg);
 
     optflow::ColorWheel<float> cwheel;
     cwheel(50, oimg);
-    cve::ppm::save("color_wheel.ppm", oimg);
+    nvision::ppm::save("color_wheel.ppm", oimg);
 
     return 0;
 }

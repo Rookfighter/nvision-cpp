@@ -5,11 +5,11 @@
  */
 
 #include <iostream>
-#include <cve/feature.h>
-#include <cve/draw.h>
-#include <cve/imageio.h>
+#include <nvision/feature.h>
+#include <nvision/draw.h>
+#include <nvision/imageio.h>
 
-using namespace cve;
+using namespace nvision;
 
 int main(int argc, const char **argv)
 {
@@ -21,34 +21,34 @@ int main(int argc, const char **argv)
 
     // Each value per pixel and depth is representd by
     // a 8-Bit integer.
-    cve::Image<cve::RGBf> src;
+    nvision::Image<nvision::RGBf> src;
 
     // Load the image from a file. The file type is determined by the extension
     // of the file.
     std::cout << "Load " << argv[1] << std::endl;
-    cve::imload(argv[1], src);
+    nvision::imload(argv[1], src);
 
     std::cout << "Convert to gray scale" << std::endl;
-    cve::Image<cve::Grayf> gray = cve::image::convert<RGBf, Grayf>(src);
+    nvision::Image<nvision::Grayf> gray = nvision::image::convert<RGBf, Grayf>(src);
 
     // Create a FAST feature detector object. The template parameter determines the
     // internal Scalar type, which is used for computations and feature point
     // representation.
-    cve::FASTFeature<cve::float32> detector;
+    nvision::FASTFeature<nvision::float32> detector;
 
     // Extract feature points from the image.
-    using FeatureMatrix = typename cve::FASTFeature<cve::float32>::FeatureMatrix;
+    using FeatureMatrix = typename nvision::FASTFeature<nvision::float32>::FeatureMatrix;
     FeatureMatrix keypoints;
     std::cout << "Detect features" << std::endl;
     detector(gray, keypoints);
 
     std::cout << "Draw " << keypoints.cols() << " keypoints" << std::endl;
-    cve::image::draw(src, keypoints, cve::Marker::Circle, cve::color::red<RGBf>());
+    nvision::image::draw(src, keypoints, nvision::Marker::Circle, nvision::color::red<RGBf>());
 
     // Save the image to a file. The file type is determined by the extension
     // of the file.
     std::cout << "Save " << argv[2] << std::endl;
-    cve::imsave(argv[2], src);
+    nvision::imsave(argv[2], src);
 
     return 0;
 

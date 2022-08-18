@@ -6,12 +6,12 @@
 
 #include "eigen_require.h"
 #include "corner_generator.h"
-#include <cve/src/feature/harris_feature.h>
-#include <cve/imageio.h>
+#include <nvision/src/feature/harris_feature.h>
+#include <nvision/imageio.h>
 
-using namespace cve;
+using namespace nvision;
 
-TEMPLATE_TEST_CASE("harris feature", "[feature]", cve::float32, cve::float64)
+TEMPLATE_TEST_CASE("harris feature", "[feature]", nvision::float32, nvision::float64)
 {
     using Scalar = TestType;
     using Vector2 = Eigen::Matrix<Scalar, 2, 1>;

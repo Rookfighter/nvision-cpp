@@ -1,5 +1,5 @@
 
-#include <cve/imageio.h>
+#include <nvision/imageio.h>
 #include <iostream>
 
 int main(int argc, char **argv)
@@ -14,11 +14,11 @@ int main(int argc, char **argv)
     std::string dstFile = argv[2];
 
     std::cout << "Read " << srcFile << std::endl;
-    cve::Image<cve::RGBA> image;
-    cve::imload(srcFile, image);
+    nvision::Image<nvision::RGBA> image;
+    nvision::imload(srcFile, image);
 
     std::cout << "Write " << dstFile << std::endl;
-    cve::imsave(dstFile, image);
+    nvision::imsave(dstFile, image);
 
     return 0;
 }

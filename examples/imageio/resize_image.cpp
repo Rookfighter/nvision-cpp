@@ -1,5 +1,5 @@
 
-#include <cve/imageio.h>
+#include <nvision/imageio.h>
 #include <iostream>
 
 int main(int argc, char **argv)
@@ -12,17 +12,17 @@ int main(int argc, char **argv)
 
     std::string srcFile = argv[1];
     std::string dstFile = argv[2];
-    cve::float32 factor = std::stof(argv[3]);
+    nvision::float32 factor = std::stof(argv[3]);
 
     std::cout << "Read " << srcFile << std::endl;
-    cve::Image<cve::RGB> image;
-    cve::imload(srcFile, image);
+    nvision::Image<nvision::RGB> image;
+    nvision::imload(srcFile, image);
 
     std::cout << "Resize by " << factor << std::endl;
-    cve::Image<cve::RGB> dstImg = cve::image::resize(image, factor);
+    nvision::Image<nvision::RGB> dstImg = nvision::image::resize(image, factor);
 
     std::cout << "Write " << dstFile << std::endl;
-    cve::imsave(dstFile, dstImg);
+    nvision::imsave(dstFile, dstImg);
 
     return 0;
 }

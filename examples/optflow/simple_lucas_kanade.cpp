@@ -5,10 +5,10 @@
  */
 
 #include <iostream>
-#include <cve/optflow.h>
-#include <cve/imageio.h>
+#include <nvision/optflow.h>
+#include <nvision/imageio.h>
 
-using namespace cve;
+using namespace nvision;
 
 int main(int argc, const char **argv)
 {
@@ -19,31 +19,31 @@ int main(int argc, const char **argv)
     }
 
     // Each value per pixel and depth is representd by a float
-    cve::Image<cve::RGBf> srcA;
-    cve::Image<cve::RGBf> srcB;
+    nvision::Image<nvision::RGBf> srcA;
+    nvision::Image<nvision::RGBf> srcB;
 
     // Load the image from a file. The file type is determined by the extension
     // of the file.
     std::cout << "Load " << argv[1] << std::endl;
-    cve::imload(argv[1], srcA);
+    nvision::imload(argv[1], srcA);
     std::cout << "Load " << argv[2] << std::endl;
-    cve::imload(argv[2], srcB);
+    nvision::imload(argv[2], srcB);
 
     // Create a Lucas Kanade flow detector object. The template parameter determines the
     // internal Scalar type, which is used for computations and flow vector representation.
-    cve::LucasKanadeFlow<cve::float32> detector;
+    nvision::LucasKanadeFlow<nvision::float32> detector;
 
-    cve::FlowField<cve::float32> flow;
+    nvision::FlowField<nvision::float32> flow;
     std::cout << "Compute flow" << std::endl;
     detector(srcA, srcB, flow);
 
     std::cout << "Create colored flow" << std::endl;
-    Image<RGBf> flowImg = cve::imflow<RGBf>(flow);
+    Image<RGBf> flowImg = nvision::imflow<RGBf>(flow);
 
     // Save the image to a file. The file type is determined by the extension
     // of the file.
     std::cout << "Save " << argv[3] << std::endl;
-    cve::imsave(argv[3], flowImg);
+    nvision::imsave(argv[3], flowImg);
 
     return 0;
 }

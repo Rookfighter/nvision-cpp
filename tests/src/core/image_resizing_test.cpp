@@ -5,9 +5,9 @@
  */
 
 #include <catch2/catch.hpp>
-#include "cve/src/core/image_resizing.h"
+#include "nvision/src/core/image_resizing.h"
 
-using namespace cve;
+using namespace nvision;
 
 TEMPLATE_TEST_CASE("image resizing", "[core]",
     Gray,

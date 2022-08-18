@@ -5,9 +5,9 @@
  */
 
 #include "eigen_require.h"
-#include <cve/src/filter/box_filter.h>
+#include <nvision/src/filter/box_filter.h>
 
-using namespace cve;
+using namespace nvision;
 
 TEMPLATE_TEST_CASE("box filter", "[filter]", Gray, RGB, BGR, RGBA, BGRA, Grayf, RGBf, BGRf, RGBAf, BGRAf)
 {
