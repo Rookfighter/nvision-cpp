@@ -32,7 +32,6 @@
 *.app
 
 .vscode/
-build/
 doc/html
 doc/latex
 
@@ -43,5 +42,7 @@ doc/latex
 *.png
 *.jpg
 *.jpeg
+
+.bdep/
 
 !test/assets/*

@@ -1,0 +1,14 @@
+import impl_libs = libnvision%lib{nvision}
+
+exe{simple_box}: cxx{simple_box} $impl_libs
+exe{simple_canny}: cxx{simple_canny} $impl_libs
+exe{simple_diffusion}: cxx{simple_diffusion} $impl_libs
+exe{simple_gauss}: cxx{simple_gauss} $impl_libs
+exe{simple_gradient}: cxx{simple_gradient} $impl_libs
+exe{simple_laplace}: cxx{simple_laplace} $impl_libs
+exe{simple_scharr}: cxx{simple_scharr} $impl_libs
+exe{simple_sobel}: cxx{simple_sobel} $impl_libs
+
+./: exe{simple_box} exe{simple_canny} exe{simple_diffusion} \
+    exe{simple_gauss} exe{simple_gradient} exe{simple_laplace} \
+    exe{simple_scharr} exe{simple_sobel}
