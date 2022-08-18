@@ -81,10 +81,12 @@ namespace nvision
           * quality measure.
           * @param img input image
           * @param keypoints 2xN matrix with N keypoints */
-        template<typename ColorSpace>
-        void operator()(const Image<ColorSpace> &img,
+        template<typename Derived>
+        void operator()(const ImageBase<Derived> &img,
                         FeatureMatrix &keypoints) const
         {
+            static_assert(IsImage<ImageBase<Derived>>::value, "image must be of image type");
+            using ColorSpace = ImageBase<Derived>::Scalar::ColorSpace;
             using Matrix2 = Eigen::Matrix<Scalar, 2, 2>;
             using Vector2i = Eigen::Matrix<Index, 2, 1>;
 

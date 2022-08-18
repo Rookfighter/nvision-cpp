@@ -52,9 +52,11 @@ namespace nvision
           * @param img the image on which the box filter should be applied.
           * @param handling the border handling mode; defaults to BorderReflect
           * @return expression of the filter application */
-        template<typename ColorSpace, typename BorderHandling=BorderReflect>
-        auto operator()(const Image<ColorSpace> &img, const BorderHandling &handling = {}) const
+        template<typename Derived, typename BorderHandling=BorderReflect>
+        auto operator()(const ImageBase<Derived> &img, const BorderHandling &handling = {}) const
         {
+            static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
+            using ColorSpace = ImageBase<Derived>::Scalar::ColorSpace;
             static_assert(Eigen::NumTraits<typename ColorSpace::ValueType>::IsInteger == 0, "Image must use floating point value");
 
             Image<ColorSpace> u = img;

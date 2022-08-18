@@ -33,14 +33,16 @@ namespace nvision
     {
         namespace internal
         {
-            template<typename ColorSpace>
-            inline void drawOutlined(Image<ColorSpace> &, const Polygon &, const Color<ColorSpace> &)
+            template<typename Derived>
+            inline void drawOutlined(ImageBase<Derived> &, const Polygon &, const Color<typename ImageBase<Derived>::Scalar::ColorSpace> &)
             {
+                static_assert(IsImage<ImageBase<Derived>>::value, "image must be of image type");
             }
 
-            template<typename ColorSpace>
-            inline void drawFilled(Image<ColorSpace> &img, const Polygon &polygon, const Color<ColorSpace> &color)
+            template<typename Derived>
+            inline void drawFilled(ImageBase<Derived> &img, const Polygon &polygon, const Color<typename ImageBase<Derived>::Scalar::ColorSpace> &color)
             {
+                static_assert(IsImage<ImageBase<Derived>>::value, "image must be of image type");
                 using Point2 = Eigen::Matrix<Index, 2, 1>;
                 using Line2 = Eigen::Matrix<nvision::float32, 2, 1>;
 
@@ -105,9 +107,10 @@ namespace nvision
             }
         }
 
-        template<typename ColorSpace>
-        inline void draw(Image<ColorSpace> &img, const Polygon &polygon, const Color<ColorSpace> &color)
+        template<typename Derived>
+        inline void draw(ImageBase<Derived> &img, const Polygon &polygon, const Color<typename ImageBase<Derived>::Scalar::ColorSpace> &color)
         {
+            static_assert(IsImage<ImageBase<Derived>>::value, "image must be of image type");
             switch(polygon.fillMode)
             {
                 case FillMode::Fill:

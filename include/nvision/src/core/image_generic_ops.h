@@ -13,23 +13,33 @@
 namespace nvision::image
 {
     /** Converts all pixel within the image to the given colorspace. */
-    template<typename From, typename To>
-    inline decltype(auto) convert(const Image<From> &img)
+    template<typename To, typename Derived>
+    inline decltype(auto) convert(const ImageBase<Derived> &img)
     {
-        return img.unaryExpr([](const auto &p) { return pixel::convert<From, To>(p); });
+        static_assert(IsImage<ImageBase<Derived>>::value, "input must be a valid image type");
+        using PixelType = typename ImageBase<Derived>::Scalar;
+        using From = typename PixelType::ColorSpace;
+        return img.unaryExpr([](const PixelType &p) { return pixel::convert<From, To>(p); });
     }
 
     /** Clamps all values in the image to the given interval. */
-    template<typename ColorSpace>
-    inline decltype(auto) clamp(const Image<ColorSpace> &img, const Pixel<ColorSpace> &minval, const Pixel<ColorSpace> &maxval)
+    template<typename Derived>
+    inline decltype(auto) clamp(const ImageBase<Derived> &img,
+                                const typename ImageBase<Derived>::Scalar &minval,
+                                const typename ImageBase<Derived>::Scalar &maxval)
     {
-        return img.unaryExpr([minval, maxval](const auto &pixel) { return pixel::clamp(pixel, minval, maxval); });
+        static_assert(IsImage<ImageBase<Derived>>::value, "input must be a valid image type");
+        using PixelType = typename ImageBase<Derived>::Scalar;
+        return img.unaryExpr([minval, maxval](const PixelType &pixel) { return pixel::clamp(pixel, minval, maxval); });
     }
 
     /** Computes the minimum value for each channel in the given image. */
-    template<typename ColorSpace>
-    inline const Pixel<ColorSpace> minimum(const Image<ColorSpace> &img)
+    template<typename Derived>
+    inline typename ImageBase<Derived>::Scalar minimum(const ImageBase<Derived> &img)
     {
+        static_assert(IsImage<ImageBase<Derived>>::value, "input must be a valid image type");
+        using ColorSpace = typename ImageBase<Derived>::Scalar::ColorSpace;
+
         constexpr auto maxval = std::numeric_limits<typename ColorSpace::ValueType>::max();
         auto result = Pixel<ColorSpace>(maxval);
 
@@ -47,9 +57,12 @@ namespace nvision::image
     }
 
     /** Computes the maximum value for each channel in the given image. */
-    template<typename ColorSpace>
-    inline const Pixel<ColorSpace> maximum(const Image<ColorSpace> &img)
+    template<typename Derived>
+    inline typename ImageBase<Derived>::Scalar maximum(const ImageBase<Derived> &img)
     {
+        static_assert(IsImage<ImageBase<Derived>>::value, "input must be a valid image type");
+        using ColorSpace = typename ImageBase<Derived>::Scalar::ColorSpace;
+
         constexpr auto minval = std::numeric_limits<typename ColorSpace::ValueType>::min();
         auto result = Pixel<ColorSpace>(minval);
 
@@ -67,9 +80,12 @@ namespace nvision::image
     }
 
     /** Normalizes each channel of the given image to the given interval [minval, maxval]. */
-    template<typename ColorSpace>
-    inline auto normalize(const Image<ColorSpace> &img)
+    template<typename Derived>
+    inline auto normalize(const ImageBase<Derived> &img)
     {
+        static_assert(IsImage<ImageBase<Derived>>::value, "input must be a valid image type");
+        using ColorSpace = typename ImageBase<Derived>::Scalar::ColorSpace;
+
         const auto oldMin = minimum(img);
         const auto oldMax = maximum(img);
 
@@ -88,21 +104,29 @@ namespace nvision::image
     }
 
     /** Determines if the given row and column lie within the image. */
-    template<typename ColorSpace>
-    inline bool inside(const Image<ColorSpace> &img, const Index row, const Index col)
+    template<typename Derived>
+    inline bool inside(const ImageBase<Derived> &img, const Index row, const Index col)
     {
+        static_assert(IsImage<ImageBase<Derived>>::value, "input must be a valid image type");
+
         return row >= 0 && row < img.rows() && col >= 0 && col< img.cols();
     }
 
-    template<typename ColorSpace>
-    inline auto magnitude(const Image<ColorSpace> &lhs, const Image<ColorSpace> &rhs)
+    template<typename DerivedLhs, typename DerivedRhs>
+    inline auto magnitude(const ImageBase<DerivedLhs> &lhs, const ImageBase<DerivedRhs> &rhs)
     {
+        static_assert(IsImage<ImageBase<DerivedLhs>>::value, "lhs input must be a valid image type");
+        static_assert(IsImage<ImageBase<DerivedRhs>>::value, "rhs input must be a valid image type");
+
         return (lhs * lhs + rhs * rhs).sqrt();
     }
 
-    template<typename ColorSpace>
-    inline auto direction(const Image<ColorSpace> &lhs, const Image<ColorSpace> &rhs)
+    template<typename DerivedLhs, typename DerivedRhs>
+    inline auto direction(const ImageBase<DerivedLhs> &lhs, const ImageBase<DerivedRhs> &rhs)
     {
+        static_assert(IsImage<ImageBase<DerivedLhs>>::value, "lhs input must be a valid image type");
+        static_assert(IsImage<ImageBase<DerivedRhs>>::value, "rhs input must be a valid image type");
+
         lhs.binaryExpr(rhs, [](const auto &a, const auto &b) { return atan2(a, b); });
     }
 }

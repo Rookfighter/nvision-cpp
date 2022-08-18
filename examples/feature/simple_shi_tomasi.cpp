@@ -29,7 +29,7 @@ int main(int argc, const char **argv)
     nvision::imload(argv[1], src);
 
     std::cout << "Convert to gray scale" << std::endl;
-    nvision::Image<nvision::Grayf> gray = nvision::image::convert<RGBf, Grayf>(src);
+    nvision::Image<nvision::Grayf> gray = nvision::image::convert<Grayf>(src);
 
     // Create a ShiTomasi feature detector object. The template parameter determines the
     // internal Scalar type, which is used for computations and feature point

@@ -128,12 +128,14 @@ namespace nvision
             _gradient = filter;
         }
 
-        template<typename ColorSpace>
-        void operator()(const Image<ColorSpace> &img,
+        template<typename Derived>
+        void operator()(const ImageBase<Derived> &img,
                         const std::vector<Vector2i> &corners,
                         const Scalar,
                         Matrix &score) const
         {
+            static_assert(IsImage<ImageBase<Derived>>::value, "image must be of image type");
+            using ColorSpace = ImageBase<Derived>::Scalar::ColorSpace;
             static_assert(ColorSpace::Dimension == 1, "FAST only supports single channel images");
 
             // calculate gradients
@@ -186,12 +188,14 @@ namespace nvision
 
         FASTScore() = default;
 
-        template<typename ColorSpace>
-        void operator()(const Image<ColorSpace> &img,
+        template<typename Derived>
+        void operator()(const ImageBase<Derived> &img,
                         const std::vector<Vector2i> &corners,
                         const Scalar threshold,
                         Matrix &score) const
         {
+            static_assert(IsImage<ImageBase<Derived>>::value, "image must be of image type");
+            using ColorSpace = ImageBase<Derived>::Scalar::ColorSpace;
             static_assert(ColorSpace::Dimension == 1, "FAST only supports single channel images");
 
             score.resize(img.rows(), img.cols());
@@ -207,12 +211,14 @@ namespace nvision
     private:
         Mode _mode = {};
 
-        template<typename ColorSpace>
-        Scalar computeScore(const Image<ColorSpace> &img,
+        template<typename Derived>
+        Scalar computeScore(const ImageBase<Derived> &img,
                             const Index row,
                             const Index col,
                             const Scalar threshold) const
         {
+            static_assert(IsImage<ImageBase<Derived>>::value, "image must be of image type");
+            using ColorSpace = ImageBase<Derived>::Scalar::ColorSpace;
             const auto imageVal = static_cast<Scalar>(img(row, col)[0]);
 
             // determine lower intensity boundary
@@ -365,14 +371,15 @@ namespace nvision
             return  offset + _threshold * factor;
         }
 
-        template<typename ColorSpace>
-        void computeScore(const Image<ColorSpace> &img, const std::vector<Vector2i> &corners, Matrix &score) const
+        template<typename Derived>
+        void computeScore(const ImageBase<Derived> &img, const std::vector<Vector2i> &corners, Matrix &score) const
         {
+            using ColorSpace = ImageBase<Derived>::Scalar::ColorSpace;
             _score(img, corners, realThreshold<ColorSpace>(), score);
         }
 
-        template<typename ColorSpace>
-        IntensityClass determineClass(const Image<ColorSpace> &img,
+        template<typename Derived>
+        IntensityClass determineClass(const ImageBase<Derived> &img,
                                       const Index row,
                                       const Index col,
                                       const Scalar low,
@@ -390,11 +397,13 @@ namespace nvision
                 return IntensityClass::None;
         }
 
-        template<typename ColorSpace>
-        bool fastCornerTest(const Image<ColorSpace> &img,
+        template<typename Derived>
+        bool fastCornerTest(const ImageBase<Derived> &img,
                             const Index row,
                             const Index col) const
         {
+            using ColorSpace = ImageBase<Derived>::Scalar::ColorSpace;
+
             const auto imageVal = static_cast<Scalar>(img(row, col)[0]);
             const auto threshold = realThreshold<ColorSpace>();
             // determine lower intensity boundary
@@ -416,11 +425,13 @@ namespace nvision
             return testA || testB || testC;
         }
 
-        template<typename ColorSpace>
-        bool fullCornerTest(const Image<ColorSpace> &img,
+        template<typename Derived>
+        bool fullCornerTest(const ImageBase<Derived> &img,
                             const Index row,
                             const Index col) const
         {
+            using ColorSpace = ImageBase<Derived>::Scalar::ColorSpace;
+
             const auto imageVal = static_cast<Scalar>(img(row, col)[0]);
             const auto threshold = realThreshold<ColorSpace>();
             // determine lower intensity boundary
@@ -488,10 +499,11 @@ namespace nvision
             return false;
         }
 
-        template<typename ColorSpace>
-        void detectCorners(const Image<ColorSpace> &img,
+        template<typename Derived>
+        void detectCorners(const ImageBase<Derived> &img,
                            std::vector<Vector2i> &corners) const
         {
+            using ColorSpace = ImageBase<Derived>::Scalar::ColorSpace;
             static_assert(ColorSpace::Dimension == 1, "FAST only supports single channel images");
 
             for(Index c = 0; c < img.cols(); ++c)

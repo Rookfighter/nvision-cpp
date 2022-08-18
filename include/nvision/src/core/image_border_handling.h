@@ -32,10 +32,13 @@ namespace nvision
             : _value(value)
         { }
 
-        const Pixel<ColorSpace> &operator()(const Image<ColorSpace> &img,
-                           const Index row,
-                           const Index col) const
+        template<typename Derived>
+        const Pixel<ColorSpace> &operator()(const ImageBase<Derived> &img,
+                                            const Index row,
+                                            const Index col) const
         {
+            static_assert(IsImage<ImageBase<Derived>>::value, "input is not a valid image type");
+
             if(row < 0 || row >= img.rows() || col < 0 || col >= img.cols())
                 return _value;
             else
@@ -54,11 +57,13 @@ namespace nvision
     class BorderReflect
     {
     public:
-        template<typename ColorSpace>
-        const Pixel<ColorSpace> &operator()(const Image<ColorSpace> &img,
+        template<typename Derived>
+        const ImageBase<Derived>::Scalar &operator()(const ImageBase<Derived> &img,
                                             const Index row,
                                             const Index col) const
         {
+            static_assert(IsImage<ImageBase<Derived>>::value, "input is not a valid image type");
+
             const auto r = reflect(row, 0, img.rows());
             const auto c = reflect(col, 0, img.cols());
             return img(r, c);
@@ -84,11 +89,13 @@ namespace nvision
     class BorderRepeat
     {
     public:
-        template<typename ColorSpace>
-        const Pixel<ColorSpace> &operator()(const Image<ColorSpace> &img,
+        template<typename Derived>
+        const ImageBase<Derived>::Scalar &operator()(const ImageBase<Derived> &img,
                            const Index row,
                            const Index col) const
         {
+            static_assert(IsImage<ImageBase<Derived>>::value, "input is not a valid image type");
+
             const auto r = repeat(row, 0, img.rows());
             const auto c = repeat(col, 0, img.cols());
             return img(r, c);

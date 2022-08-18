@@ -81,12 +81,13 @@ namespace nvision
           * @param descriptors output matrix of descriptors, each column is a
           *        descriptor for the respective keypoint
           */
-        template<typename ColorSpace>
-        void operator()(const Image<ColorSpace> &img,
+        template<typename Derived>
+        void operator()(const ImageBase<Derived> &img,
                         const FeatureMatrix &keypoints,
                         DescriptorMatrix &descriptors) const
         {
-            static_assert(ColorSpace::Dimension == 1, "ORB only supports single channel images");
+            static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
+            static_assert(ImageBase<Derived>::Scalar::ColorSpace::Dimension == 1, "ORB only supports single channel images");
 
             descriptors.resize(_basePattern.cols() / 32, keypoints.cols());
 
@@ -173,8 +174,8 @@ namespace nvision
             }
         }
 
-        template<typename ColorSpace>
-        Index calcPatternIndex(const Image<ColorSpace> &img,
+        template<typename Derived>
+        Index calcPatternIndex(const ImageBase<Derived> &img,
                                const Index row,
                                const Index col) const
         {

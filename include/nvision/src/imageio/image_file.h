@@ -26,23 +26,26 @@ namespace nvision
         return path.substr(pos+1);
     }
 
-    template<typename ColorSpace, typename FileFormat>
-    void imread(std::istream &stream, Image<ColorSpace> &img, const FileFormat &)
+    template<typename Derived, typename FileFormat>
+    void imread(std::istream &stream, ImageBase<Derived> &img, const FileFormat &)
     {
+        static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
         const ImageReader<FileFormat> reader;
         reader(stream, img);
     }
 
-    template<typename ColorSpace, typename FileFormat>
-    void imload(const std::string &path, Image<ColorSpace> &img, const FileFormat &format)
+    template<typename Derived, typename FileFormat>
+    void imload(const std::string &path, ImageBase<Derived> &img, const FileFormat &format)
     {
+        static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
         std::ifstream stream(path, std::ifstream::binary);
         imread(stream, img, format);
     }
 
-    template<typename ColorSpace>
-    void imload(const std::string &path, Image<ColorSpace> &img)
+    template<typename Derived>
+    void imload(const std::string &path, ImageBase<Derived> &img)
     {
+        static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
         const auto ext = extension(path);
 
         if(ext == "ppm")
@@ -57,23 +60,26 @@ namespace nvision
             throw std::runtime_error("unkown file type");
     }
 
-    template<typename ColorSpace, typename FileFormat>
-    void imwrite(std::ostream &stream, const Image<ColorSpace> &img, const FileFormat &format)
+    template<typename Derived, typename FileFormat>
+    void imwrite(std::ostream &stream, const ImageBase<Derived> &img, const FileFormat &format)
     {
+        static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
         const ImageWriter<FileFormat> writer;
         writer(stream, img, format);
     }
 
-    template<typename ColorSpace, typename FileFormat>
-    void imsave(const std::string &path, const Image<ColorSpace> &img, const FileFormat &format)
+    template<typename Derived, typename FileFormat>
+    void imsave(const std::string &path, const ImageBase<Derived> &img, const FileFormat &format)
     {
+        static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
         std::ofstream stream(path, std::ofstream::binary);
         imwrite(stream, img, format);
     }
 
-    template<typename ColorSpace>
-    void imsave(const std::string &path, const Image<ColorSpace> &img)
+    template<typename Derived>
+    void imsave(const std::string &path, const ImageBase<Derived> &img)
     {
+        static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
         const auto ext = extension(path);
 
         if(ext == "ppm")

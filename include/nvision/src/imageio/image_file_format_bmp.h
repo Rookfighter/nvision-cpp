@@ -111,9 +111,11 @@ namespace nvision
     class ImageReader<BMP>
     {
     public:
-        template<typename ColorSpace>
-        void operator()(std::istream &stream, Image<ColorSpace> &img) const
+        template<typename Derived>
+        void operator()(std::istream &stream, ImageBase<Derived> &img) const
         {
+            static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
+
             bmp::FileHeader fileHeader;
             if(!readFileHeader(stream, fileHeader))
                 throw std::runtime_error("failed to read BMP header");
@@ -126,7 +128,7 @@ namespace nvision
             if(!readColorTable(stream, dibHeader.colorTableChannels, colorTable))
                 throw std::runtime_error("failed to read color table");
 
-            img.resize(dibHeader.height, dibHeader.width);
+            img.derived().resize(dibHeader.height, dibHeader.width);
             if(!readImage(stream, img, dibHeader, colorTable))
                 throw std::runtime_error("failed to read color image data");
         }
@@ -256,8 +258,8 @@ namespace nvision
             return true;
         }
 
-        template<typename ColorSpace>
-        bool readImage(std::istream &stream, Image<ColorSpace> &img, const bmp::DIBHeader &header, const bmp::ColorTable<RGBA> &colorTable) const
+        template<typename Derived>
+        bool readImage(std::istream &stream, ImageBase<Derived> &img, const bmp::DIBHeader &header, const bmp::ColorTable<RGBA> &colorTable) const
         {
             if(header.bpp == 32)
                 return readImage32bpp(stream, img);
@@ -271,9 +273,11 @@ namespace nvision
                 throw std::runtime_error("unsupported bits per pixel");
         }
 
-        template<typename ColorSpace>
-        bool readImage32bpp(std::istream &stream, Image<ColorSpace> &img) const
+        template<typename Derived>
+        bool readImage32bpp(std::istream &stream, ImageBase<Derived> &img) const
         {
+            using ColorSpace = typename ImageBase<Derived>::Scalar::ColorSpace;
+
             std::array<char, 4> data;
 
             for(Index row = 0; row < img.rows(); ++row)
@@ -296,9 +300,11 @@ namespace nvision
             return true;
         }
 
-        template<typename ColorSpace>
-        bool readImage24bpp(std::istream &stream, Image<ColorSpace> &img) const
+        template<typename Derived>
+        bool readImage24bpp(std::istream &stream, ImageBase<Derived> &img) const
         {
+            using ColorSpace = typename ImageBase<Derived>::Scalar::ColorSpace;
+
             std::array<char, 3> data;
             const auto paddingBytes = (img.cols() * data.size()) % 4;
 
@@ -325,9 +331,11 @@ namespace nvision
             return true;
         }
 
-        template<typename ColorSpace>
-        bool readImage16bpp(std::istream &stream, Image<ColorSpace> &img) const
+        template<typename Derived>
+        bool readImage16bpp(std::istream &stream, ImageBase<Derived> &img) const
         {
+            using ColorSpace = typename ImageBase<Derived>::Scalar::ColorSpace;
+
             std::array<char, 2> data;
             const auto paddingBytes = (img.cols() * data.size()) % 4;
 
@@ -355,9 +363,11 @@ namespace nvision
             return true;
         }
 
-        template<typename ColorSpace>
-        bool readImageColorTable(std::istream &stream, Image<ColorSpace> &img, const bmp::ColorTable<RGBA> &colorTable, const std::size_t bpp) const
+        template<typename Derived>
+        bool readImageColorTable(std::istream &stream, ImageBase<Derived> &img, const bmp::ColorTable<RGBA> &colorTable, const std::size_t bpp) const
         {
+            using ColorSpace = typename ImageBase<Derived>::Scalar::ColorSpace;
+
             const auto paddingBytes = (img.cols() * bpp * 8) % 4;
 
             for(Index row = 0; row < img.rows(); ++row)
@@ -427,9 +437,11 @@ namespace nvision
     class ImageWriter<BMP>
     {
     public:
-        template<typename ColorSpace>
-        void operator()(std::ostream &stream, const Image<ColorSpace> &img, const BMP&) const
+        template<typename Derived>
+        void operator()(std::ostream &stream, const ImageBase<Derived> &img, const BMP&) const
         {
+            static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
+
             if(!stream.good())
                 throw std::runtime_error("stream is not good");
 
@@ -492,8 +504,8 @@ namespace nvision
                    writeUInt32(stream, header.importantColors);
         }
 
-        template<typename ColorSpace>
-        bool writeImage32bpp(std::ostream &stream, const Image<ColorSpace> &img) const
+        template<typename Derived>
+        bool writeImage32bpp(std::ostream &stream, const ImageBase<Derived> &img) const
         {
             std::array<char, 4> data;
 
@@ -516,8 +528,8 @@ namespace nvision
             return true;
         }
 
-        template<typename ColorSpace>
-        bool writeImage24bpp(std::ostream &stream, const Image<ColorSpace> &img) const
+        template<typename Derived>
+        bool writeImage24bpp(std::ostream &stream, const ImageBase<Derived> &img) const
         {
             std::array<char, 3> data;
             const auto padding = (img.cols() * 3) % 4;

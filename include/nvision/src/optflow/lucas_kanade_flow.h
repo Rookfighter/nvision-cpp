@@ -39,11 +39,19 @@ namespace nvision
             _gradient = filter;
         }
 
-        template<typename ColorSpace>
-        void operator()(const Image<ColorSpace> &imgA,
-                        const Image<ColorSpace> &imgB,
+        template<typename DerivedA, typename DerivedB>
+        void operator()(const ImageBase<DerivedA> &imgA,
+                        const ImageBase<DerivedB> &imgB,
                         FlowField<Scalar> &flowField) const
         {
+            static_assert(IsImage<ImageBase<DerivedA>>::value, "image A must be image type");
+            static_assert(IsImage<ImageBase<DerivedB>>::value, "image B must be image type");
+            static_assert(std::is_same<
+                typename ImageBase<DerivedA>::Scalar::ColorSpace,
+                typename ImageBase<DerivedB>::Scalar::ColorSpace>::value,
+                "images must use same color space");
+
+            using ColorSpace = typename ImageBase<DerivedA>::Scalar::ColorSpace;
             assert(imgA.rows() == imgB.rows());
             assert(imgA.cols() == imgB.cols());
 

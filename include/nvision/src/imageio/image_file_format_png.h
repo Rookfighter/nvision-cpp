@@ -55,9 +55,12 @@ namespace nvision
     class ImageReader<PNG>
     {
     public:
-        template<typename ColorSpace>
-        void operator()(std::istream &stream, Image<ColorSpace> &img) const
+        template<typename Derived>
+        void operator()(std::istream &stream, ImageBase<Derived> &img) const
         {
+            static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
+            using ColorSpace = typename ImageBase<Derived>::Scalar::ColorSpace;
+
             // define the length of the PNG signature
             constexpr int PNGSIGLEN = 8;
 
@@ -171,9 +174,12 @@ namespace nvision
     class ImageWriter<PNG>
     {
     public:
-        template<typename ColorSpace>
-        void operator()(std::ostream &stream, const Image<ColorSpace> &img, const PNG &) const
+        template<typename Derived>
+        void operator()(std::ostream &stream, const ImageBase<Derived> &img, const PNG &) const
         {
+            static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
+            using ColorSpace = typename ImageBase<Derived>::Scalar::ColorSpace;
+
             png_structp pngPtr = png_create_write_struct(PNG_LIBPNG_VER_STRING,
                 NULL, NULL, NULL);
             if(!pngPtr)

@@ -11,45 +11,45 @@
 #include "nvision/src/core/pixel.h"
 
 #define NVISION_GEN_SCALAR_OPERATORS(Scalar)\
-    template<typename ColorSpace>\
-    inline decltype(auto) operator+(const Image<ColorSpace> &lhs, const Scalar rhs)\
+    template<typename Derived>\
+    inline decltype(auto) operator+(const ImageBase<Derived> &lhs, const Scalar rhs)\
     {\
-        return lhs.unaryExpr([rhs](const Pixel<ColorSpace> &pixel) { return pixel + rhs; });\
+        return lhs.unaryExpr([rhs](const auto &pixel) { return pixel + rhs; });\
     }\
-    template<typename ColorSpace>\
-    inline decltype(auto) operator+(const Scalar lhs, const Image<ColorSpace> &rhs)\
+    template<typename Derived>\
+    inline decltype(auto) operator+(const Scalar lhs, const ImageBase<Derived> &rhs)\
     {\
-        return rhs.unaryExpr([lhs](const Pixel<ColorSpace> &pixel) { return lhs + pixel; });\
+        return rhs.unaryExpr([lhs](const auto &pixel) { return lhs + pixel; });\
     }\
-    template<typename ColorSpace>\
-    inline decltype(auto) operator-(const Image<ColorSpace> &lhs, const Scalar rhs)\
+    template<typename Derived>\
+    inline decltype(auto) operator-(const ImageBase<Derived> &lhs, const Scalar rhs)\
     {\
-        return lhs.unaryExpr([rhs](const Pixel<ColorSpace> &pixel) { return pixel - rhs; });\
+        return lhs.unaryExpr([rhs](const auto &pixel) { return pixel - rhs; });\
     }\
-    template<typename ColorSpace>\
-    inline decltype(auto) operator-(const Scalar lhs, const Image<ColorSpace> &rhs)\
+    template<typename Derived>\
+    inline decltype(auto) operator-(const Scalar lhs, const ImageBase<Derived> &rhs)\
     {\
-        return rhs.unaryExpr([lhs](const Pixel<ColorSpace> &pixel) { return lhs - pixel; });\
+        return rhs.unaryExpr([lhs](const auto &pixel) { return lhs - pixel; });\
     }\
-    template<typename ColorSpace>\
-    inline decltype(auto) operator*(const Image<ColorSpace> &lhs, const Scalar rhs)\
+    template<typename Derived>\
+    inline decltype(auto) operator*(const ImageBase<Derived> &lhs, const Scalar rhs)\
     {\
-        return lhs.unaryExpr([rhs](const Pixel<ColorSpace> &pixel) { return pixel * rhs; });\
+        return lhs.unaryExpr([rhs](const auto &pixel) { return pixel * rhs; });\
     }\
-    template<typename ColorSpace>\
-    inline decltype(auto) operator*(const Scalar lhs, const Image<ColorSpace> &rhs)\
+    template<typename Derived>\
+    inline decltype(auto) operator*(const Scalar lhs, const ImageBase<Derived> &rhs)\
     {\
-        return rhs.unaryExpr([lhs](const Pixel<ColorSpace> &pixel) { return lhs * pixel; });\
+        return rhs.unaryExpr([lhs](const auto &pixel) { return lhs * pixel; });\
     }\
-    template<typename ColorSpace>\
-    inline decltype(auto) operator/(const Image<ColorSpace> &lhs, const Scalar rhs)\
+    template<typename Derived>\
+    inline decltype(auto) operator/(const ImageBase<Derived> &lhs, const Scalar rhs)\
     {\
-        return lhs.unaryExpr([rhs](const Pixel<ColorSpace> &pixel) { return pixel / rhs; });\
+        return lhs.unaryExpr([rhs](const auto &pixel) { return pixel / rhs; });\
     }\
-    template<typename ColorSpace>\
-    inline decltype(auto) operator/(const Scalar lhs, const Image<ColorSpace> &rhs)\
+    template<typename Derived>\
+    inline decltype(auto) operator/(const Scalar lhs, const ImageBase<Derived> &rhs)\
     {\
-        return rhs.unaryExpr([lhs](const Pixel<ColorSpace> &pixel) { return lhs / pixel; });\
+        return rhs.unaryExpr([lhs](const auto &pixel) { return lhs / pixel; });\
     }
 
 namespace nvision

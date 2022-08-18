@@ -25,9 +25,10 @@ namespace nvision
 
     namespace image
     {
-        template<typename ColorSpace>
-        void draw(Image<ColorSpace> &img, const Rectangle &rect, const Color<ColorSpace> &color)
+        template<typename Derived>
+        void draw(ImageBase<Derived> &img, const Rectangle &rect, const Color<typename ImageBase<Derived>::Scalar::ColorSpace> &color)
         {
+            static_assert(IsImage<ImageBase<Derived>>::value, "image must be of image type");
             const auto width = static_cast<Index>(std::round(rect.dimensions(0)));
             const auto height = static_cast<Index>(std::round(rect.dimensions(1)));
 

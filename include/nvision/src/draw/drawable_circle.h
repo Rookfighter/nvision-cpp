@@ -37,9 +37,10 @@ namespace nvision
     {
         namespace internal
         {
-            template<typename ColorSpace>
-            void drawOutlined(Image<ColorSpace> &img, const Circle &circle, const Color<ColorSpace> &color)
+            template<typename Derived>
+            void drawOutlined(ImageBase<Derived> &img, const Circle &circle, const Color<typename ImageBase<Derived>::Scalar::ColorSpace> &color)
             {
+                static_assert(IsImage<ImageBase<Derived>>::value, "image must be of image type");
                 const auto cx = circle.center(0);
                 const auto cy = circle.center(1);
 
@@ -125,9 +126,11 @@ namespace nvision
                 }
             }
 
-            template<typename ColorSpace>
-            void drawFilled(Image<ColorSpace> &img, const Circle &circle, const Color<ColorSpace> &color)
+            template<typename Derived>
+            void drawFilled(ImageBase<Derived> &img, const Circle &circle, const Color<typename ImageBase<Derived>::Scalar::ColorSpace> &color)
             {
+                static_assert(IsImage<ImageBase<Derived>>::value, "image must be of image type");
+
                 using Point2 = Eigen::Matrix<Index, 2, 1>;
 
                 const auto pixel = nvision::color::toPixel(color);
@@ -154,9 +157,11 @@ namespace nvision
             }
         }
 
-        template<typename ColorSpace>
-        void draw(Image<ColorSpace> &img, const Circle &circle, const Color<ColorSpace> &color)
+        template<typename Derived>
+        void draw(ImageBase<Derived> &img, const Circle &circle, const Color<typename ImageBase<Derived>::Scalar::ColorSpace> &color)
         {
+            static_assert(IsImage<ImageBase<Derived>>::value, "image must be of image type");
+
             switch(circle.fillMode)
             {
                 case FillMode::Fill:

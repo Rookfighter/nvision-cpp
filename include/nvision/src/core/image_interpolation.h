@@ -15,12 +15,15 @@ namespace nvision
     /** Computes the vertical linear interpolation at the given image coordinates. */
     struct LinearVerticalInterpolation
     {
-        template<typename ColorSpace, typename Float>
-        const Pixel<ColorSpace> operator()(const Image<ColorSpace> &img,
+        template<typename Derived, typename Float>
+        ImageBase<Derived>::Scalar operator()(const ImageBase<Derived> &img,
                                            const Float row,
                                            const Index col) const
         {
             static_assert(Eigen::NumTraits<Float>::IsInteger == 0, "indexed values must be floating point");
+            static_assert(IsImage<ImageBase<Derived>>::value, "input is not a valid image type");
+            using PixelType = ImageBase<Derived>::Scalar;
+            using ColorSpace = PixelType::ColorSpace;
 
             const auto r1 = std::floor(row);
             const auto r2 = std::ceil(row);
@@ -40,7 +43,7 @@ namespace nvision
                 vfac2 = (row - r1) / (r2 - r1);
             }
 
-            Pixel<ColorSpace> result;
+            auto result = PixelType{};
             for(Index i = 0; i < result.size(); ++i)
             {
                 result[i] = static_cast<typename ColorSpace::ValueType>(
@@ -54,12 +57,15 @@ namespace nvision
     /** Computes the horizontal linear interpolation at the given image coordinates. */
     struct LinearHorizontalInterpolation
     {
-        template<typename ColorSpace, typename Float>
-        const Pixel<ColorSpace> operator()(const Image<ColorSpace> &img,
+        template<typename Derived, typename Float>
+        ImageBase<Derived>::Scalar operator()(const ImageBase<Derived> &img,
                                            const Index row,
                                            const Float col) const
         {
             static_assert(Eigen::NumTraits<Float>::IsInteger == 0, "indexed values must be floating point");
+            static_assert(IsImage<ImageBase<Derived>>::value, "input is not a valid image type");
+            using PixelType = ImageBase<Derived>::Scalar;
+            using ColorSpace = PixelType::ColorSpace;
 
             const auto c1 = std::floor(col);
             const auto c2 = std::ceil(col);
@@ -79,7 +85,7 @@ namespace nvision
                 hfac2 = (col - c1) / (c2 - c1);
             }
 
-            Pixel<ColorSpace> result;
+            auto result = PixelType{};
             for(Index i = 0; i < result.size(); ++i)
             {
                 result[i] = static_cast<typename ColorSpace::ValueType>(
@@ -93,12 +99,15 @@ namespace nvision
     /** Computes the bilinear interpolation at the given image coordinates. */
     struct BilinearInterpolation
     {
-        template<typename ColorSpace, typename Float>
-        const Pixel<ColorSpace> operator()(const Image<ColorSpace> &img,
+        template<typename Derived, typename Float>
+        ImageBase<Derived>::Scalar operator()(const ImageBase<Derived> &img,
                                            const Float row,
                                            const Float col) const
         {
             static_assert(Eigen::NumTraits<Float>::IsInteger == 0, "indexed values must be floating point");
+            static_assert(IsImage<ImageBase<Derived>>::value, "input is not a valid image type");
+            using PixelType = ImageBase<Derived>::Scalar;
+            using ColorSpace = PixelType::ColorSpace;
 
             const auto r1 = std::floor(row);
             const auto r2 = std::ceil(row);
@@ -138,7 +147,7 @@ namespace nvision
             const auto f21 = hfac1 * vfac2;
             const auto f22 = hfac2 * vfac2;
 
-            Pixel<ColorSpace> result;
+            auto result = PixelType{};
             for(Index i = 0; i < result.size(); ++i)
             {
                 result[i] = static_cast<typename ColorSpace::ValueType>(
@@ -159,8 +168,8 @@ namespace nvision
           * @param row row index of the interpolated pixel
           * @param col column index of the interpolated pixel
           * @return interpolated pixel value */
-        template<typename ColorSpace, typename Float>
-        inline const Pixel<ColorSpace> interpolateLinearVertical(const Image<ColorSpace> &img,
+        template<typename Derived, typename Float>
+        inline ImageBase<Derived>::Scalar interpolateLinearVertical(const ImageBase<Derived> &img,
                                               const Float row,
                                               const Index col)
         {
@@ -173,8 +182,8 @@ namespace nvision
           * @param row row index of the interpolated pixel
           * @param col column index of the interpolated pixel
           * @return interpolated pixel value */
-        template<typename ColorSpace, typename Float>
-        inline const Pixel<ColorSpace> interpolateLinearHorizontal(const Image<ColorSpace> &img,
+        template<typename Derived, typename Float>
+        inline ImageBase<Derived>::Scalar interpolateLinearHorizontal(const ImageBase<Derived> &img,
                                               const Index row,
                                               const Float col)
         {
@@ -187,8 +196,8 @@ namespace nvision
           * @param row row index of the interpolated pixel
           * @param col column index of the interpolated pixel
           * @return interpolated pixel value */
-        template<typename ColorSpace, typename Float>
-        inline const Pixel<ColorSpace> interpolateBilinear(const Image<ColorSpace> &img,
+        template<typename Derived, typename Float>
+        inline ImageBase<Derived>::Scalar interpolateBilinear(const ImageBase<Derived> &img,
                                               const Float row,
                                               const Float col)
         {

@@ -60,13 +60,14 @@ namespace nvision
           * @param keypoints 2xN matrix with N keypoints
           * @param levels number of levels for the image pyramid
           * @param factor uniform scaling factor for image pyramid */
-        template<typename ColorSpace>
-        void operator()(const Image<ColorSpace> &img,
+        template<typename Derived>
+        void operator()(const ImageBase<Derived> &img,
                         FeatureMatrix &keypoints,
                         const Index levels = 8,
                         const Scalar factor = static_cast<Scalar>(0.8)) const
         {
-            static_assert(ColorSpace::Dimension == 1, "ORB only supports single channel images");
+            static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
+            static_assert(ImageBase<Derived>::Scalar::ColorSpace::Dimension == 1, "ORB only supports single channel images");
 
             const auto pyramid = image::makePyramid(img, levels, factor);
             this->operator()(pyramid, keypoints);
@@ -83,7 +84,7 @@ namespace nvision
         void operator()(const ImagePyramid<Scalar, ColorSpace> &pyramid,
                         FeatureMatrix &keypoints) const
         {
-            static_assert(ColorSpace::Dimension == 1, "ORB only supports single channel images");
+            static_assert(ColorSpace::Dimension == 1, "BRIEF only supports single channel images");
 
             const auto &img = pyramid.images().front();
 

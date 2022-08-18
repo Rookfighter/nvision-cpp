@@ -28,11 +28,12 @@ namespace nvision
           * @param img the image on which the box filter should be applied.
           * @param handling the border handling mode; defaults to BorderReflect
           * @return expression of the convolution operation */
-        template<typename ColorSpace, typename BorderHandling=BorderReflect>
-        auto operator()(const Image<ColorSpace> &img,
+        template<typename Derived, typename BorderHandling=BorderReflect>
+        auto operator()(const ImageBase<Derived> &img,
             const GradientMode::X,
             const BorderHandling &handling = BorderHandling{}) const
         {
+            static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
             return image::correlate(img, _kernelX, handling);
         }
 
@@ -40,11 +41,12 @@ namespace nvision
           * @param img the image on which the box filter should be applied.
           * @param handling the border handling mode; defaults to BorderReflect
           * @return expression of the convolution operation */
-        template<typename ColorSpace, typename BorderHandling=BorderReflect>
-        auto operator()(const Image<ColorSpace> &img,
+        template<typename Derived, typename BorderHandling=BorderReflect>
+        auto operator()(const ImageBase<Derived> &img,
             const GradientMode::Y,
             const BorderHandling &handling = BorderHandling{}) const
         {
+            static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
             return image::correlate(img, _kernelY, handling);
         }
     private:

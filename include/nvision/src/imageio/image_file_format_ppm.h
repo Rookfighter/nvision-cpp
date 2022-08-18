@@ -20,9 +20,12 @@ namespace nvision
     class ImageReader<PPM>
     {
     public:
-        template<typename ColorSpace>
-        void operator()(std::istream &stream, Image<ColorSpace> &img) const
+        template<typename Derived>
+        void operator()(std::istream &stream, ImageBase<Derived> &img) const
         {
+            static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
+            using ColorSpace = typename ImageBase<Derived>::Scalar::ColorSpace;
+
             // find start signature "P6"
             while(stream.good() && stream.get() != 'P')
             { }
@@ -115,9 +118,11 @@ namespace nvision
     class ImageWriter<PPM>
     {
     public:
-        template<typename ColorSpace>
-        void operator()(std::ostream &stream, const Image<ColorSpace> &img, const PPM &) const
+        template<typename Derived>
+        void operator()(std::ostream &stream, const ImageBase<Derived> &img, const PPM &) const
         {
+            static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
+
             if(!stream.good())
                 throw std::runtime_error("PPM stream is not good");
 

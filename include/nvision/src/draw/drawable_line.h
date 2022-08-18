@@ -31,14 +31,15 @@ namespace nvision
     {
         namespace internal
         {
-            template<typename ColorSpace>
-            void drawLow(Image<ColorSpace> &img,
+            template<typename Derived>
+            void drawLow(ImageBase<Derived> &img,
                 const Index x0,
                 const Index y0,
                 const Index x1,
                 const Index y1,
-                const Color<ColorSpace> &color)
+                const Color<typename ImageBase<Derived>::Scalar::ColorSpace> &color)
             {
+                static_assert(IsImage<ImageBase<Derived>>::value, "image must be of image type");
                 const auto pixel = nvision::color::toPixel(color);
                 const auto dx = x1 - x0;
                 auto dy = y1 - y0;
@@ -68,14 +69,15 @@ namespace nvision
                 }
             }
 
-            template<typename ColorSpace>
-            void drawHigh(Image<ColorSpace> &img,
+            template<typename Derived>
+            void drawHigh(ImageBase<Derived> &img,
                           const Index x0,
                           const Index y0,
                           const Index x1,
                           const Index y1,
-                          const Color<ColorSpace> &color)
+                          const Color<typename ImageBase<Derived>::Scalar::ColorSpace> &color)
             {
+                static_assert(IsImage<ImageBase<Derived>>::value, "image must be of image type");
                 const auto pixel = nvision::color::toPixel(color);
                 const auto dy = y1 - y0;
                 auto dx = x1 - x0;
@@ -106,9 +108,10 @@ namespace nvision
             }
         }
 
-        template<typename ColorSpace>
-        void draw(Image<ColorSpace> &img, const Line &line, const Color<ColorSpace> &color)
+        template<typename Derived>
+        void draw(ImageBase<Derived> &img, const Line &line, const Color<typename ImageBase<Derived>::Scalar::ColorSpace> &color)
         {
+            static_assert(IsImage<ImageBase<Derived>>::value, "image must be of image type");
             const auto x0 = static_cast<Index>(std::round(line.p0.x()));
             const auto y0 = static_cast<Index>(std::round(line.p0.y()));
             const auto x1 = static_cast<Index>(std::round(line.p1.x()));

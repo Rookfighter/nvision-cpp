@@ -56,11 +56,12 @@ namespace nvision
           * (column row), format.
           * @param img input grayscale image
           * @param keypoints 2xN matrix with N keypoints */
-        template<typename ColorSpace>
-        void operator()(const Image<ColorSpace> &img,
+        template<typename Derived>
+        void operator()(const ImageBase<Derived> &img,
                         FeatureMatrix &keypoints) const
         {
-            static_assert(ColorSpace::Dimension == 1, "FAST only supports single channel images");
+            static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
+            static_assert(ImageBase<Derived>::Scalar::ColorSpace::Dimension == 1, "FAST only supports single channel images");
 
             // detect all corners according to the current mode of operation
             std::vector<Vector2i> corners;

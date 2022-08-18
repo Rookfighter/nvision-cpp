@@ -23,6 +23,7 @@ namespace nvision
         using Scalar = _Scalar;
         using ColorSpace = _ColorSpace;
 
+        static_assert(IsColorSpace<ColorSpace>::value, "Image pyramid must use color space");
         static_assert(Eigen::NumTraits<Scalar>::IsInteger == 0, "Image pyramid must use floating points");
 
         /** Single level of an image pyramid which specifies the absolute scale
@@ -33,11 +34,13 @@ namespace nvision
             Scalar scaleY;
         };
 
-        ImagePyramid(const Image<ColorSpace> &img, const Index levels, const Scalar factor)
+        template<typename Derived>
+        ImagePyramid(const ImageBase<Derived> &img, const Index levels, const Scalar factor)
             : ImagePyramid(img, levels, factor, factor)
         { }
 
-        ImagePyramid(const Image<ColorSpace> &img, const Index levels, const Scalar factorX , const Scalar factorY)
+        template<typename Derived>
+        ImagePyramid(const ImageBase<Derived> &img, const Index levels, const Scalar factorX , const Scalar factorY)
         {
             _levels.resize(levels);
 
@@ -54,7 +57,8 @@ namespace nvision
             computeImages(img);
         }
 
-        ImagePyramid(const Image<ColorSpace> &img, const std::vector<Level> &levels)
+        template<typename Derived>
+        ImagePyramid(const ImageBase<Derived> &img, const std::vector<Level> &levels)
             : _levels(levels)
         {
             computeImages(img);
@@ -79,7 +83,8 @@ namespace nvision
         std::vector<Level> _levels = {};
         std::vector<Image<ColorSpace>> _images = {};
 
-        void computeImages(const Image<ColorSpace> &img)
+        template<typename Derived>
+        void computeImages(const ImageBase<Derived> &img)
         {
             _images.resize(_levels.size());
             for(size_t i = 0; i < _levels.size(); ++i)
@@ -104,12 +109,13 @@ namespace nvision
           * @param levels the number of levels that the pyramid should contain
           * @param factor the unform scaling factor that will be applied to create the pyramid
           * @return the generated image pyramid. */
-        template<typename Scalar, typename ColorSpace>
-        ImagePyramid<Scalar, ColorSpace> makePyramid(const Image<ColorSpace> &img,
+        template<typename Scalar, typename Derived>
+        ImagePyramid<Scalar, typename ImageBase<Derived>::Scalar::ColorSpace> makePyramid(const ImageBase<Derived> &img,
                                                      const Index levels,
                                                      const Scalar factor)
         {
-            return ImagePyramid<Scalar, ColorSpace>(img, levels, factor);
+            static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
+            return ImagePyramid<Scalar, typename ImageBase<Derived>::Scalar::ColorSpace>(img, levels, factor);
         }
 
         /** Creates an image pyramid with specified horizontal and vertical scale.
@@ -118,24 +124,26 @@ namespace nvision
           * @param factorX the scaling factor that will be applied horizontally
           * @param factorY the scaling factor that will be applied vertically
           * @return the generated image pyramid. */
-        template<typename Scalar, typename ColorSpace>
-        ImagePyramid<Scalar, ColorSpace> makePyramid(const Image<ColorSpace> &img,
+        template<typename Scalar, typename Derived>
+        ImagePyramid<Scalar, typename ImageBase<Derived>::Scalar::ColorSpace> makePyramid(const ImageBase<Derived> &img,
                                                      const Index levels,
                                                      const Scalar factorX,
                                                      const Scalar factorY)
         {
-            return ImagePyramid<Scalar, ColorSpace>(img, levels, factorX, factorY);
+            static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
+            return ImagePyramid<Scalar, typename ImageBase<Derived>::Scalar::ColorSpace>(img, levels, factorX, factorY);
         }
 
         /** Creates an image pyramid with specified levels and their independent scales.
           * @param img the original image which should be used in the pyramid
           * @param levels list of levels that the pyramid should contain
           * @return the generated image pyramid. */
-        template<typename Scalar, typename ColorSpace>
-        ImagePyramid<Scalar, ColorSpace> makePyramid(const Image<ColorSpace> &img,
-                                                     const std::vector<typename ImagePyramid<Scalar, ColorSpace>::Level> &levels)
+        template<typename Scalar, typename Derived>
+        ImagePyramid<Scalar, typename ImageBase<Derived>::Scalar::ColorSpace> makePyramid(const ImageBase<Derived> &img,
+                                                     const std::vector<typename ImagePyramid<Scalar, typename ImageBase<Derived>::Scalar::ColorSpace>::Level> &levels)
         {
-            return ImagePyramid<Scalar, ColorSpace>(img, levels);
+            static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
+            return ImagePyramid<Scalar, typename ImageBase<Derived>::Scalar::ColorSpace>(img, levels);
         }
     }
 }

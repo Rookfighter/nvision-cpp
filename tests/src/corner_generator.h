@@ -31,9 +31,11 @@ namespace nvision::test
             : _definitions(definitions)
         {}
 
-        template<typename ColorSpace>
-        void generate(Image<ColorSpace> &img, FeatureMatrix &features, const Color<ColorSpace> &color) const
+        template<typename Derived, typename ColorSpace>
+        void generate(ImageBase<Derived> &img, FeatureMatrix &features, const Color<ColorSpace> &color) const
         {
+            static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
+
             features.resize(2, _definitions.size() * 3);
 
             for(size_t i = 0; i < _definitions.size(); ++i)

@@ -22,9 +22,13 @@ namespace nvision
 
     namespace image
     {
-        template<typename ColorSpace, typename Derived>
-        void draw(Image<ColorSpace> &img, const Eigen::MatrixBase<Derived> &points, const Marker marker, const Color<ColorSpace> &color)
+        template<typename DerivedImage, typename DerivedMatrix>
+        void draw(ImageBase<DerivedImage> &img,
+                  const Eigen::MatrixBase<DerivedMatrix> &points,
+                  const Marker marker,
+                  const Color<typename ImageBase<DerivedImage>::Scalar::ColorSpace> &color)
         {
+            static_assert(IsImage<ImageBase<DerivedImage>>::value, "image must be of image type");
             for(Index i = 0; i < points.cols(); ++i)
             {
                 switch(marker)
