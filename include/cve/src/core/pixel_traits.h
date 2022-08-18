@@ -30,31 +30,31 @@
             AddCost = 3,\
             MulCost = 3\
         };\
-        constexpr static Real epsilon()\
+        static constexpr Real epsilon()\
         {\
             return Real(std::numeric_limits<ValueType>::epsilon());\
         }\
-        constexpr static Real highest()\
+        static constexpr Real highest()\
         {\
             return Real(std::numeric_limits<ValueType>::max());\
         }\
-         constexpr static Real lowest()\
+         static constexpr Real lowest()\
         {\
             return Real(std::numeric_limits<ValueType>::min());\
         }\
-         constexpr static Real min_exponent()\
+         static constexpr Real min_exponent()\
         {\
             return Real(std::numeric_limits<ValueType>::min_exponent);\
         }\
-         constexpr static Real max_exponent()\
+         static constexpr Real max_exponent()\
         {\
             return Real(std::numeric_limits<ValueType>::max_exponent);\
         }\
-        constexpr static Real digits()\
+        static constexpr Real digits()\
         {\
             return Real(std::numeric_limits<ValueType>::digits);\
         }\
-        constexpr static Real digits10()\
+        static constexpr Real digits10()\
         {\
             return Real(std::numeric_limits<ValueType>::digits10);\
         }\

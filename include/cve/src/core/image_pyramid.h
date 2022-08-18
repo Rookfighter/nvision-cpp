@@ -10,6 +10,8 @@
 #include "cve/src/core/image_type.h"
 #include "cve/src/core/image_resizing.h"
 
+#include <vector>
+
 namespace cve
 {
     /** Data representation of an image pyramid.

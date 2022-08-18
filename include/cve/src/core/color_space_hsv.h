@@ -15,10 +15,10 @@ namespace cve
     struct HSV
     {
         using ValueType = float32;
-        constexpr static Index Dimension = 3;
+        static constexpr Index Dimension = 3;
 
-        constexpr static std::array<ValueType, Dimension> minimum = {0, 0, 0};
-        constexpr static std::array<ValueType, Dimension> maximum = {1, 1, 1};
+        static constexpr std::array<ValueType, Dimension> minimum = {0, 0, 0};
+        static constexpr std::array<ValueType, Dimension> maximum = {1, 1, 1};
     };
 
     namespace pixel

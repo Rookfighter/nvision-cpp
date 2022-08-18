@@ -15,20 +15,20 @@ namespace cve
     struct BGRf
     {
         using ValueType = float32;
-        constexpr static Index Dimension = 3;
+        static constexpr Index Dimension = 3;
 
-        constexpr static std::array<ValueType, Dimension> minimum = {0, 0, 0};
-        constexpr static std::array<ValueType, Dimension> maximum = {1, 1, 1};
+        static constexpr std::array<ValueType, Dimension> minimum = {0, 0, 0};
+        static constexpr std::array<ValueType, Dimension> maximum = {1, 1, 1};
     };
 
     /** BGR color space with byte types. */
     struct BGR
     {
         using ValueType = uint8;
-        constexpr static Index Dimension = 3;
+        static constexpr Index Dimension = 3;
 
-        constexpr static std::array<ValueType, Dimension> minimum = {0, 0, 0};
-        constexpr static std::array<ValueType, Dimension> maximum = {255, 255, 255};
+        static constexpr std::array<ValueType, Dimension> minimum = {0, 0, 0};
+        static constexpr std::array<ValueType, Dimension> maximum = {255, 255, 255};
     };
 
     // BGRf

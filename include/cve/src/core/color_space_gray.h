@@ -15,20 +15,20 @@ namespace cve
     struct Grayf
     {
         using ValueType = float32;
-        constexpr static Index Dimension = 1;
+        static constexpr Index Dimension = 1;
 
-        constexpr static std::array<ValueType, Dimension> minimum = {0};
-        constexpr static std::array<ValueType, Dimension> maximum = {1};
+        static constexpr std::array<ValueType, Dimension> minimum = {0};
+        static constexpr std::array<ValueType, Dimension> maximum = {1};
     };
 
     /** Gray color space with byte types. */
     struct Gray
     {
         using ValueType = uint8;
-        constexpr static Index Dimension = 1;
+        static constexpr Index Dimension = 1;
 
-        constexpr static std::array<ValueType, Dimension> minimum = {0};
-        constexpr static std::array<ValueType, Dimension> maximum = {255};
+        static constexpr std::array<ValueType, Dimension> minimum = {0};
+        static constexpr std::array<ValueType, Dimension> maximum = {255};
     };
 
     // Grayf

@@ -15,20 +15,20 @@ namespace cve
     struct RGBAf
     {
         using ValueType = float32;
-        constexpr static Index Dimension = 4;
+        static constexpr Index Dimension = 4;
 
-        constexpr static std::array<ValueType, Dimension> minimum = {0, 0, 0, 0};
-        constexpr static std::array<ValueType, Dimension> maximum = {1, 1, 1, 1};
+        static constexpr std::array<ValueType, Dimension> minimum = {0, 0, 0, 0};
+        static constexpr std::array<ValueType, Dimension> maximum = {1, 1, 1, 1};
     };
 
     /** RGBA color space with byte types. */
     struct RGBA
     {
         using ValueType = uint8;
-        constexpr static Index Dimension = 4;
+        static constexpr Index Dimension = 4;
 
-        constexpr static std::array<ValueType, Dimension> minimum = {0, 0, 0, 0};
-        constexpr static std::array<ValueType, Dimension> maximum = {255, 255, 255, 255};
+        static constexpr std::array<ValueType, Dimension> minimum = {0, 0, 0, 0};
+        static constexpr std::array<ValueType, Dimension> maximum = {255, 255, 255, 255};
     };
 
     // RGBAf

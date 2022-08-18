@@ -19,7 +19,7 @@ namespace cve
     public:
         using ColorSpace = _ColorSpace;
         using ValueType = typename ColorSpace::ValueType;
-        constexpr static Index Dimension = ColorSpace::Dimension;
+        static constexpr Index Dimension = ColorSpace::Dimension;
 
         Pixel() = default;
 
