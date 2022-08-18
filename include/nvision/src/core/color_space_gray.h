@@ -21,6 +21,12 @@ namespace nvision
         static constexpr std::array<ValueType, Dimension> maximum = {1};
     };
 
+    template<>
+    struct IsColorSpace<Grayf>
+    {
+        static constexpr bool value = true;
+    };
+
     /** Gray color space with byte types. */
     struct Gray
     {
@@ -29,6 +35,12 @@ namespace nvision
 
         static constexpr std::array<ValueType, Dimension> minimum = {0};
         static constexpr std::array<ValueType, Dimension> maximum = {255};
+    };
+
+    template<>
+    struct IsColorSpace<Gray>
+    {
+        static constexpr bool value = true;
     };
 
     // Grayf

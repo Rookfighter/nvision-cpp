@@ -54,8 +54,23 @@
 
 namespace nvision
 {
+    template<typename T>
+    struct IsImage
+    {
+        static constexpr bool value = false;
+    };
+
     template<typename ColorSpace>
     using Image = Eigen::Array<Pixel<ColorSpace>, Eigen::Dynamic, Eigen::Dynamic>;
+
+    template<typename Derived>
+    using ImageBase = Eigen::ArrayBase<Derived>;
+
+    template<typename Derived>
+    struct IsImage<ImageBase<Derived>>
+    {
+        static constexpr bool value = IsPixel<typename ImageBase<Derived>::Scalar>::value;
+    };
 
     using ImageGray = Image<Gray>;
     using ImageRGB = Image<RGB>;

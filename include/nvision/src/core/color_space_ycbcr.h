@@ -21,6 +21,12 @@ namespace nvision
         static constexpr std::array<ValueType, Dimension> maximum = {1, 1, 1};
     };
 
+    template<>
+    struct IsColorSpace<YCbCrf>
+    {
+        static constexpr bool value = true;
+    };
+
     /** YCbCr color space with byte types. */
     struct YCbCr
     {
@@ -29,6 +35,12 @@ namespace nvision
 
         static constexpr std::array<ValueType, Dimension> minimum = {0, 0, 0};
         static constexpr std::array<ValueType, Dimension> maximum = {255, 255, 255};
+    };
+
+    template<>
+    struct IsColorSpace<YCbCr>
+    {
+        static constexpr bool value = true;
     };
 
     // YCbCrf

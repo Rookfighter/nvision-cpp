@@ -21,6 +21,7 @@ namespace nvision
     class BorderConstant
     {
     public:
+        static_assert(IsColorSpace<_ColorSpace>::value, "template parameter must be a color space");
         using ColorSpace = _ColorSpace;
 
         BorderConstant()

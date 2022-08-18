@@ -21,6 +21,12 @@ namespace nvision
         static constexpr std::array<ValueType, Dimension> maximum = {1, 1, 1};
     };
 
+    template<>
+    struct IsColorSpace<HSV>
+    {
+        static constexpr bool value = true;
+    };
+
     namespace pixel
     {
         template<>

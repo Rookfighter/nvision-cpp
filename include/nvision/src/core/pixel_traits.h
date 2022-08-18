@@ -81,7 +81,6 @@ namespace Eigen
 
     NVISION_GEN_NUMTRAITS(nvision::YCbCr);
     NVISION_GEN_NUMTRAITS(nvision::YCbCrf);
-
 }
 
 #endif

@@ -9,6 +9,7 @@
 
 #include <array>
 #include "nvision/src/core/pixel_generic_ops.h"
+#include "nvision/src/core/color_space_traits.h"
 
 namespace nvision
 {
@@ -22,6 +23,12 @@ namespace nvision
         static constexpr std::array<ValueType, Dimension> maximum = {1, 1, 1};
     };
 
+    template<>
+    struct IsColorSpace<RGBf>
+    {
+        static constexpr bool value = true;
+    };
+
     /** RGB color space with byte types. */
     struct RGB
     {
@@ -30,6 +37,12 @@ namespace nvision
 
         static constexpr std::array<ValueType, Dimension> minimum = {0, 0, 0};
         static constexpr std::array<ValueType, Dimension> maximum = {255, 255, 255};
+    };
+
+    template<>
+    struct IsColorSpace<RGB>
+    {
+        static constexpr bool value = true;
     };
 
     // RGBf

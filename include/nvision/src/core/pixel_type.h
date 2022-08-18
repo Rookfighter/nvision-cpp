@@ -8,6 +8,7 @@
 #define NVISION_PIXEL_TYPE_H_
 
 #include "nvision/src/core/types.h"
+#include "nvision/src/core/color_space_traits.h"
 
 namespace nvision
 {
@@ -17,6 +18,8 @@ namespace nvision
     class Pixel
     {
     public:
+        static_assert(IsColorSpace<_ColorSpace>::value, "pixel must use a color space");
+
         using ColorSpace = _ColorSpace;
         using ValueType = typename ColorSpace::ValueType;
         static constexpr Index Dimension = ColorSpace::Dimension;
@@ -289,6 +292,19 @@ namespace nvision
         lhs << ')';
         return lhs;
     }
+
+    /// Type trait which determines if a given type is a pixel or not.
+    template<typename T>
+    struct IsPixel
+    {
+        static constexpr bool value = false;
+    };
+
+    template<typename T>
+    struct IsPixel<Pixel<T>>
+    {
+        static constexpr bool value = IsColorSpace<T>::value;
+    };
 }
 
 #endif
