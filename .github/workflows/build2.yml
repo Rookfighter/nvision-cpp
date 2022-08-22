@@ -1,0 +1,113 @@
+name: build2
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+
+  # Job for building on Ubuntu
+  Ubuntu:
+    name: ${{matrix.config.name}}
+    runs-on: ${{matrix.config.os}}
+    strategy:
+      matrix:
+        config:
+          - name: Ubuntu gcc Debug
+            os: ubuntu-latest
+            config_file: gcc.debug.build
+          - name: Ubuntu clang Debug
+            os: ubuntu-latest
+            config_file: clang.debug.build
+          - name: Ubuntu gcc Release
+            os: ubuntu-latest
+            config_file: gcc.release.build
+          - name: Ubuntu clang Release
+            os: ubuntu-latest
+            config_file: clang.release.build
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - uses: build2/setup-build2-github-action@v2
+        with:
+          build2-version: latest
+      - name: Install dependencies
+        run: sudo apt update && sudo apt install -y libx11-dev libxrandr-dev libudev-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev
+      - name: Configure
+        run: bdep init -C @cc cc config.config.load=build-config/${{matrix.config.config_file}}
+      - name: Build
+        run: b -V
+      - name: Test
+        run: b test -V
+
+  # Job for building on MacOS
+  MacOS:
+    name: ${{matrix.config.name}}
+    runs-on: ${{matrix.config.os}}
+    strategy:
+      matrix:
+        config:
+          - name: MacOS clang Debug
+            os: macos-latest
+            config_file: clang.debug.build
+          - name: MacOS clang Release
+            os: macos-latest
+            config_file: clang.release.build
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+    - uses: build2/setup-build2-github-action@v2
+      with:
+        build2-version: latest
+    - name: Configure
+      run: bdep init -C @cc cc config.config.load=build-config/${{matrix.config.config_file}}
+    - name: Build
+      run: b -V
+    - name: Test
+      run: b test -V
+
+  # Job for building on Windows
+  Windows:
+    name: ${{matrix.config.name}}
+    runs-on: ${{matrix.config.os}}
+    strategy:
+      matrix:
+        config:
+          - name: Windows msvc Debug
+            os: windows-latest
+            config_file: msvc.debug.build
+            compiler_type: msvc
+          - name: Windows clang Debug
+            os: windows-latest
+            config_file: clang.debug.build
+            compiler_type: clang
+          - name: Windows msvc Release
+            os: windows-latest
+            config_file: msvc.release.build
+            compiler_type: msvc
+          - name: Windows clang Release
+            os: windows-latest
+            config_file: clang.release.build
+            compiler_type: clang
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+    - uses: build2/setup-build2-github-action@v2
+      with:
+        build2-version: latest
+        build2-windows-compiler:  ${{matrix.config.compiler_type}}
+    - name: Configure
+      run: bdep init -C ../nvision-cc @cc cc config.config.load=build-config/${{matrix.config.config_file}}
+    - name: Build
+      run: b -V
+    - name: Test
+      run: b test -V

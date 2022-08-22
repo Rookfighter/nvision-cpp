@@ -1,0 +1,3 @@
+config.version = 1
+config.cxx = clang++
+config.cc.coptions = -g

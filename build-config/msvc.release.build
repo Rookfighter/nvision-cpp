@@ -1,0 +1,3 @@
+config.version = 1
+config.cxx = cl /MD
+config.cc.coptions = /O2 /DNDEBUG

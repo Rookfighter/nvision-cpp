@@ -1,0 +1,4 @@
+config.version = 1
+config.cxx = cl /MDd
+config.cc.coptions = /Od /Zi
+config.cc.loptions = /DEBUG
