@@ -4,11 +4,11 @@
 ![License](https://img.shields.io/packagist/l/doctrine/orm.svg)
 
 `nvision` is a header-only C++ library for computer vision applications
-using the ```Eigen3``` library.
+using the `Eigen3` library.
 
-```nvision``` provides:
+`nvision` provides:
 
-* image filters like ```gauss```, ```box```, ```laplace```, ```sobel``` and ```scharr```
+* image filters like `gauss`, `box`, `laplace`, `sobel` and `scharr`
 * feature detectors like ```Harris```, ```ShiTomasi```, ```FAST``` and ```ORB```
 * feature descriptors like ```BRIEF``` and ```ORB```
 * optical flow estimation using ```LucasKanade``` and ```HornSchunck```
@@ -18,38 +18,31 @@ using the ```Eigen3``` library.
 
 ## Install
 
-Simply copy the header files into your project or install them using
-the CMake build system by typing
+`nvision` uses the [build2](https://build2.org/) build system. You can easily use it as dependency by adding it to your `manifest` file.
+It will also resolve all additional dependecies of `nvision` for you.
 
-```bash
-cd path/to/repo
-mkdir build
-cd build
-cmake ..
-make install
+```
+depends: libnvision ^1.0.0
 ```
 
-The library requires ```Eigen3``` to be installed on your system.
+Otherwise you can simply copy the header files into your project and include the directly.
 
-Moreover You have to link your application against ```libpng``` and
-```libjpg``` for handling ```png``` and ```jpg``` files.
+The core library and all algorithms only require `Eigen3` as dependency. Make sure it can be found by your build system
+
+For loading PNG and JPEG files you will need to link against `libpng` and `libjpg-turbo` additionally.
 
 In Debian based systems you can simply install these dependencies using ```apt-get```.
 
 ```bash
-apt-get install libeigen3-dev libpng-dev libjpg-dev
+apt-get install libeigen3-dev libpng-dev libjpg-turbo-dev
 ```
-
-Make sure ```Eigen3``` can be found by your build system.
-
-You can use the CMake Find module in ```cmake/``` to find the installed headers.
 
 ## Usage
 
 ```nvision``` has many different modules and classes for filtering, feature or
 edge detection, optical flow and projective geometry.
 
-Please see the docs, examples and the source files for detailed information.
+Check the `examples/` directory for detailed examples and have a look at the docs for detailed information.
 
 A simple getting started example with a gauss filter:
 
@@ -148,4 +141,20 @@ int main(int argc, const char **argv)
     // Currently PPM PGM, PNG and JPG are supported.
     nvision::imsave(argv[2], dest);
 }
+```
+
+## Compile
+
+`nvision` can be compiled using the build2 build system.
+
+```
+bdep init -C @gcc-debug cc config.config.load=build-config/gcc.debug.build
+b
+```
+
+This will resolve all dependencies of `nvision` and build all examples and unit tests with your default compiler.
+You can run the unit tests using build2 again.
+
+```
+b test
 ```
