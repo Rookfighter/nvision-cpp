@@ -86,7 +86,7 @@ namespace nvision
                         FeatureMatrix &keypoints) const
         {
             static_assert(IsImage<ImageBase<Derived>>::value, "image must be of image type");
-            using ColorSpace = ImageBase<Derived>::Scalar::ColorSpace;
+            using ColorSpace = typename ImageBase<Derived>::Scalar::ColorSpace;
             using Matrix2 = Eigen::Matrix<Scalar, 2, 2>;
             using Vector2i = Eigen::Matrix<Index, 2, 1>;
 

@@ -21,7 +21,7 @@ namespace nvision::image
             static_assert(IsImage<ImageBase<Derived>>::value, "Resize functor must use image type");
             static_assert(Eigen::NumTraits<Float>::IsInteger == 0, "Resize factor must be floating point");
 
-            using PixelType = ImageBase<Derived>::Scalar;
+            using PixelType = typename ImageBase<Derived>::Scalar;
 
             ResizeFunctor(const ImageBase<Derived> &img, const Float verticalFactor, const Float horizontalFactor)
             : _img(img), _verticalFactor(verticalFactor), _horizontalFactor(horizontalFactor)

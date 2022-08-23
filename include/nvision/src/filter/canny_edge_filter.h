@@ -54,7 +54,7 @@ namespace nvision
         auto operator()(const ImageBase<Derived> &img, const BorderHandling &handling = {}) const
         {
             static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
-            using ColorSpace = ImageBase<Derived>::Scalar::ColorSpace;
+            using ColorSpace = typename ImageBase<Derived>::Scalar::ColorSpace;
 
             // smooth image
             Image<ColorSpace> result = _smooth(img);

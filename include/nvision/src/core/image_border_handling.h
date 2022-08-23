@@ -58,7 +58,7 @@ namespace nvision
     {
     public:
         template<typename Derived>
-        const ImageBase<Derived>::Scalar &operator()(const ImageBase<Derived> &img,
+        const typename ImageBase<Derived>::Scalar &operator()(const ImageBase<Derived> &img,
                                             const Index row,
                                             const Index col) const
         {
@@ -90,7 +90,7 @@ namespace nvision
     {
     public:
         template<typename Derived>
-        const ImageBase<Derived>::Scalar &operator()(const ImageBase<Derived> &img,
+        const typename ImageBase<Derived>::Scalar &operator()(const ImageBase<Derived> &img,
                            const Index row,
                            const Index col) const
         {

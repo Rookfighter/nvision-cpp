@@ -16,14 +16,14 @@ namespace nvision
     struct LinearVerticalInterpolation
     {
         template<typename Derived, typename Float>
-        ImageBase<Derived>::Scalar operator()(const ImageBase<Derived> &img,
+        typename ImageBase<Derived>::Scalar operator()(const ImageBase<Derived> &img,
                                            const Float row,
                                            const Index col) const
         {
             static_assert(Eigen::NumTraits<Float>::IsInteger == 0, "indexed values must be floating point");
             static_assert(IsImage<ImageBase<Derived>>::value, "input is not a valid image type");
-            using PixelType = ImageBase<Derived>::Scalar;
-            using ColorSpace = PixelType::ColorSpace;
+            using PixelType = typename ImageBase<Derived>::Scalar;
+            using ColorSpace = typename PixelType::ColorSpace;
 
             const auto r1 = std::floor(row);
             const auto r2 = std::ceil(row);
@@ -58,14 +58,14 @@ namespace nvision
     struct LinearHorizontalInterpolation
     {
         template<typename Derived, typename Float>
-        ImageBase<Derived>::Scalar operator()(const ImageBase<Derived> &img,
+        typename ImageBase<Derived>::Scalar operator()(const ImageBase<Derived> &img,
                                            const Index row,
                                            const Float col) const
         {
             static_assert(Eigen::NumTraits<Float>::IsInteger == 0, "indexed values must be floating point");
             static_assert(IsImage<ImageBase<Derived>>::value, "input is not a valid image type");
-            using PixelType = ImageBase<Derived>::Scalar;
-            using ColorSpace = PixelType::ColorSpace;
+            using PixelType = typename ImageBase<Derived>::Scalar;
+            using ColorSpace = typename PixelType::ColorSpace;
 
             const auto c1 = std::floor(col);
             const auto c2 = std::ceil(col);
@@ -100,14 +100,14 @@ namespace nvision
     struct BilinearInterpolation
     {
         template<typename Derived, typename Float>
-        ImageBase<Derived>::Scalar operator()(const ImageBase<Derived> &img,
+        typename ImageBase<Derived>::Scalar operator()(const ImageBase<Derived> &img,
                                            const Float row,
                                            const Float col) const
         {
             static_assert(Eigen::NumTraits<Float>::IsInteger == 0, "indexed values must be floating point");
             static_assert(IsImage<ImageBase<Derived>>::value, "input is not a valid image type");
-            using PixelType = ImageBase<Derived>::Scalar;
-            using ColorSpace = PixelType::ColorSpace;
+            using PixelType = typename ImageBase<Derived>::Scalar;
+            using ColorSpace = typename PixelType::ColorSpace;
 
             const auto r1 = std::floor(row);
             const auto r2 = std::ceil(row);
@@ -169,7 +169,7 @@ namespace nvision
           * @param col column index of the interpolated pixel
           * @return interpolated pixel value */
         template<typename Derived, typename Float>
-        inline ImageBase<Derived>::Scalar interpolateLinearVertical(const ImageBase<Derived> &img,
+        inline typename ImageBase<Derived>::Scalar interpolateLinearVertical(const ImageBase<Derived> &img,
                                               const Float row,
                                               const Index col)
         {
@@ -183,7 +183,7 @@ namespace nvision
           * @param col column index of the interpolated pixel
           * @return interpolated pixel value */
         template<typename Derived, typename Float>
-        inline ImageBase<Derived>::Scalar interpolateLinearHorizontal(const ImageBase<Derived> &img,
+        inline typename ImageBase<Derived>::Scalar interpolateLinearHorizontal(const ImageBase<Derived> &img,
                                               const Index row,
                                               const Float col)
         {
@@ -197,7 +197,7 @@ namespace nvision
           * @param col column index of the interpolated pixel
           * @return interpolated pixel value */
         template<typename Derived, typename Float>
-        inline ImageBase<Derived>::Scalar interpolateBilinear(const ImageBase<Derived> &img,
+        inline typename ImageBase<Derived>::Scalar interpolateBilinear(const ImageBase<Derived> &img,
                                               const Float row,
                                               const Float col)
         {

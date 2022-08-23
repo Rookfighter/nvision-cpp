@@ -56,7 +56,7 @@ namespace nvision
         auto operator()(const ImageBase<Derived> &img, const BorderHandling &handling = {}) const
         {
             static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
-            using ColorSpace = ImageBase<Derived>::Scalar::ColorSpace;
+            using ColorSpace = typename ImageBase<Derived>::Scalar::ColorSpace;
             static_assert(Eigen::NumTraits<typename ColorSpace::ValueType>::IsInteger == 0, "Image must use floating point value");
 
             Image<ColorSpace> u = img;
