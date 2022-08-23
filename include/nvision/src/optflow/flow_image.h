@@ -20,7 +20,7 @@ namespace nvision
         return flow.unaryExpr([maxMagnitude](const FlowVector<Scalar>& vec)
         {
             const auto magnitude = vec.norm() / maxMagnitude;
-            const auto angle = nvision::angle::normalize(std::atan2<Scalar>(vec.y(), vec.x())) / (2 * nvision::pi<Scalar>());
+            const auto angle = nvision::angle::normalize(std::atan2(vec.y(), vec.x())) / (2 * nvision::pi<Scalar>());
 
             Pixel<HSV> pixel(angle, magnitude, 0.9f);
             return pixel.template convert<ColorSpace>();
