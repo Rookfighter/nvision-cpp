@@ -46,7 +46,7 @@ namespace nvision
         auto operator()(const ImageBase<Derived> &img, const BorderHandling &handling = BorderHandling{}) const
         {
             static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
-            return image::filter<Dimension>(img, _kernel, handling);
+            return image::filter<Dimension, Dimension>(img, _kernel, handling);
         }
     private:
         const KernelMatrix _kernel = KernelMatrix::Constant(KernelScalar{1} / (KernelScalar{Dimension} * KernelScalar{Dimension}));

@@ -14,7 +14,7 @@ namespace nvision::image
 {
     namespace internal
     {
-        template<typename Derived, typename KernelType, typename BorderHandling, Index _Dimension>
+        template<typename Derived, typename KernelType, typename BorderHandling, Index Rows, Index Cols>
         class FilterFunctor
         {
         public:
@@ -22,7 +22,8 @@ namespace nvision::image
             static_assert(Eigen::NumTraits<typename KernelType::Scalar>::IsInteger == 0, "kernel must have floating point scalars");
 
             using KernelScalar = typename KernelType::Scalar;
-            static constexpr auto KernelDimension = _Dimension;
+            static constexpr auto KernelRows = Rows;
+            static constexpr auto KernelCols = Cols;
             using PixelType = typename ImageBase<Derived>::Scalar;
             using ColorSpace = typename PixelType::ColorSpace;
             using ImageValueType = typename ColorSpace::ValueType;
@@ -38,13 +39,13 @@ namespace nvision::image
                 Eigen::Array<KernelScalar, ColorSpace::Dimension, 1> result;
                 result.setZero();
 
-                for(Index kcol = 0; kcol < KernelDimension; ++kcol)
+                for(Index kcol = 0; kcol < KernelCols; ++kcol)
                 {
-                    const Index vcol = col + kcol - KernelDimension / 2;
+                    const Index vcol = col + kcol - KernelCols / 2;
 
-                    for(Index krow = 0; krow < KernelDimension; ++krow)
+                    for(Index krow = 0; krow < KernelRows; ++krow)
                     {
-                        const Index vrow = row + krow - KernelDimension / 2;
+                        const Index vrow = row + krow - KernelRows / 2;
                         const auto &pixel = _handling(_img, vrow, vcol);
 
                         for(Index i = 0; i < ColorSpace::Dimension; ++i)
@@ -73,10 +74,10 @@ namespace nvision::image
       * @param kernel kernel which is used to correlate the image
       * @param handling border handling that is used for convolving
       * @return expression of the convolution */
-    template<Index Dimension, typename Derived, typename KernelType, typename BorderHandling>
+    template<Index Rows, Index Cols, typename Derived, typename KernelType, typename BorderHandling>
     auto filter(const ImageBase<Derived> &img, const KernelType &kernel, const BorderHandling &handling)
     {
-        const auto functor = internal::FilterFunctor<Derived, KernelType, BorderHandling, Dimension>(img, kernel, handling);
+        const auto functor = internal::FilterFunctor<Derived, KernelType, BorderHandling, Rows, Cols>(img, kernel, handling);
         return ImageBase<Derived>::NullaryExpr(img.rows(), img.cols(), functor);
     }
 
@@ -85,10 +86,10 @@ namespace nvision::image
       * @param img image which is convolved
       * @param kernel kernel which is used to correlate the image
       * @return expression of the convolution */
-    template<Index Dimension, typename Derived, typename KernelType>
+    template<Index Rows, Index Cols, typename Derived, typename KernelType>
     auto filter(const ImageBase<Derived> &img, const KernelType &kernel)
     {
-        return filter<Dimension>(img, kernel, BorderReflect{});
+        return filter<Rows, Cols>(img, kernel, BorderReflect{});
     }
 
 }
