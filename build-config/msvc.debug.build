@@ -1,4 +1,4 @@
 config.version = 1
 config.cxx = cl /MDd
-config.cc.coptions = /Od /Zi
+config.cc.coptions = /Od /Zi /bigobj
 config.cc.loptions = /DEBUG
