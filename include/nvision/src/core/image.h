@@ -13,6 +13,7 @@
 #include "nvision/src/core/image_generic_ops.h"
 #include "nvision/src/core/image_border_handling.h"
 #include "nvision/src/core/image_correlation.h"
+#include "nvision/src/core/image_filter.h"
 #include "nvision/src/core/image_pyramid.h"
 
 #endif
