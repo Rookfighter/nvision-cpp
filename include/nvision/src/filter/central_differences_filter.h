@@ -34,7 +34,7 @@ namespace nvision
             const BorderHandling &handling = BorderHandling{}) const
         {
             static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
-            return image::correlate(img, _kernelX, handling);
+            return image::filter<Dimension>(img, _kernelX, handling);
         }
 
         /** Applies central differences in vertical direction to the given image and returns a expression of the computation.
@@ -47,7 +47,7 @@ namespace nvision
             const BorderHandling &handling = BorderHandling{}) const
         {
             static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
-            return image::correlate(img, _kernelY, handling);
+            return image::filter<Dimension>(img, _kernelY, handling);
         }
     private:
         const Eigen::Matrix<KernelScalar, 1, 3> _kernelX{-1, 0, 1};

@@ -22,7 +22,7 @@ int main(int argc, const char **argv)
     // Create a laplace filter object. The template parameter determines the
     // internal Scalar type, which is used for computations (e.g. Kernel and
     // Kernel application).
-    nvision::LaplaceFilter<nvision::float32> filter;
+    nvision::LaplaceFilter<nvision::float32, 3> filter;
 
     // Apply the filter to the source image and store it in dest.
     std::cout << "Apply filter" << std::endl;

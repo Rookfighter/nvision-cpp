@@ -26,7 +26,7 @@ TEMPLATE_TEST_CASE("laplace filter", "[filter]", Grayf, RGBf, BGRf, RGBAf, BGRAf
         expected(2, 0).setConstant(-130); expected(2, 1).setConstant(-510); expected(2, 2).setConstant(-510); expected(2, 3).setConstant(760);
         expected(3, 0).setConstant(10);   expected(3, 1).setConstant(890);  expected(3, 2).setConstant(-385); expected(3, 3).setConstant(10);
 
-        LaplaceFilter<float> filter;
+        LaplaceFilter<float, 3> filter;
         Image<TestType> actual = filter(img);
 
         REQUIRE_IMAGE_APPROX(expected, actual, 1e-3);

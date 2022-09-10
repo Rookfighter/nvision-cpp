@@ -45,7 +45,7 @@ namespace nvision
             const BorderHandling &handling = BorderHandling{}) const
         {
             static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
-            return image::correlate(img, _kernelX, handling);
+            return image::filter<Dimension>(img, _kernelX, handling);
         }
 
         /** Applies scharr filter in vertical direction to the given image and returns a expression of the computation.
@@ -58,7 +58,7 @@ namespace nvision
             const BorderHandling &handling = BorderHandling{}) const
         {
             static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
-            return image::correlate(img, _kernelY, handling);
+            return image::filter<Dimension>(img, _kernelY, handling);
         }
     private:
         KernelMatrix _kernelX = {};
