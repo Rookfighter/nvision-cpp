@@ -48,9 +48,8 @@ A simple getting started example with a gauss filter:
 
 ```cpp
 #include <iostream>
-#include <nvision/filter/gauss_filter.h>
-#include <nvision/imageio/imageio.h>
-#include <nvision/core/image.h>
+#include <nvision/filter.h>
+#include <nvision/imageio.h>
 
 int main(int argc, const char **argv)
 {
@@ -60,43 +59,48 @@ int main(int argc, const char **argv)
         return -1;
     }
 
-    // Declare Image tensors. Each value per pixel and depth is representd by
+    // Each value per pixel and depth is representd by
     // a 8-Bit integer.
-    // There are also Image16, Image32, Imagef or Imaged available for
-    // 16-bit, 32-bit, float and double types respectively-
-    nvision::Image8 src;
-    nvision::Image8 dest;
+    nvision::Image<nvision::RGB> src;
 
     // Load the image from a file. The file type is determined by the extension
     // of the file.
-    // Currently PPM PGM, PNG and JPG are supported.
+    std::cout << "Load " << argv[1] << std::endl;
     nvision::imload(argv[1], src);
 
     // Create a Gauss filter object. The template parameter determines the
     // internal Scalar type, which is used for computations (e.g. Kernel and
     // Kernel application).
-    // This constructor expects the standard deviation of the gaussian function
-    // and calculates the kernel size automatically.
-    nvision::GaussFilter<float> gaussFilter(3);
+    nvision::GaussFilter<nvision::float32, 9> filter(8.0f);
 
-    // Apply the Gauss filter to the source image and store it in dest.
-    gaussFilter(src, dest);
+    // Apply the filter to the source image and store it in dest.
+    std::cout << "Apply filter" << std::endl;
+    nvision::Image<nvision::RGB> dest = filter(src);
 
     // Save the image to a file. The file type is determined by the extension
     // of the file.
-    // Currently PPM PGM, PNG and JPG are supported.
+    std::cout << "Save " << argv[2] << std::endl;
     nvision::imsave(argv[2], dest);
+
+    return 0;
 }
 ```
 
 A simple getting started example with FAST feature detection:
 
 ```cpp
+/* simple_fast.cpp
+ *
+ * Author: Fabian Meyer
+ * Created On: 18 Jun 2019
+ */
+
 #include <iostream>
-#include <nvision/feature/fast_detector.h>
-#include <nvision/draw/shape_drawer.h>
-#include <nvision/draw/colors.h>
-#include <nvision/imageio/imageio.h>
+#include <nvision/feature.h>
+#include <nvision/draw.h>
+#include <nvision/imageio.h>
+
+using namespace nvision;
 
 int main(int argc, const char **argv)
 {
@@ -106,40 +110,40 @@ int main(int argc, const char **argv)
         return -1;
     }
 
-    // Declare Image tensors. Each value per pixel and depth is representd by
-    // a float.
-    // There are also Image8, Image16, Image32 or Imaged available for
-    // 8-bit, 16-bit, 32-bit and double types respectively-
-    nvision::Imagef src;
-    nvision::Imagef dest;
-
-    nvision::Matrixf keypoints;
+    // Each value per pixel and depth is representd by
+    // a 8-Bit integer.
+    nvision::Image<nvision::RGBf> src;
 
     // Load the image from a file. The file type is determined by the extension
     // of the file.
-    // Currently PPM PGM, PNG and JPG are supported.
+    std::cout << "Load " << argv[1] << std::endl;
     nvision::imload(argv[1], src);
 
-    // Create a fast feature object. The template parameter determines the
-    // internal Scalar type, which is used for computations.
-    // This constructor expects the standard deviation of the gaussian function
-    // and calculates the kernel size automatically.
-    nvision::FASTDetector<float> fast;
+    std::cout << "Convert to gray scale" << std::endl;
+    nvision::Image<nvision::Grayf> gray = nvision::image::convert<Grayf>(src);
 
-    // Apply the FAST detector to the source image and stores its keypoints.
-    fast(src, keypoints);
+    // Create a FAST feature detector object. The template parameter determines the
+    // internal Scalar type, which is used for computations and feature point
+    // representation.
+    nvision::FASTFeature<nvision::float32> detector;
 
-    // Create an output image with the detected keypoints.
-    // Copy input image to output image.
-    dest = src;
-    // Draw circles of radius of 10 around the keypoints
-    nvision::ShapeDrawer<float> drawer;
-    drawer.drawCircle(keypoints, 10, nvision::Colorf::Red(), dest);
+    // Extract feature points from the image.
+    using FeatureMatrix = typename nvision::FASTFeature<nvision::float32>::FeatureMatrix;
+    FeatureMatrix keypoints;
+    std::cout << "Detect features" << std::endl;
+    detector(gray, keypoints);
+
+    std::cout << "Draw " << keypoints.cols() << " keypoints" << std::endl;
+    nvision::image::draw(src, keypoints, nvision::Marker::Circle, nvision::color::red<RGBf>());
 
     // Save the image to a file. The file type is determined by the extension
     // of the file.
-    // Currently PPM PGM, PNG and JPG are supported.
-    nvision::imsave(argv[2], dest);
+    std::cout << "Save " << argv[2] << std::endl;
+    nvision::imsave(argv[2], src);
+
+    return 0;
+
+    return 0;
 }
 ```
 
