@@ -17,7 +17,7 @@
 
 namespace nvision
 {
-    std::string extension(const std::string &path)
+    inline std::string extension(const std::string &path)
     {
         size_t pos = path.find_last_of('.');
         if(pos == std::string::npos)
@@ -27,7 +27,7 @@ namespace nvision
     }
 
     template<typename Derived, typename FileFormat>
-    void imread(std::istream &stream, ImageBase<Derived> &img, const FileFormat &)
+    inline void imread(std::istream &stream, ImageBase<Derived> &img, const FileFormat &)
     {
         static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
         const ImageReader<FileFormat> reader;
@@ -35,7 +35,7 @@ namespace nvision
     }
 
     template<typename Derived, typename FileFormat>
-    void imload(const std::string &path, ImageBase<Derived> &img, const FileFormat &format)
+    inline void imload(const std::string &path, ImageBase<Derived> &img, const FileFormat &format)
     {
         static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
         std::ifstream stream(path, std::ifstream::binary);
@@ -43,7 +43,7 @@ namespace nvision
     }
 
     template<typename Derived>
-    void imload(const std::string &path, ImageBase<Derived> &img)
+    inline void imload(const std::string &path, ImageBase<Derived> &img)
     {
         static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
         const auto ext = extension(path);
@@ -61,7 +61,7 @@ namespace nvision
     }
 
     template<typename Derived, typename FileFormat>
-    void imwrite(std::ostream &stream, const ImageBase<Derived> &img, const FileFormat &format)
+    inline void imwrite(std::ostream &stream, const ImageBase<Derived> &img, const FileFormat &format)
     {
         static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
         const ImageWriter<FileFormat> writer;
@@ -69,7 +69,7 @@ namespace nvision
     }
 
     template<typename Derived, typename FileFormat>
-    void imsave(const std::string &path, const ImageBase<Derived> &img, const FileFormat &format)
+    inline void imsave(const std::string &path, const ImageBase<Derived> &img, const FileFormat &format)
     {
         static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
         std::ofstream stream(path, std::ofstream::binary);
@@ -77,7 +77,7 @@ namespace nvision
     }
 
     template<typename Derived>
-    void imsave(const std::string &path, const ImageBase<Derived> &img)
+    inline void imsave(const std::string &path, const ImageBase<Derived> &img)
     {
         static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
         const auto ext = extension(path);
