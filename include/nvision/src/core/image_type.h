@@ -60,6 +60,10 @@ namespace nvision
         static constexpr bool value = false;
     };
 
+    template<typename T>
+    struct ImageDepth
+    { };
+
     template<typename ColorSpace>
     using Image = Eigen::Array<Pixel<ColorSpace>, Eigen::Dynamic, Eigen::Dynamic>;
 
@@ -70,6 +74,12 @@ namespace nvision
     struct IsImage<ImageBase<Derived>>
     {
         static constexpr bool value = IsPixel<typename ImageBase<Derived>::Scalar>::value;
+    };
+
+    template<typename Derived>
+    struct ImageDepth<ImageBase<Derived>>
+    {
+        static constexpr Index value = PixelDepth<typename ImageBase<Derived>::Scalar>::value;
     };
 
     using ImageGray = Image<Gray>;

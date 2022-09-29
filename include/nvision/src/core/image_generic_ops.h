@@ -129,6 +129,13 @@ namespace nvision::image
 
         lhs.binaryExpr(rhs, [](const auto &a, const auto &b) { return atan2(a, b); });
     }
+
+    template<typename Derived>
+    constexpr inline Index depth(const ImageBase<Derived> &)
+    {
+        static_assert(IsImage<ImageBase<Derived>>::value, "input must be a valid image type");
+        return ImageDepth<ImageBase<Derived>>::value;
+    }
 }
 
 #endif

@@ -305,6 +305,16 @@ namespace nvision
     {
         static constexpr bool value = IsColorSpace<T>::value;
     };
+
+    template<typename T>
+    struct PixelDepth
+    { };
+
+    template<typename T>
+    struct PixelDepth<Pixel<T>>
+    {
+        static constexpr Index value = T::Dimension;
+    };
 }
 
 #endif
