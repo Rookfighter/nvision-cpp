@@ -14,6 +14,7 @@
 #include "nvision/src/imageio/image_file_format_pgm.h"
 #include "nvision/src/imageio/image_file_format_bmp.h"
 #include "nvision/src/imageio/image_file_format_png.h"
+#include "nvision/src/imageio/image_file_format_jpeg.h"
 
 namespace nvision
 {
@@ -56,6 +57,8 @@ namespace nvision
             imload(path, img, BMP());
         else if(ext == "png")
             imload(path, img, PNG());
+        else if(ext == "jpeg" || ext == "jpg")
+            imload(path, img, JPEG());
         else
             throw std::runtime_error("unkown file type");
     }
