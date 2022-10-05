@@ -7,6 +7,7 @@
 
 #include "eigen_require.h"
 #include <nvision/src/filter/canny_edge_filter.h>
+#include <nvision/src/filter/sobel_filter.h>
 
 using namespace nvision;
 
@@ -21,13 +22,18 @@ TEMPLATE_TEST_CASE("canny filter", "[filter]", Grayf, RGBf, BGRf, RGBAf, BGRAf)
     SECTION("detect edges")
     {
         Image<TestType> expected(4, 4);
-        expected(0, 0).setConstant(0); expected(0, 1).setConstant(-260);  expected(0, 2).setConstant(250); expected(0, 3).setConstant(0);
-        expected(1, 0).setConstant(0); expected(1, 1).setConstant(-385);  expected(1, 2).setConstant(-5);    expected(1, 3).setConstant(0);
-        expected(2, 0).setConstant(0); expected(2, 1).setConstant(-125);  expected(2, 2).setConstant(-260);  expected(2, 3).setConstant(0);
-        expected(3, 0).setConstant(0); expected(3, 1).setConstant(260); expected(3, 2).setConstant(-260);  expected(3, 3).setConstant(0);
+        expected(0, 0).setConstant(0); expected(0, 1).setConstant(1);  expected(0, 2).setConstant(1); expected(0, 3).setConstant(0);
+        expected(1, 0).setConstant(0); expected(1, 1).setConstant(1);  expected(1, 2).setConstant(1);    expected(1, 3).setConstant(0);
+        expected(2, 0).setConstant(0); expected(2, 1).setConstant(1);  expected(2, 2).setConstant(1);  expected(2, 3).setConstant(0);
+        expected(3, 0).setConstant(0); expected(3, 1).setConstant(1); expected(3, 2).setConstant(1);  expected(3, 3).setConstant(0);
 
-        CannyEdgeFilter<float> filter;
-        Image<TestType> actual = filter(img);
+        CannyEdgeFilter<float32> edgeFilter;
+        SobelFilter<float32> gradientFilter;
+
+        Image<TestType> gradientX = gradientFilter(img, GradientMode::X{});
+        Image<TestType> gradientY = gradientFilter(img, GradientMode::Y{});;
+
+        Image<TestType> actual = edgeFilter(gradientX, gradientY);
 
         // REQUIRE_IMAGE_APPROX(expected, actual, 1e-3);
     }

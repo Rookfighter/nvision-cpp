@@ -1,177 +1,206 @@
-/* canny_edge_filter.h
- *
- * Author: Fabian Meyer
- * Created On: 13 may 2019
- */
+/// @author Fabian Meyer
+/// @date 13 may 2019
+/// @file
 
 #ifndef NVISION_CANNY_EDGE_FILTER_H_
 #define NVISION_CANNY_EDGE_FILTER_H_
 
 #include "nvision/src/core/image.h"
-#include "nvision/src/filter/gauss_filter.h"
-#include "nvision/src/filter/sobel_filter.h"
 
 namespace nvision
 {
-    /** Canny edge detection filter. */
-    template<typename _KernelScalar,
-             typename _SmoothFilter=GaussFilter<_KernelScalar, 3>,
-             typename _GradientFilter=SobelFilter<_KernelScalar>>
+    /// @brief Edge detection filter using the Canny algorithm.
+    /// @tparam _Scalar Scalar type that is used for internal computations
+    /// @see https://en.wikipedia.org/wiki/Canny_edge_detector
+    template<typename _Scalar>
     class CannyEdgeFilter
     {
     public:
-        using KernelScalar = _KernelScalar;
-        using SmoothFilter = _SmoothFilter;
-        using GradientFilter = _GradientFilter;
+        using Scalar = _Scalar;
 
         CannyEdgeFilter() = default;
 
-        CannyEdgeFilter(const KernelScalar low, const KernelScalar high)
+        CannyEdgeFilter(const Scalar low, const Scalar high)
             : _lowThreshold(low), _highThreshold(high)
         { }
 
-        void setThreshold(const KernelScalar low, const KernelScalar high)
+        void setThreshold(const Scalar low, const Scalar high)
         {
             _lowThreshold = low;
             _highThreshold = high;
         }
 
-        void setSmoothFilter(const SmoothFilter &filter)
-        {
-            _smooth = filter;
-        }
-
-        void setGradientFilter(const GradientFilter &gradient)
-        {
-            _gradient = gradient;
-        }
-
-        /** Applies the canny edge filter to the given image and returns a expression of the computation.
-          * @param img the image on which the box filter should be applied.
-          * @param handling the border handling mode; defaults to BorderReflect
-          * @return expression of the convolution operation */
-        template<typename Derived, typename BorderHandling=BorderReflect>
-        auto operator()(const ImageBase<Derived> &img, const BorderHandling &handling = {}) const
+        /// @brief Computes edges from the given gradients.
+        /// @tparam Derived
+        /// @param gradientX image gradient in x-direction
+        /// @param gradientY image gradient in y-direction
+        /// @return binary edge image where all non-zero entries are considered edges
+        template<typename Derived>
+        auto operator()(const ImageBase<Derived> &gradientX, const ImageBase<Derived> &gradientY) const
         {
             static_assert(IsImage<ImageBase<Derived>>::value, "image must be image type");
-            using ColorSpace = typename ImageBase<Derived>::Scalar::ColorSpace;
+            using PixelType = typename ImageBase<Derived>::Scalar;
+            using ColorSpace = typename PixelType::ColorSpace;
+            using ValueType = typename ColorSpace::ValueType;
 
-            // smooth image
-            Image<ColorSpace> result = _smooth(img);
-            // calculate x and y gradient
-            Image<ColorSpace> gradX = _gradient(result, GradientMode::X());
-            Image<ColorSpace> gradY = _gradient(result, GradientMode::Y());
-            Image<ColorSpace> gradMag = image::magnitude(gradX, gradY);
+            assert(gradientX.cols() == gradientY.cols());
+            assert(gradientX.rows() == gradientY.rows());
 
-            // apply non-maximum suppression
-            for(Index c = 0; c < gradMag.cols(); ++c)
+            auto edgeImage = Image<ColorSpace>{gradientX.rows(), gradientX.cols()};
+
+            for(auto c = Index{0}; c < gradientX.cols(); ++c)
             {
-                for(Index r = 0; r < gradMag.rows(); ++r)
+                for(auto r = Index{0}; r < gradientX.rows(); ++r)
                 {
-                    for(Index d = 0; d < ColorSpace::Dimension; ++d)
+                    for(auto d = Index{0}; d < ColorSpace::Dimension;++d)
                     {
-                        const auto dx = static_cast<KernelScalar>(gradX(r, c)[d]);
-                        const auto dy = static_cast<KernelScalar>(gradY(r, c)[d]);
-                        const auto angle = std::atan2(dy, dx) + pi<KernelScalar>();
-                        const auto angIdx = static_cast<Index>(angle / (pi<KernelScalar>() / 8));
-
-                        Index rA;
-                        Index cA;
-                        Index rB;
-                        Index cB;
-
-                        // edge points in east-west and west-east
-                        if(angIdx == 0 || angIdx == 15 || angIdx == 7 || angIdx == 8)
-                        {
-                            rA = r + 1;
-                            cA = c;
-                            rB = r - 1;
-                            cB = c;
-                        }
-                        // edge points in north-south and south-north
-                        else if(angIdx == 3 || angIdx == 4 || angIdx == 11 || angIdx == 12)
-                        {
-                            rA = r;
-                            cA = c + 1;
-                            rB = r;
-                            cB = c - 1;
-                        }
-                        // edge points in northeast-southwest and southwest-northeast
-                        else if(angIdx == 1 || angIdx == 2 || angIdx == 9 || angIdx == 10)
-                        {
-                            rA = r + 1;
-                            cA = c - 1;
-                            rB = r - 1;
-                            cB = c + 1;
-                        }
-                        // edge points in northwest-southeast and southeast-northwest
-                        else
-                        {
-                            rA = r + 1;
-                            cA = c + 1;
-                            rB = r - 1;
-                            cB = c - 1;
-                        }
-
-                        const auto val = gradMag(r, c)[d];
-                        const auto valA = handling(gradMag, rA, cA)[d];
-                        const auto valB = handling(gradMag, rB, cB)[d];
-                        const auto strongNeighs = val < valA && val < valB;
-                        // if both neighbours are stronger, suppress this pixel
-                        result(r, c)[d] = strongNeighs ? 0 : gradMag(r, c)[d];
+                        // apply non-maximum suppression
+                        const auto isEdge = computeNonMaximaSuppression(gradientX, gradientY, r, c, d);
+                        edgeImage(r, c)[d] = isEdge ? ValueType{1} : ValueType{0};
                     }
                 }
             }
 
-            // perform hysteresis and follow edges
-            for(Index c = 0; c < result.cols(); ++c)
+            for(auto c = Index{0}; c < gradientX.cols(); ++c)
             {
-                for(Index r = 0; r < result.rows(); ++r)
+                for(auto r = Index{0}; r < gradientX.rows(); ++r)
                 {
-                    for(Index d = 0; d < ColorSpace::Dimension; ++d)
+                    for(auto d = Index{0}; d < ColorSpace::Dimension;++d)
                     {
-                        // if magnitude is below low threshold, suppress this pixel
-                        if(result(r, c)[d] < _lowThreshold)
+                        if(edgeImage(r, c)[d] == ValueType{0})
                         {
-                            result(r, c)[d] = 0;
+                            continue;
                         }
-                        // perform hyteresis if this is a weak pixel
-                        else if(result(r, c)[d] < _highThreshold)
-                        {
-                            bool suppress = true;
-                            for(Index dc = -1; dc < 2; ++dc)
-                            {
-                                const auto c2 = c + dc;
-                                for(Index dr = -1; dr < 2; ++dr)
-                                {
-                                    const auto r2 = r + dr;
-                                    const auto val = handling(result, r2, c2)[d];
-                                    if(val >= _highThreshold)
-                                    {
-                                        suppress = false;
-                                        break;
-                                    }
-                                }
-                            }
 
-                            if(suppress)
-                            {
-                                result(r, c)[d] = 0;
-                            }
-                        }
+                        // apply non-maximum suppression and
+                        // perform hysteresis and follow edges
+                        const auto isEdge = computeHyteresis(gradientX, gradientY, edgeImage, r, c, d);
+                        edgeImage(r, c)[d] = isEdge ? ValueType{1} : ValueType{0};
                     }
                 }
             }
 
-            return result;
+            return edgeImage;
         }
 
     private:
-        KernelScalar _lowThreshold = static_cast<KernelScalar>(0.078f);
-        KernelScalar _highThreshold = static_cast<KernelScalar>(0.3992f);
+        Scalar _lowThreshold = static_cast<Scalar>(0.078f);
+        Scalar _highThreshold = static_cast<Scalar>(0.3992f);
 
-        SmoothFilter _smooth = {};
-        GradientFilter _gradient = {};
+        template<typename Derived>
+        Scalar getMagnitudeSq(const ImageBase<Derived> &gradientX,
+                              const ImageBase<Derived> &gradientY,
+                              const Index row,
+                              const Index col,
+                              const Index depth) const
+        {
+            if(!image::inside(gradientX, row, col))
+            {
+                return Scalar{0};
+            }
+            else
+            {
+                const auto dx = static_cast<Scalar>(gradientX(row, col)[depth]);
+                const auto dy = static_cast<Scalar>(gradientY(row, col)[depth]);
+                return dx * dx + dy * dy;
+            }
+        }
+
+        template<typename Derived>
+        bool computeNonMaximaSuppression(const ImageBase<Derived> &gradientX,
+                                         const ImageBase<Derived> &gradientY,
+                                         const Index row,
+                                         const Index col,
+                                         const Index depth) const
+        {
+            static constexpr auto neighbor_map = std::array<std::pair<Index, Index>, 4>{
+                std::make_pair(1, 0),
+                std::make_pair(1, 1),
+                std::make_pair(0, 1),
+                std::make_pair(-1, 1)
+            };
+            static constexpr auto pi_quarter = pi<Scalar>() / Scalar{4};
+            static constexpr auto pi_eighth = pi<Scalar>() / Scalar{8};
+
+            const auto dx = static_cast<Scalar>(gradientX(row, col)[depth]);
+            const auto dy = static_cast<Scalar>(gradientY(row, col)[depth]);
+            const auto angle = std::atan2(dy, dx) + pi<Scalar>() + pi_eighth;
+            const auto direction = static_cast<Index>(angle / pi_quarter) % neighbor_map.size();
+
+            const auto cA = neighbor_map[direction].first;
+            const auto rA = neighbor_map[direction].second;
+            const auto cB = -neighbor_map[direction].first;
+            const auto rB = -neighbor_map[direction].second;
+
+            const auto magnitudeSq = dx * dx + dy * dy;
+            const auto magnitudeSqA = getMagnitudeSq(gradientX, gradientY, rA, cA, depth);
+            const auto magnitudeSqB = getMagnitudeSq(gradientX, gradientY, rB, cB, depth);
+
+            // if both of the neighbors is stronger suppress this pixel
+            return magnitudeSq >= magnitudeSqA || magnitudeSq >= magnitudeSqB;
+        }
+
+        template<typename Derived>
+        bool computeHyteresis(const ImageBase<Derived> &gradientX,
+                              const ImageBase<Derived> &gradientY,
+                              const ImageBase<Derived> &edgeImage,
+                              const Index row,
+                              const Index col,
+                              const Index depth) const
+        {
+            using PixelType = typename ImageBase<Derived>::Scalar;
+            using ColorSpace = typename PixelType::ColorSpace;
+            using ValueType = typename ColorSpace::ValueType;
+
+            const auto lowThresholdSq = _lowThreshold * _lowThreshold;
+            const auto highThresholdSq = _highThreshold * _highThreshold;
+
+            const auto dx = static_cast<Scalar>(gradientX(row, col)[depth]);
+            const auto dy = static_cast<Scalar>(gradientY(row, col)[depth]);
+            const auto magnitudeSq = dx * dx + dy * dy;
+
+            // if magnitude is below low threshold, suppress this pixel
+            if(magnitudeSq < lowThresholdSq)
+            {
+                return false;
+            }
+            // if any neighbor is strong then do not suppress this pixel
+            else if(magnitudeSq < highThresholdSq)
+            {
+                bool suppress = true;
+                for(auto dcol = Index{0}; dcol < Index{3}; ++dcol)
+                {
+                    const auto col2 = col + dcol - Index{1};
+                    for(Index drow = Index{0}; drow < Index{3}; ++drow)
+                    {
+                        const auto row2 = row + drow - Index{1};
+                        if(!image::inside(edgeImage, row2, col2) || edgeImage(row2, col2)[depth] == ValueType{0})
+                        {
+                            continue;
+                        }
+
+                        const auto neighborMagnitudeSq = getMagnitudeSq(gradientX, gradientY, row2, col2, depth);
+                        if(neighborMagnitudeSq >= highThresholdSq)
+                        {
+                            suppress = false;
+                            break;
+                        }
+                    }
+
+                    if(!suppress)
+                    {
+                        break;
+                    }
+                }
+
+                return !suppress;
+            }
+            // accept all strong pixels
+            else
+            {
+                return true;
+            }
+        }
     };
 }
 

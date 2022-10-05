@@ -19,14 +19,20 @@ int main(int argc, const char **argv)
     std::cout << "Load " << argv[1] << std::endl;
     nvision::imload(argv[1], src);
 
+    nvision::GaussFilter<nvision::float32, 3> smoothFilter;
+    nvision::SobelFilter<nvision::float32> gradientFilter;
+
     // Create a Canny filter object. The template parameter determines the
     // internal Scalar type, which is used for computations (e.g. Kernel and
     // Kernel application).
-    nvision::CannyEdgeFilter<nvision::float32> filter;
+    nvision::CannyEdgeFilter<nvision::float32> edgeFilter;
 
     // Apply the filter to the source image and store it in dest.
     std::cout << "Apply filter" << std::endl;
-    nvision::Image<nvision::Grayf> dest = filter(src);
+    nvision::Image<nvision::Grayf> smooth = smoothFilter(src);
+    nvision::Image<nvision::Grayf> gradientX = gradientFilter(smooth, nvision::GradientMode::X{});
+    nvision::Image<nvision::Grayf> gradientY = gradientFilter(smooth, nvision::GradientMode::Y{});
+    nvision::Image<nvision::Grayf> dest = edgeFilter(gradientX, gradientY);
 
     // Save the image to a file. The file type is determined by the extension
     // of the file.
