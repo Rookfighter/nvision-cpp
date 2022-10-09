@@ -1,6 +1,7 @@
 project = libnvision-examples
 
 using version
+using test
 using config
 using install
 using dist
