@@ -1,0 +1,9 @@
+impl_libs = # implementation libraries
+import impl_libs += libnvision%lib{nvision}
+import impl_libs += libnvision-jpeg%lib{nvision-jpeg}
+import impl_libs += libnvision-png%lib{nvision-png}
+
+exe{colorwheel}: cxx{colorwheel} $impl_libs
+exe{simple_lucas_kanade}: cxx{simple_lucas_kanade} $impl_libs
+
+./: exe{colorwheel} exe{simple_lucas_kanade}

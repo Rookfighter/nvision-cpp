@@ -1,0 +1,23 @@
+# Uncomment to suppress warnings coming from external libraries.
+#
+cxx.std = latest
+
+using cxx
+
+hxx{*}: extension = h
+
+# Assume headers are importable unless stated otherwise.
+hxx{*}: cxx.importable = true
+
+# The test target for cross-testing (running tests under Wine, etc).
+test.target = $cxx.target
+
+if ($cxx.target.system == 'win32-msvc')
+{
+    cxx.coptions += /W4 /WX
+}
+else
+{
+    cxx.coptions += -Wall -Wextra -Werror
+}
+

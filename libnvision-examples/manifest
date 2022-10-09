@@ -1,0 +1,17 @@
+: 1
+name: libnvision-examples
+version: 1.0.0-a.0.z
+project: nvision
+summary: Examples package for the libnvision library.
+license: MIT
+description-file: README.md
+url: https://github.com/Rookfighter/nvision
+email: rookfighter@posteo.org
+src-url : https://github.com/Rookfighter/nvision
+
+depends: * build2 >= 0.15.0
+depends: * bpkg >= 0.15.0
+
+depends: libnvision == $
+depends: libnvision-png == $
+depends: libnvision-jpeg == $

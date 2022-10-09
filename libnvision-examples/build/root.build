@@ -1,0 +1,9 @@
+cxx.std = latest
+
+using cxx
+
+hxx{*}: extension = h
+cxx{*}: extension = cpp
+
+# Assume headers are importable unless stated otherwise.
+hxx{*}: cxx.importable = true

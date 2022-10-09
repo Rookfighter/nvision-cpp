@@ -1,5 +1,0 @@
-project = # Unnamed examples subproject.
-
-using config
-using test
-using dist

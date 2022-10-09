@@ -1,4 +1,3 @@
-./: {*/ -build/ -build-config/ -docs/ -legacy/} legal{LICENSE.txt} doc{README.md} manifest
+import pkgs = libnvision/ libnvision-jpeg/ libnvision-png/ libnvision-examples/ libnvision-tests/
 
-tests/: install = false
-examples/: install = false
+./: $pkgs

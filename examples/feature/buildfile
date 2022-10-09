@@ -1,8 +1,0 @@
-import impl_libs = libnvision%lib{nvision}
-
-exe{simple_fast}: cxx{simple_fast} $impl_libs
-exe{simple_harris}: cxx{simple_harris} $impl_libs
-exe{simple_orb}: cxx{simple_orb} $impl_libs
-exe{simple_shi_tomasi}: cxx{simple_shi_tomasi} $impl_libs
-
-./: exe{simple_fast} exe{simple_harris} exe{simple_orb} exe{simple_shi_tomasi}

@@ -44,5 +44,3 @@ doc/latex
 *.jpeg
 
 .bdep/
-
-!test/assets/*

@@ -1,0 +1,9 @@
+impl_libs = # implementation libraries
+import impl_libs += libnvision%lib{nvision}
+import impl_libs += libnvision-jpeg%lib{nvision-jpeg}
+import impl_libs += libnvision-png%lib{nvision-png}
+
+exe{filled_polygon}: cxx{filled_polygon} $impl_libs
+exe{simple_lines}: cxx{simple_lines} $impl_libs
+
+./: exe{filled_polygon} exe{simple_lines}

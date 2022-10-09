@@ -1,0 +1,6 @@
+project = libnvision-png
+
+using version
+using config
+using install
+using dist

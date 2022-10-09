@@ -1,0 +1,28 @@
+intf_libs = # Interface dependencies.
+import intf_libs += libnvision%lib{nvision}
+import intf_libs += libjpeg-turbo%lib{jpeg}
+
+lib{nvision-jpeg}: {hxx cxx}{**}
+lib{nvision-jpeg}: $intf_libs
+
+cxx.poptions += "-I$out_base" "-I$src_base" -DNVISION_JPEG
+
+# Export options.
+lib{nvision-jpeg}:
+{
+    cxx.export.poptions = "-I$out_base" "-I$src_base" -DNVISION_JPEG
+    cxx.export.libs = $intf_libs
+}
+
+# For pre-releases use the complete version to make sure they cannot be used
+# in place of another pre-release or the final version. See the version module
+# for details on the version.* variable values.
+if $version.pre_release
+    lib{nvision-jpeg}: bin.lib.version = "-$version.project_id"
+else
+    lib{nvision-jpeg}: bin.lib.version = "-$version.major.$version.minor"
+
+hxx{*}:
+{
+    install.subdirs = true
+}

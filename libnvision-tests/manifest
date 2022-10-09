@@ -1,0 +1,18 @@
+: 1
+name: libnvision-tests
+version: 1.0.0-a.0.z
+project: nvision
+summary: Tests package for the libnvision library..
+license: MIT
+description-file: README.md
+url: https://github.com/Rookfighter/nvision
+email: rookfighter@posteo.org
+src-url : https://github.com/Rookfighter/nvision
+
+depends: * build2 >= 0.15.0
+depends: * bpkg >= 0.15.0
+
+depends: libnvision == $
+depends: libnvision-png == $
+depends: libnvision-jpeg == $
+depends: catch2 ^2.13.0

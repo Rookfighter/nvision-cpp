@@ -1,6 +1,0 @@
-import impl_libs = libnvision%lib{nvision}
-
-exe{convert_image}: cxx{convert_image} $impl_libs
-exe{resize_image}: cxx{resize_image} $impl_libs
-
-./: exe{convert_image} exe{resize_image}

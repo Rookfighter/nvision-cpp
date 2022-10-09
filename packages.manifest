@@ -1,0 +1,10 @@
+: 1
+location: libnvision/
+:
+location: libnvision-jpeg/
+:
+location: libnvision-png/
+:
+location: libnvision-examples/
+:
+location: libnvision-tests/

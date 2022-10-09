@@ -1,0 +1,16 @@
+: 1
+name: libnvision-png
+version: 1.0.0-a.0.z
+project: nvision
+summary: Adds PNG encoding and decoing to nvision.
+license: MIT
+description-file: README.md
+url: https://github.com/Rookfighter/nvision
+email: rookfighter@posteo.org
+src-url : https://github.com/Rookfighter/nvision
+
+depends: * build2 >= 0.15.0
+depends: * bpkg >= 0.15.0
+
+depends: libnvision == $
+depends: libpng ^1.6.0

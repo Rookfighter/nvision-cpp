@@ -1,6 +1,0 @@
-import impl_libs = libnvision%lib{nvision}
-
-exe{colorwheel}: cxx{colorwheel} $impl_libs
-exe{simple_lucas_kanade}: cxx{simple_lucas_kanade} $impl_libs
-
-./: exe{colorwheel} exe{simple_lucas_kanade}

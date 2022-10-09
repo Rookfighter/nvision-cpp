@@ -1,0 +1,9 @@
+impl_libs = # implementation libraries
+import impl_libs += libnvision%lib{nvision}
+import impl_libs += libnvision-jpeg%lib{nvision-jpeg}
+import impl_libs += libnvision-png%lib{nvision-png}
+import impl_libs += catch2%lib{catch2}
+
+cxx.poptions += "-I$out_base" "-I$src_base"
+exe{unittests}: {hxx cxx}{**} $impl_libs
+

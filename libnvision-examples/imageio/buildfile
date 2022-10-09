@@ -1,0 +1,9 @@
+impl_libs = # implementation libraries
+import impl_libs += libnvision%lib{nvision}
+import impl_libs += libnvision-jpeg%lib{nvision-jpeg}
+import impl_libs += libnvision-png%lib{nvision-png}
+
+exe{convert_image}: cxx{convert_image} $impl_libs
+exe{resize_image}: cxx{resize_image} $impl_libs
+
+./: exe{convert_image} exe{resize_image}
