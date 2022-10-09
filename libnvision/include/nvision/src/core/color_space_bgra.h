@@ -183,6 +183,18 @@ namespace nvision
             return convert<BGRAf, RGBAf>(convert<BGRA, BGRAf>(from));
         }
     }
+
+    template<>
+    struct GetIntegralColorSpace<BGRAf>
+    {
+        using type = BGRA;
+    };
+
+    template<>
+    struct GetIntegralColorSpace<BGRA>
+    {
+        using type = BGRA;
+    };
 }
 
 #endif

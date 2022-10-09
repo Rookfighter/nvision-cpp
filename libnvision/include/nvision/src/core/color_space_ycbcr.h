@@ -122,6 +122,18 @@ namespace nvision
             return convert<YCbCrf, RGBf>(convert<YCbCr, YCbCrf>(from));
         }
     }
+
+    template<>
+    struct GetIntegralColorSpace<YCbCrf>
+    {
+        using type = YCbCr;
+    };
+
+    template<>
+    struct GetIntegralColorSpace<YCbCr>
+    {
+        using type = YCbCr;
+    };
 }
 
 #endif

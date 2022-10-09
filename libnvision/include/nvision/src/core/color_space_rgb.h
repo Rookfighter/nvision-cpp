@@ -88,6 +88,18 @@ namespace nvision
             return convertRange<RGB, RGBf>(from);
         }
     }
+
+    template<>
+    struct GetIntegralColorSpace<RGBf>
+    {
+        using type = RGB;
+    };
+
+    template<>
+    struct GetIntegralColorSpace<RGB>
+    {
+        using type = RGB;
+    };
 }
 
 #endif

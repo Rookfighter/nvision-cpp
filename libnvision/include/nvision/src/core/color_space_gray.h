@@ -107,6 +107,18 @@ namespace nvision
             return Pixel<RGB>(from[0], from[0], from[0]);
         }
     }
+
+    template<>
+    struct GetIntegralColorSpace<Grayf>
+    {
+        using type = Gray;
+    };
+
+    template<>
+    struct GetIntegralColorSpace<Gray>
+    {
+        using type = Gray;
+    };
 }
 
 #endif

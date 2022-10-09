@@ -110,6 +110,18 @@ namespace nvision
             return Pixel<RGB>{from[0], from[1], from[2]};
         }
     }
+
+    template<>
+    struct GetIntegralColorSpace<RGBAf>
+    {
+        using type = RGBA;
+    };
+
+    template<>
+    struct GetIntegralColorSpace<RGBA>
+    {
+        using type = RGBA;
+    };
 }
 
 #endif

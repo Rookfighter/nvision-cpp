@@ -130,7 +130,7 @@ namespace nvision
             png_read_image(pngPtr, rowPtrs.data());
             png_read_end(pngPtr, NULL);
 
-            img.resize(static_cast<Index>(height), static_cast<Index>(width));
+            img.derived().resize(static_cast<Index>(height), static_cast<Index>(width));
             for(Index r = 0; r < height; ++r)
             {
                 for(Index c = 0; c < width; ++c)
