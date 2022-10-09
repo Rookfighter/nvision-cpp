@@ -22,10 +22,12 @@ using the `Eigen3` library.
 It will also resolve all additional dependecies of `nvision` for you.
 
 ```
-depends: libnvision ^1.0.0
+depends: libnvision ^1.0.0 # base library with CV algorithms
+depends: libnvision-jpeg ^1.0.0 # for JPEG support
+depends: libnvision-png ^1.0.0 # for PNG support
 ```
 
-Otherwise you can simply copy the header files into your project and include the directly.
+Otherwise you can simply copy the header files into your project and include them directly.
 
 The core library and all algorithms only require `Eigen3` as dependency. Make sure it can be found by your build system
 
@@ -42,7 +44,7 @@ apt-get install libeigen3-dev libpng-dev libjpg-turbo-dev
 ```nvision``` has many different modules and classes for filtering, feature or
 edge detection, optical flow and projective geometry.
 
-Check the `examples/` directory for detailed examples and have a look at the docs for detailed information.
+Check the `libnvision-exmaples/` directory for detailed examples and have a look at the docs for detailed information.
 
 A simple getting started example with a gauss filter:
 
@@ -160,5 +162,5 @@ This will resolve all dependencies of `nvision` and build all examples and unit 
 You can run the unit tests using build2 again.
 
 ```
-b test
+bdep test
 ```
