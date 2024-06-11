@@ -1,17 +1,15 @@
-/* color_space_bgr.h
- *
- * Author: Fabian Meyer
- * Created On: 09 Dec 2019
- */
+/// @file
+/// @author Fabian Meyer
+/// @date 09 Dec 2019
 
 #ifndef NVISION_COLOR_SPACE_BGR_H_
 #define NVISION_COLOR_SPACE_BGR_H_
 
-#include "nvision/src/core/color_space_rgb.h"
+#include "nvision/color_space/rgb.h"
 
 namespace nvision
 {
-    /** BGR color space with float32 types. */
+    /// @brief BGR color space with float32 types.
     struct BGRf
     {
         using ValueType = float32;

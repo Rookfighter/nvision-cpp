@@ -1,7 +1,6 @@
+/// @file
 /// @author Fabian Meyer
 /// @date 09 Dec 2019
-/// @file
-
 
 #ifndef NVISION_COLOR_SPACE_TRAITS_H_
 #define NVISION_COLOR_SPACE_TRAITS_H_

@@ -1,15 +1,13 @@
-/* color_space_rgb.h
- *
- * Author: Fabian Meyer
- * Created On: 09 Dec 2019
- */
+/// @file
+/// @author Fabian Meyer
+/// @date 09 Dec 2019
 
 #ifndef NVISION_COLOR_SPACE_RGB_H_
 #define NVISION_COLOR_SPACE_RGB_H_
 
 #include <array>
-#include "nvision/src/core/pixel_generic_ops.h"
-#include "nvision/src/core/color_space_traits.h"
+#include <nvision/core/types.h>
+#include "nvision/color_space/traits.h"
 
 namespace nvision
 {
@@ -17,10 +15,10 @@ namespace nvision
     struct RGBf
     {
         using ValueType = float32;
-        static constexpr Index Dimension = 3;
+        static constexpr Index dimension = 3;
 
-        static constexpr std::array<ValueType, Dimension> minimum = {0, 0, 0};
-        static constexpr std::array<ValueType, Dimension> maximum = {1, 1, 1};
+        static constexpr std::array<ValueType, dimension> minimum = {0, 0, 0};
+        static constexpr std::array<ValueType, dimension> maximum = {1, 1, 1};
     };
 
     template<>

@@ -1,3 +1,4 @@
 config.version = 1
 config.cxx = g++
 config.cc.coptions = -O3 -DNDEBUG
+config.cc.woptions = -Wall -Wextra -Werror

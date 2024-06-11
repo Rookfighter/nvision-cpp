@@ -1,1 +1,1 @@
-./: {*/ -build/} legal{LICENSE.txt} doc{README.md} manifest
+./: {*/ -build/ -legacy/} legal{LICENSE.txt} doc{README.md} manifest
